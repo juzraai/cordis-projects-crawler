@@ -2,6 +2,7 @@ package hu.juranyi.zsolt.cordis.projects;
 
 import static hu.juranyi.zsolt.common.StringTools.findFirstMatch;
 import hu.juranyi.zsolt.common.Downloader;
+import hu.juranyi.zsolt.common.DownloaderEx;
 import hu.juranyi.zsolt.common.JSoupDownloader;
 import hu.juranyi.zsolt.common.TextFile;
 
@@ -9,6 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -46,12 +48,15 @@ public class ProjectDownloader {
 		String filename = String.format(PROJECT_FILENAME, rcn);
 		String docStr = fetchContent(url, filename, false);
 		if (null != docStr) {
-			LOG.info("Fetching publication list for project with RCN: {}", rcn);
+			// TODO USE ProjectParser -> Project -> getReference
 			Document doc = Jsoup.parse(docStr);
 			Elements els = doc.select("div.projdet div.box-left");
 			try {
 				String refNoStr = findFirstMatch(els.first().text(),
 						"Project reference: (\\d+) ", 1);
+				LOG.info("RCN {} <=> Project reference {}", rcn, refNoStr);
+				LOG.info("Fetching publication list by project reference: {}",
+						refNoStr);
 				url = "http://www.openaire.eu/hu/component/openaire/widget/data/?format=raw&ga="
 						+ refNoStr;
 				filename = String.format(PUBLIST_FILENAME, rcn);
@@ -64,7 +69,8 @@ public class ProjectDownloader {
 		}
 	}
 
-	public String fetchContent(String url, String filename, boolean normaliseJSON) {
+	public String fetchContent(String url, String filename,
+			boolean normaliseJSON) {
 		String content = null;
 		File file = new File(outputDir + filename);
 		if (file.exists() && skipExisting) {
@@ -78,10 +84,9 @@ public class ProjectDownloader {
 						file.getAbsolutePath());
 			}
 		} else {
-			Downloader d = new Downloader(url);
-			d.download(10);
-			content = d.getHtml();
-			if (null != content) {
+			Downloader d = new DownloaderEx(url);
+			if (d.download()) {
+				content = d.getHtml();
 				LOG.info("Successfully downloaded.");
 				if (normaliseJSON) {
 					if (!content.startsWith("{"))
@@ -89,8 +94,7 @@ public class ProjectDownloader {
 					if (!content.endsWith("}"))
 						content = content.substring(0,
 								content.lastIndexOf('}') + 1);
-					content = content.replaceAll("\\\\n", "");
-					content = content.replaceAll("\\\\/", "");
+					content = StringEscapeUtils.unescapeJava(content);
 				}
 				new File(outputDir).mkdirs();
 				TextFile f = new TextFile(file.getAbsolutePath());

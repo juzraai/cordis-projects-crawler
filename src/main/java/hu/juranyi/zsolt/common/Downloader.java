@@ -120,8 +120,8 @@ public class Downloader {
 			}
 			HttpURLConnection huc = (HttpURLConnection) u.openConnection(p);
 
-			huc.setConnectTimeout(15 * 1000);
-			huc.setReadTimeout(15 * 1000);
+			huc.setConnectTimeout(60 * 1000);
+			huc.setReadTimeout(60 * 1000);
 
 			// set user agent
 			huc.addRequestProperty("Accept-Language",
@@ -171,9 +171,9 @@ public class Downloader {
 				html = buf.toString();
 				bytes += html.length();
 			} else {
-				System.out.println("Response: " + huc.getResponseCode() + " "
-						+ huc.getResponseMessage());
-				System.out.println("( " + url + " )\n");
+				// System.out.println("Response: " + huc.getResponseCode() + " "
+				// + huc.getResponseMessage());
+				// System.out.println("( " + url + " )\n");
 			}
 
 			huc.disconnect();
