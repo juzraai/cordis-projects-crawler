@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -32,41 +31,41 @@ public class ProjectDownloader {
 	private int count = -1;
 	private List<Integer> rcns;
 
-	public void all() {
+	public List<Project> all() {
+		List<Project> projects = new ArrayList<Project>();
 		// TODO log counters i/all
 		for (int RCN : fetchRCNs()) {
-			byRCN(RCN);
+			projects.add(byRCN(RCN));
 		}
+		return projects;
 	}
 
-	public void byRCN(int rcn) {
+	public Project byRCN(int rcn) {
 		LOG.info("Fetching project data by RCN: {}", rcn);
-
 		String url = "http://cordis.europa.eu/projects/index.cfm?fuseaction=app.csa&action=read&xslt-template=projects/xsl/projectdet_en.xslt&rcn="
 				+ rcn;
-
 		String filename = String.format(PROJECT_FILENAME, rcn);
 		String docStr = fetchContent(url, filename, false);
 		if (null != docStr) {
-			// TODO USE ProjectParser -> Project -> getReference
-			Document doc = Jsoup.parse(docStr);
-			Elements els = doc.select("div.projdet div.box-left");
-			try {
-				String refNoStr = findFirstMatch(els.first().text(),
-						"Project reference: (\\d+) ", 1);
+			Project project = ProjectParser.buildProject(docStr);
+			String refNoStr = Integer.toString(project.getReference());
+			if (project.getReference() > 0) {
 				LOG.info("RCN {} <=> Project reference {}", rcn, refNoStr);
 				LOG.info("Fetching publication list by project reference: {}",
 						refNoStr);
 				url = "http://www.openaire.eu/hu/component/openaire/widget/data/?format=raw&ga="
 						+ refNoStr;
 				filename = String.format(PUBLIST_FILENAME, rcn);
-				fetchContent(url, filename, true);
-			} catch (Exception ex) {
+				String json = fetchContent(url, filename, true);
+				ProjectParser.updatePublications(json, project);
+				return project;
+			} else {
 				LOG.error("Project data page is corrupt.");
 			}
 		} else {
 			LOG.error("Failed to retrieve project data.");
 		}
+		return null;
 	}
 
 	public String fetchContent(String url, String filename,
@@ -74,7 +73,7 @@ public class ProjectDownloader {
 		String content = null;
 		File file = new File(outputDir + filename);
 		if (file.exists() && skipExisting) {
-			LOG.info("File found, skipping download.");
+			LOG.info("File found ({}), skipping download.", filename);
 			TextFile f = new TextFile(file.getAbsolutePath());
 			if (f.load()) {
 				content = f.getContent();
@@ -99,7 +98,9 @@ public class ProjectDownloader {
 				new File(outputDir).mkdirs();
 				TextFile f = new TextFile(file.getAbsolutePath());
 				f.setContent(content);
-				if (!f.save()) {
+				if (f.save()) {
+					LOG.info("Successfully saved to file ({}).", filename);
+				} else {
 					LOG.error("Failed to save to file: {}",
 							file.getAbsolutePath());
 				}
