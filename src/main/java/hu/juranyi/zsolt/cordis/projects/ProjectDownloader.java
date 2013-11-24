@@ -17,19 +17,21 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO JAVADOC
+// TODO CODE COMMENTS
 // Thanks to https://github.com/ravindraharige/cordis-crawler for the XML download URL!
 public class ProjectDownloader {
 
 	private static final String BASE_URL = "http://cordis.europa.eu/newsearch/download.cfm?action=query&collection=EN_PROJ&sort=all&ENGINE_ID=CORDIS_ENGINE_ID&SEARCH_TYPE_ID=CORDIS_SEARCH_ID&typeResp=xml";
-	private static final String PROJECT_FILENAME = "project-rcn-%d.html";
-	private static final String PUBLIST_FILENAME = "project-rcn-%d-pubs.json";
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ProjectDownloader.class);
 
-	private String outputDir;
-	private boolean skipExisting = true;
 	private int count = -1;
+	private String outputDir = "./";
+	private String projectFilename = "project-rcn-%d.html";
+	private String publistFilename = "project-rcn-%d-pubs.json";
 	private List<Integer> rcns;
+	private boolean skipExisting = true;
 
 	public List<Project> all() {
 		List<Project> projects = new ArrayList<Project>();
@@ -44,7 +46,7 @@ public class ProjectDownloader {
 		LOG.info("Fetching project data by RCN: {}", rcn);
 		String url = "http://cordis.europa.eu/projects/index.cfm?fuseaction=app.csa&action=read&xslt-template=projects/xsl/projectdet_en.xslt&rcn="
 				+ rcn;
-		String filename = String.format(PROJECT_FILENAME, rcn);
+		String filename = String.format(projectFilename, rcn);
 		String docStr = fetchContent(url, filename, false);
 		if (null != docStr) {
 			Project project = ProjectParser.buildProject(docStr);
@@ -55,7 +57,7 @@ public class ProjectDownloader {
 						refNoStr);
 				url = "http://www.openaire.eu/hu/component/openaire/widget/data/?format=raw&ga="
 						+ refNoStr;
-				filename = String.format(PUBLIST_FILENAME, rcn);
+				filename = String.format(publistFilename, rcn);
 				String json = fetchContent(url, filename, true);
 				ProjectParser.updatePublications(json, project);
 				return project;
@@ -111,6 +113,24 @@ public class ProjectDownloader {
 		return content;
 	}
 
+	public int fetchProjectCount() {
+		if (-1 == count) {
+			LOG.info("Retrieving project count...");
+			String url = String.format("%s&start=%d&end=%d", BASE_URL, 1, 1);
+			Document xml = new JSoupDownloader().downloadDocument(url);
+			try {
+				Elements els = xml.select("description");
+				String countStr = findFirstMatch(els.first().text(),
+						"Number of results : \\d+ of (\\d+)", 1);
+				int count = Integer.parseInt(countStr);
+				LOG.info("There are {} projects.", count);
+			} catch (Exception ex) {
+				LOG.error("Result XML format is corrupt!");
+			}
+		}
+		return count;
+	}
+
 	public List<Integer> fetchRCNs() {
 		if (null == rcns) {
 			rcns = new ArrayList<Integer>();
@@ -136,7 +156,7 @@ public class ProjectDownloader {
 						} catch (Exception ex) {
 							LOG.warn("Link format is corrupt: {}", link);
 						}
-					} // links on page
+					}
 				} else {
 					LOG.error("Failed fetching items {}-{}.", start, end);
 				}
@@ -144,24 +164,6 @@ public class ProjectDownloader {
 			} while (start < count);
 		}
 		return rcns;
-	}
-
-	public int fetchProjectCount() {
-		if (-1 == count) {
-			LOG.info("Retrieving project count...");
-			String url = String.format("%s&start=%d&end=%d", BASE_URL, 1, 1);
-			Document xml = new JSoupDownloader().downloadDocument(url);
-			try {
-				Elements els = xml.select("description");
-				String countStr = findFirstMatch(els.first().text(),
-						"Number of results : \\d+ of (\\d+)", 1);
-				int count = Integer.parseInt(countStr);
-				LOG.info("There are {} projects.", count);
-			} catch (Exception ex) {
-				LOG.error("Result XML format is corrupt!");
-			}
-		}
-		return count;
 	}
 
 	public ProjectDownloader outputDir(String outputDir) {
@@ -172,6 +174,22 @@ public class ProjectDownloader {
 			outputDir += "/";
 		}
 		this.outputDir = outputDir;
+		return this;
+	}
+
+	public ProjectDownloader projectFilename(String projectFilename) {
+		if (null != projectFilename && projectFilename.length() > 0
+				&& projectFilename.indexOf("%d") > -1) {
+			this.projectFilename = projectFilename;
+		}
+		return this;
+	}
+
+	public ProjectDownloader publistFilename(String publistFilename) {
+		if (null != publistFilename && publistFilename.length() > 0
+				&& publistFilename.indexOf("%d") > -1) {
+			this.publistFilename = publistFilename;
+		}
 		return this;
 	}
 

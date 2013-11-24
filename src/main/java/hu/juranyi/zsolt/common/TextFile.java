@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+//TODO JAVADOC
 /**
  * 
  * @author Zsolt Juranyi

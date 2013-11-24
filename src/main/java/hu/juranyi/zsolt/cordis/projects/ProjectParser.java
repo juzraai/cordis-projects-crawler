@@ -8,6 +8,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+//TODO JAVADOC
 public class ProjectParser {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ProjectParser.class);
@@ -22,7 +23,11 @@ public class ProjectParser {
 		els = doc.select("div.projdet div.box-left");
 		String refNoStr = findFirstMatch(els.first().text(),
 				"Project reference: (\\d+) ", 1);
-		p.setReference(Integer.parseInt(refNoStr));
+		if (null != refNoStr) {
+			p.setReference(Integer.parseInt(refNoStr));
+		} else {
+			LOG.error("Could not parse project refrence number.");
+		}
 
 		// TODO parse data
 		return p;

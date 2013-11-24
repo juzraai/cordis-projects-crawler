@@ -2,6 +2,7 @@ package hu.juranyi.zsolt.cordis.projects;
 
 import java.util.Date;
 
+//TODO JAVADOC
 public class Project {
 	// TODO bean with project properties, getters, setters
 

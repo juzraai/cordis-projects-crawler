@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+//TODO JAVADOC
 public class JSoupDownloader {
 
 	private static final Logger LOG = LoggerFactory

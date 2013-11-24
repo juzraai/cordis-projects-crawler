@@ -3,6 +3,7 @@ package hu.juranyi.zsolt.common;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// TODO JAVADOC
 public class DownloaderEx extends Downloader {
 
 	private static final Logger LOG = LoggerFactory
