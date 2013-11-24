@@ -17,11 +17,35 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// TODO JAVADOC
-// TODO CODE COMMENTS
-// Thanks to https://github.com/ravindraharige/cordis-crawler for the XML download URL!
+/**
+ * Fetches one or more projects' data from CORDIS. Can download project data
+ * page and publication list JSON string from CORDIS. There are 2 download
+ * modes: download all, or download one project by RCN. Download directory and
+ * filename templates can be configured. ProjectDownloader can skip already
+ * downloaded files, and can load RCNs from existing project data pages to
+ * download only JSON files. <br/>
+ * <br/>
+ * Example code:
+ * 
+ * <pre>
+ * {@code
+ * new ProjectDownloader()
+ * 	.outputDir("outputdir/")    // sets output directory
+ * 	.projectFilename("%d.html") // sets project data page filename
+ * 	.publistFilename("%d.json") // sets publication list JSON filename
+ * 	.readRCNsFromDirectory()    // when you need only the JSONs
+ * 	.skipExisting(false)        // turns on re-downloading
+ * 	.all(); // .byRCN(90433);
+ * }
+ * </pre>
+ * 
+ * @author Zsolt Jurányi
+ * 
+ */
 public class ProjectDownloader {
 
+	// Thanks to https://github.com/ravindraharige/cordis-crawler for the XML
+	// download URL!
 	private static final String BASE_URL = "http://cordis.europa.eu/newsearch/download.cfm?action=query&collection=EN_PROJ&sort=all&ENGINE_ID=CORDIS_ENGINE_ID&SEARCH_TYPE_ID=CORDIS_SEARCH_ID&typeResp=xml";
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ProjectDownloader.class);
@@ -31,17 +55,34 @@ public class ProjectDownloader {
 	private String projectFilename = "project-rcn-%d.html";
 	private String publistFilename = "project-rcn-%d-pubs.json";
 	private List<Integer> rcns;
+	private boolean readRCNsFromDirectory;
 	private boolean skipExisting = true;
 
+	/**
+	 * Calls fetchRCNs(), then calls byRCN() for each RCN in the list.
+	 * 
+	 * @return List of parsed project data.
+	 */
 	public List<Project> all() {
 		List<Project> projects = new ArrayList<Project>();
-		// TODO log counters i/all
-		for (int RCN : fetchRCNs()) {
-			projects.add(byRCN(RCN));
+		List<Integer> rcns = fetchRCNs();
+		for (int i = 0; i < rcns.size(); i++) {
+			LOG.info("Fetching project {}/{}, RCN: {}", i + 1, rcns.size(),
+					rcns.get(i));
+			projects.add(byRCN(rcns.get(i)));
 		}
 		return projects;
 	}
 
+	/**
+	 * Downloads or reads project data page and publication list JSON string
+	 * then builds a Project object using ProjectParser. It uses fetchContent()
+	 * to get files.
+	 * 
+	 * @param rcn
+	 *            RCN of the project you need.
+	 * @return Parsed project data or null when something failed.
+	 */
 	public Project byRCN(int rcn) {
 		LOG.info("Fetching project data by RCN: {}", rcn);
 		String url = "http://cordis.europa.eu/projects/index.cfm?fuseaction=app.csa&action=read&xslt-template=projects/xsl/projectdet_en.xslt&rcn="
@@ -49,7 +90,7 @@ public class ProjectDownloader {
 		String filename = String.format(projectFilename, rcn);
 		String docStr = fetchContent(url, filename, false);
 		if (null != docStr) {
-			Project project = ProjectParser.buildProject(docStr);
+			Project project = ProjectParser.buildProject(docStr); // parse
 			String refNoStr = Integer.toString(project.getReference());
 			if (project.getReference() > 0) {
 				LOG.info("RCN {} <=> Project reference {}", rcn, refNoStr);
@@ -61,16 +102,30 @@ public class ProjectDownloader {
 				String json = fetchContent(url, filename, true);
 				ProjectParser.updatePublications(json, project);
 				return project;
-			} else {
+			} else { // could not parse ref. no.
 				LOG.error("Project data page is corrupt.");
 			}
-		} else {
+		} else { // could not download project data page
 			LOG.error("Failed to retrieve project data.");
 		}
 		return null;
 	}
 
-	public String fetchContent(String url, String filename,
+	/**
+	 * Downloads from the given URL or reads from the given file, then returns
+	 * the content. If skipExisting is false or the file does not exists, it
+	 * downloads and saves it to file. Can normalize the JSON string comes from
+	 * CORDIS.
+	 * 
+	 * @param url
+	 *            URL to download from.
+	 * @param filename
+	 *            Filename to read or save the downloaded content.
+	 * @param normaliseJSON
+	 *            Whether the content is a JSON string needed to be normalised.
+	 * @return The downloaded/read content as string.
+	 */
+	protected String fetchContent(String url, String filename,
 			boolean normaliseJSON) {
 		String content = null;
 		File file = new File(outputDir + filename);
@@ -113,59 +168,91 @@ public class ProjectDownloader {
 		return content;
 	}
 
-	public int fetchProjectCount() {
-		if (-1 == count) {
-			LOG.info("Retrieving project count...");
-			String url = String.format("%s&start=%d&end=%d", BASE_URL, 1, 1);
-			Document xml = new JSoupDownloader().downloadDocument(url);
-			try {
-				Elements els = xml.select("description");
-				String countStr = findFirstMatch(els.first().text(),
-						"Number of results : \\d+ of (\\d+)", 1);
-				int count = Integer.parseInt(countStr);
-				LOG.info("There are {} projects.", count);
-			} catch (Exception ex) {
-				LOG.error("Result XML format is corrupt!");
-			}
-		}
+	/**
+	 * Requests a small XML from CORDIS which tells the number of projects in
+	 * their database. If readRCNsFromDirectory is true, it reads the output
+	 * directory and counts RCN numbers using projectFilename template instead
+	 * of crawling CORDIS. It works only when project count not yet fetched.
+	 * 
+	 * @return The number of projects will be crawled with the current settings.
+	 */
+	protected int fetchProjectCount() {
+		if (readRCNsFromDirectory) {
+			readRCNsFromDirectory();
+		} else {
+			if (-1 == count) {
+				LOG.info("Retrieving project count...");
+				String url = String
+						.format("%s&start=%d&end=%d", BASE_URL, 1, 1);
+				Document xml = new JSoupDownloader().downloadDocument(url);
+				try {
+					Elements els = xml.select("description");
+					String countStr = findFirstMatch(els.first().text(),
+							"Number of results : \\d+ of (\\d+)", 1);
+					int count = Integer.parseInt(countStr);
+					LOG.info("There are {} projects.", count);
+				} catch (Exception ex) {
+					LOG.error("Result XML format is corrupt!");
+				}
+			} // should fetch
+		} // XML downloading mode
 		return count;
 	}
 
-	public List<Integer> fetchRCNs() {
-		if (null == rcns) {
-			rcns = new ArrayList<Integer>();
-			int count = fetchProjectCount();
-			int start = 1;
-			int perpage = 1000;
-			do {
-				int end = start + perpage - 1;
-				LOG.info("Fetching items {}-{}/{}", start, end, count);
-				String url = String.format("%s&start=%d&end=%d", BASE_URL,
-						start, end);
-				Document xml = new JSoupDownloader().downloadDocument(url);
-				if (null != xml) {
-					for (Element linkElement : xml.select("item url")) {
-						String link = linkElement.text();
-						String rcnStr = findFirstMatch(link,
-								"projects/rcn/(\\d+)_", 1);
-						try {
-							int rcn = Integer.parseInt(rcnStr);
-							if (!rcns.contains(rcn)) {
-								rcns.add(rcn);
+	/**
+	 * Crawls CORDIS: downloads search result XMLs, and gathers RCNs from them.
+	 * Requests 1000 projects' data in each XML. If readRCNsFromDirectory is
+	 * true, it reads the output directory and gathers RCN numbers using
+	 * projectFilename template instead of crawling CORDIS. It works only when
+	 * RCNs not yet fetched.
+	 * 
+	 * @return List of gathered RCNs.
+	 */
+	protected List<Integer> fetchRCNs() {
+		if (readRCNsFromDirectory) {
+			readRCNsFromDirectory();
+		} else {
+			if (null == rcns) {
+				rcns = new ArrayList<Integer>();
+				int count = fetchProjectCount();
+				int start = 1;
+				int perpage = 1000;
+				do {
+					int end = start + perpage - 1;
+					LOG.info("Fetching items {}-{}/{}", start, end, count);
+					String url = String.format("%s&start=%d&end=%d", BASE_URL,
+							start, end);
+					Document xml = new JSoupDownloader().downloadDocument(url);
+					if (null != xml) {
+						for (Element linkElement : xml.select("item url")) {
+							String link = linkElement.text();
+							String rcnStr = findFirstMatch(link,
+									"projects/rcn/(\\d+)_", 1);
+							try {
+								int rcn = Integer.parseInt(rcnStr);
+								if (!rcns.contains(rcn)) {
+									rcns.add(rcn);
+								}
+							} catch (Exception ex) {
+								LOG.error("Link format is corrupt: {}", link);
 							}
-						} catch (Exception ex) {
-							LOG.warn("Link format is corrupt: {}", link);
-						}
+						} // item urls
+					} else { // failed to download XML
+						LOG.error("Failed fetching items {}-{}.", start, end);
 					}
-				} else {
-					LOG.error("Failed fetching items {}-{}.", start, end);
-				}
-				start += perpage;
-			} while (start < count);
-		}
+					start += perpage;
+				} while (start < count);
+			} // should fetch
+		} // XML downloading mode
 		return rcns;
 	}
 
+	/**
+	 * 
+	 * @param outputDir
+	 *            Directory where project data files should be put/found.
+	 * @return The current ProjectDownloader object.
+	 */
 	public ProjectDownloader outputDir(String outputDir) {
 		if (null == outputDir || 0 == outputDir.length()) {
 			outputDir = ".";
@@ -177,6 +264,13 @@ public class ProjectDownloader {
 		return this;
 	}
 
+	/**
+	 * 
+	 * @param projectFilename
+	 *            Filename template of project data HTML page. Must include a
+	 *            '%d' placeholder for RCN.
+	 * @return The current ProjectDownloader object.
+	 */
 	public ProjectDownloader projectFilename(String projectFilename) {
 		if (null != projectFilename && projectFilename.length() > 0
 				&& projectFilename.indexOf("%d") > -1) {
@@ -185,6 +279,13 @@ public class ProjectDownloader {
 		return this;
 	}
 
+	/**
+	 * 
+	 * @param publistFilename
+	 *            Filename template of publication list JSON file. Must include
+	 *            a '%d' placeholder for RCN.
+	 * @return The current ProjectDownloader object.
+	 */
 	public ProjectDownloader publistFilename(String publistFilename) {
 		if (null != publistFilename && publistFilename.length() > 0
 				&& publistFilename.indexOf("%d") > -1) {
@@ -193,6 +294,52 @@ public class ProjectDownloader {
 		return this;
 	}
 
+	/**
+	 * Reads the output directory and gathers RCN numbers from the filenames
+	 * using projectFilename template. It works only when RCNs not yet fetched.
+	 */
+	protected void readRCNsFromDirectory() {
+		if (-1 == count || null == rcns) {
+			LOG.info("Reading RCNs from output directory...");
+			rcns = new ArrayList<Integer>();
+			File dir = new File(outputDir);
+			String regex = projectFilename.replaceFirst("%d", "(\\\\d+)")
+					.replaceAll("\\.", "\\\\.");
+			String[] fns = dir.list();
+			if (null != fns) {
+				for (String fn : fns) {
+					if (fn.matches(regex)) {
+						String rcnStr = findFirstMatch(fn, regex, 1);
+						rcns.add(Integer.parseInt(rcnStr));
+					}
+				}
+			}
+			count = rcns.size();
+			LOG.info("Found {} RCNs (already downloaded project pages).", count);
+		}
+	}
+
+	/**
+	 * 
+	 * @param readRCNsFromDirectory
+	 *            If set, ProjectDownloader in 'all' mode will read RCNs from
+	 *            already downloaded project pages' filenames (using filename
+	 *            template), instead of crawling CORDIS. This is useful when
+	 *            you've got only project pages and need publication list JSON
+	 *            files.
+	 * @return The current ProjectDownloader object.
+	 */
+	public ProjectDownloader readRCNsFromDirectory(boolean readRCNsFromDirectory) {
+		this.readRCNsFromDirectory = readRCNsFromDirectory;
+		return this;
+	}
+
+	/**
+	 * 
+	 * @param skipExisting
+	 *            Whether to skip downloading already existing files.
+	 * @return The current ProjectDownloader object.
+	 */
 	public ProjectDownloader skipExisting(boolean skipExisting) {
 		this.skipExisting = skipExisting;
 		return this;

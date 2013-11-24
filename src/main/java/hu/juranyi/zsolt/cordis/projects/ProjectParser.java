@@ -21,12 +21,24 @@ public class ProjectParser {
 		Elements els;
 
 		els = doc.select("div.projdet div.box-left");
-		String refNoStr = findFirstMatch(els.first().text(),
-				"Project reference: (\\d+) ", 1);
-		if (null != refNoStr) {
-			p.setReference(Integer.parseInt(refNoStr));
-		} else {
+		if (!els.isEmpty()) {
+			String refNoStr = findFirstMatch(els.first().text(),
+					"Project reference: (\\d+) ", 1);
+			if (null != refNoStr) {
+				p.setReference(Integer.parseInt(refNoStr));
+			}
+		}
+		if (0 == p.getReference()) {
 			LOG.error("Could not parse project refrence number.");
+		}
+
+		els = doc.select("div#recinfo");
+		if (!els.isEmpty()) {
+			String rcnStr = findFirstMatch(els.first().text(),
+					"Record number: (\\d+) ", 1);
+			if (null != rcnStr) {
+				p.setRcn(Integer.parseInt(rcnStr));
+			}
 		}
 
 		// TODO parse data

@@ -13,10 +13,12 @@ import org.apache.commons.cli.ParseException;
  * CORDIS Projects Data Crawler application. This class defines the main method
  * which provides a CLI for the crawler methods.
  * 
- * @author Zsolt Juranyi
+ * @author Zsolt Jurányi
  * 
  */
 public class CordisProjectsApp {
+
+	private static final String VERSION = "1.0.0";
 
 	/**
 	 * Provides a CLI which helps users set up and run crawls to fetch
@@ -30,8 +32,8 @@ public class CordisProjectsApp {
 		// header :-)
 		System.out
 				.println("## -----------------------------------------------------");
-		System.out
-				.println("## CORDIS Projects Data Crawler - version 1.0.0-SNAPSHOT");
+		System.out.println("## CORDIS Projects Data Crawler - version "
+				+ VERSION);
 		System.out.println("## by Zsolt Juranyi");
 		System.out
 				.println("## https://github.com/juzraai/Cordis-Projects-Crawler");
@@ -60,11 +62,16 @@ public class CordisProjectsApp {
 				"Filename template of publication list JSON file. "
 						+ "Must include a '%d' placeholder for RCN. "
 						+ "Ex.: project-%d.json");
+		options.addOption("ns", "no-skip", false,
+				"Program will NOT skip already existing files, will re-download them instead.");
 		options.addOption(
-				"ns",
-				"no-skip",
+				"rd",
+				"read-rcns-from-dir",
 				false,
-				"Program will NOT skip already downloaded files, will re-download them instead.");
+				"When using beside 'a', the program will read RCNs from already "
+						+ "downloaded project pages' filenames (using filename template), "
+						+ "instead of crawling CORDIS. This is useful when you've got "
+						+ "only project pages and need publication list JSON files.");
 
 		options.getOption("1").setType(Number.class);
 
@@ -86,6 +93,9 @@ public class CordisProjectsApp {
 			}
 			if (line.hasOption("ns")) {
 				downloader.skipExisting(false);
+			}
+			if (line.hasOption("rd")) {
+				downloader.readRCNsFromDirectory(true);
 			}
 
 			// commands
