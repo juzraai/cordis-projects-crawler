@@ -5,7 +5,7 @@ With this app/API you can fetch information of all [CORDIS projects](http://cord
 
 Users can use the binary with CLI, developers can use the classes! :)
 
-####Current version: 1.0.0
+####Current version: 1.0.1-SNAPSHOT
 
 
 ##1. Features

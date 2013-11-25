@@ -91,13 +91,13 @@ public class ProjectDownloader {
 		String docStr = fetchContent(url, filename, false);
 		if (null != docStr) {
 			Project project = ProjectParser.buildProject(docStr); // parse
-			String refNoStr = Integer.toString(project.getReference());
-			if (project.getReference() > 0) {
-				LOG.info("RCN {} <=> Project reference {}", rcn, refNoStr);
+			String ref = project.getReference();
+			if (null != project.getReference()) {
+				LOG.info("RCN {} <=> Project reference {}", rcn, ref);
 				LOG.info("Fetching publication list by project reference: {}",
-						refNoStr);
+						ref);
 				url = "http://www.openaire.eu/hu/component/openaire/widget/data/?format=raw&ga="
-						+ refNoStr;
+						+ ref;
 				filename = String.format(publistFilename, rcn);
 				String json = fetchContent(url, filename, true);
 				ProjectParser.updatePublications(json, project);
@@ -244,6 +244,7 @@ public class ProjectDownloader {
 				} while (start < count);
 			} // should fetch
 		} // XML downloading mode
+		LOG.info("Parsed {} RCNs from XMLs.", rcns.size());
 		return rcns;
 	}
 

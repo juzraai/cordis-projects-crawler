@@ -7,7 +7,7 @@ public class Project {
 	// TODO bean with project properties, getters, setters
 
 	private int rcn;
-	private int reference;
+	private String reference;
 	private Date lastUpdated;
 
 	// private List<Publication> publications;
@@ -19,11 +19,11 @@ public class Project {
 		this.rcn = rcn;
 	}
 
-	public int getReference() {
+	public String getReference() {
 		return reference;
 	}
 
-	public void setReference(int reference) {
+	public void setReference(String reference) {
 		this.reference = reference;
 	}
 
