@@ -189,7 +189,7 @@ public class ProjectDownloader {
 					Elements els = xml.select("description");
 					String countStr = findFirstMatch(els.first().text(),
 							"Number of results : \\d+ of (\\d+)", 1);
-					int count = Integer.parseInt(countStr);
+					count = Integer.parseInt(countStr);
 					LOG.info("There are {} projects.", count);
 				} catch (Exception ex) {
 					LOG.error("Result XML format is corrupt!");
