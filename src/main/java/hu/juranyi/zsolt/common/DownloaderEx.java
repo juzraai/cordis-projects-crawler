@@ -9,7 +9,7 @@ public class DownloaderEx extends Downloader {
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(DownloaderEx.class);
-	private int beforeSleepMs = 0000;
+	private int beforeSleepMs = 1000;
 	private int retryCount = 10;
 	private int retrySleepMs = 3000;
 	private int retrySleepMul = 2;
@@ -64,15 +64,11 @@ public class DownloaderEx extends Downloader {
 	private boolean serverErrorFound(String html) {
 		if (null != serverErrorMessageRegex) {
 			LOG.info("Checking server errors...");
-			if (html.matches(".*" + serverErrorMessageRegex + ".*")) {
+			if (null != StringTools.findFirstMatch(html,
+					serverErrorMessageRegex, 0)) {
 				LOG.error("Server error message found!");
 				return true;
-			} // TODO WHY NOT WORK ?!?!?!?!
-
-			// TODO when works, update feature list, PD javadoc
-			// TODO when works, update PD to use THIS instead of Jsoup
-			// downloader, and write to method javadocs that
-			// "It uses DownloaderEx class to download."
+			}
 		}
 		return false;
 	}

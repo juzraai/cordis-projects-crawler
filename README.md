@@ -10,8 +10,10 @@ Users can use the binary with CLI, developers can use the classes! :)
 
 ##1. Features
 
-* can download project data page and publication list JSON string
 * two download mode: download all, or download one by RCN
+* can download project data page and publication list JSON string
+* detects CORDIS internal error messages
+* retries downloads with increasing sleeps
 * download files into output directory
 * can skip already existing files
 * filename templates can be configured

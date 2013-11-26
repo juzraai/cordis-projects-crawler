@@ -1,9 +1,7 @@
 package hu.juranyi.zsolt.cordis.projects;
 
 import static hu.juranyi.zsolt.common.StringTools.findFirstMatch;
-import hu.juranyi.zsolt.common.Downloader;
 import hu.juranyi.zsolt.common.DownloaderEx;
-import hu.juranyi.zsolt.common.JSoupDownloader;
 import hu.juranyi.zsolt.common.TextFile;
 
 import java.io.File;
@@ -11,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -52,6 +51,9 @@ public class ProjectDownloader {
 	private static final String BASE_URL = "http://cordis.europa.eu/newsearch/download.cfm?action=query&collection=EN_PROJ&sort=all&ENGINE_ID=CORDIS_ENGINE_ID&SEARCH_TYPE_ID=CORDIS_SEARCH_ID&typeResp=xml";
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ProjectDownloader.class);
+	private static final String ERR_MSGS = "Server does not respond"
+			+ "|The requested record could not be loaded."
+			+ "|DocReader returned error code";
 
 	private int count = -1;
 	private String outputDir = "./";
@@ -118,7 +120,7 @@ public class ProjectDownloader {
 	 * Downloads from the given URL or reads from the given file, then returns
 	 * the content. If skipExisting is false or the file does not exists, it
 	 * downloads and saves it to file. Can normalize the JSON string comes from
-	 * CORDIS. It uses DownloaderEx class to download.
+	 * CORDIS. This method uses DownloaderEx class to download.
 	 * 
 	 * @param url
 	 *            URL to download from.
@@ -143,7 +145,8 @@ public class ProjectDownloader {
 						file.getAbsolutePath());
 			}
 		} else {
-			Downloader d = new DownloaderEx(url);
+			DownloaderEx d = new DownloaderEx(url);
+			d.setServerErrorMessageRegex(ERR_MSGS);
 			if (d.download()) {
 				content = d.getHtml();
 				LOG.info("Successfully downloaded.");
@@ -168,6 +171,7 @@ public class ProjectDownloader {
 				LOG.error("Failed to download. URL: ", url);
 			}
 		}
+		// TODO (?) content for server errors: delete file
 		return content;
 	}
 
@@ -176,7 +180,8 @@ public class ProjectDownloader {
 	 * their database. If readRCNsFromDirectory is true, it reads the output
 	 * directory and counts RCN numbers using projectFilename and
 	 * publistFilename templates instead of crawling CORDIS. This method works
-	 * only when project count not yet fetched.
+	 * only when project count not yet fetched. This method uses DownloaderEx
+	 * class to download.
 	 * 
 	 * @return The number of projects will be crawled with the current settings.
 	 */
@@ -188,15 +193,22 @@ public class ProjectDownloader {
 				LOG.info("Retrieving project count...");
 				String url = String
 						.format("%s&start=%d&end=%d", BASE_URL, 1, 1);
-				Document xml = new JSoupDownloader().downloadDocument(url);
-				try {
-					Elements els = xml.select("description");
-					String countStr = findFirstMatch(els.first().text(),
-							"Number of results : \\d+ of (\\d+)", 1);
-					count = Integer.parseInt(countStr);
-					LOG.info("There are {} projects.", count);
-				} catch (Exception ex) {
-					LOG.error("Result XML format is corrupt!");
+				// Document xml = new JSoupDownloader().downloadDocument(url);
+				DownloaderEx d = new DownloaderEx(url);
+				d.setServerErrorMessageRegex(ERR_MSGS);
+				if (d.download()) {
+					try {
+						Document xml = Jsoup.parse(d.getHtml());
+						Elements els = xml.select("description");
+						String countStr = findFirstMatch(els.first().text(),
+								"Number of results : \\d+ of (\\d+)", 1);
+						count = Integer.parseInt(countStr);
+						LOG.info("There are {} projects.", count);
+					} catch (Exception ex) {
+						LOG.error("Result XML format is corrupt!");
+					}
+				} else {
+					LOG.error("Failed to download XML!");
 				}
 			} // should fetch
 		} // XML downloading mode
@@ -208,7 +220,8 @@ public class ProjectDownloader {
 	 * Requests 1000 projects' data in each XML. If readRCNsFromDirectory is
 	 * true, it reads the output directory and gathers RCN numbers using
 	 * projectFilename and publistFilename templates instead of crawling CORDIS.
-	 * This method works only when RCNs not yet fetched.
+	 * This method works only when RCNs not yet fetched. This method uses
+	 * DownloaderEx class to download.
 	 * 
 	 * @return List of gathered RCNs.
 	 */
@@ -226,8 +239,12 @@ public class ProjectDownloader {
 					LOG.info("Fetching items {}-{}/{}", start, end, count);
 					String url = String.format("%s&start=%d&end=%d", BASE_URL,
 							start, end);
-					Document xml = new JSoupDownloader().downloadDocument(url);
-					if (null != xml) {
+					// Document xml = new
+					// JSoupDownloader().downloadDocument(url);
+					DownloaderEx d = new DownloaderEx(url);
+					d.setServerErrorMessageRegex(ERR_MSGS);
+					if (d.download()) {
+						Document xml = Jsoup.parse(d.getHtml());
 						for (Element linkElement : xml.select("item url")) {
 							String link = linkElement.text();
 							String rcnStr = findFirstMatch(link,
@@ -241,6 +258,7 @@ public class ProjectDownloader {
 								LOG.error("Link format is corrupt: {}", link);
 							}
 						} // item urls
+						LOG.info("Found RCNs so far: {}", rcns.size());
 					} else { // failed to download XML
 						LOG.error("Failed fetching items {}-{}.", start, end);
 					}
