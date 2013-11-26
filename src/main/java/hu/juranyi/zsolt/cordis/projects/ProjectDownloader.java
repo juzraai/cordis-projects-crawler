@@ -22,8 +22,11 @@ import org.slf4j.LoggerFactory;
  * page and publication list JSON string from CORDIS. There are 2 download
  * modes: download all, or download one project by RCN. Download directory and
  * filename templates can be configured. ProjectDownloader can skip already
- * downloaded files, and can load RCNs from existing project data pages to
- * download only JSON files. <br/>
+ * downloaded files, and can load RCNs from already downloaded files in output
+ * directory. This is useful when you don't want to fetch the RCN list from
+ * CORDIS again, probably you have some missing files, or you want to
+ * re-download them again, or want to export (feature coming soon!) downloaded
+ * files.<br/>
  * <br/>
  * Example code:
  * 
@@ -33,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * 	.outputDir("outputdir/")    // sets output directory
  * 	.projectFilename("%d.html") // sets project data page filename
  * 	.publistFilename("%d.json") // sets publication list JSON filename
- * 	.readRCNsFromDirectory()    // when you need only the JSONs
+ * 	.readRCNsFromDirectory()    // when you don't want to ask CORDIS for the list
  * 	.skipExisting(false)        // turns on re-downloading
  * 	.all(); // .byRCN(90433);
  * }
@@ -103,10 +106,10 @@ public class ProjectDownloader {
 				ProjectParser.updatePublications(json, project);
 				return project;
 			} else { // could not parse ref. no.
-				LOG.error("Project data page is corrupt.");
+				LOG.error("Project data page is corrupt. RCN: {}", rcn);
 			}
 		} else { // could not download project data page
-			LOG.error("Failed to retrieve project data.");
+			LOG.error("Failed to retrieve project data. RCN: {}", rcn);
 		}
 		return null;
 	}
@@ -115,7 +118,7 @@ public class ProjectDownloader {
 	 * Downloads from the given URL or reads from the given file, then returns
 	 * the content. If skipExisting is false or the file does not exists, it
 	 * downloads and saves it to file. Can normalize the JSON string comes from
-	 * CORDIS.
+	 * CORDIS. It uses DownloaderEx class to download.
 	 * 
 	 * @param url
 	 *            URL to download from.
@@ -162,7 +165,7 @@ public class ProjectDownloader {
 							file.getAbsolutePath());
 				}
 			} else {
-				LOG.error("Failed to download.");
+				LOG.error("Failed to download. URL: ", url);
 			}
 		}
 		return content;
@@ -171,8 +174,9 @@ public class ProjectDownloader {
 	/**
 	 * Requests a small XML from CORDIS which tells the number of projects in
 	 * their database. If readRCNsFromDirectory is true, it reads the output
-	 * directory and counts RCN numbers using projectFilename template instead
-	 * of crawling CORDIS. It works only when project count not yet fetched.
+	 * directory and counts RCN numbers using projectFilename and
+	 * publistFilename templates instead of crawling CORDIS. This method works
+	 * only when project count not yet fetched.
 	 * 
 	 * @return The number of projects will be crawled with the current settings.
 	 */
@@ -203,8 +207,8 @@ public class ProjectDownloader {
 	 * Crawls CORDIS: downloads search result XMLs, and gathers RCNs from them.
 	 * Requests 1000 projects' data in each XML. If readRCNsFromDirectory is
 	 * true, it reads the output directory and gathers RCN numbers using
-	 * projectFilename template instead of crawling CORDIS. It works only when
-	 * RCNs not yet fetched.
+	 * projectFilename and publistFilename templates instead of crawling CORDIS.
+	 * This method works only when RCNs not yet fetched.
 	 * 
 	 * @return List of gathered RCNs.
 	 */
@@ -297,26 +301,32 @@ public class ProjectDownloader {
 
 	/**
 	 * Reads the output directory and gathers RCN numbers from the filenames
-	 * using projectFilename template. It works only when RCNs not yet fetched.
+	 * using projectFilename and publistFilename templates. This method works
+	 * only when RCNs not yet fetched.
 	 */
 	protected void readRCNsFromDirectory() {
 		if (-1 == count || null == rcns) {
 			LOG.info("Reading RCNs from output directory...");
 			rcns = new ArrayList<Integer>();
 			File dir = new File(outputDir);
-			String regex = projectFilename.replaceFirst("%d", "(\\\\d+)")
+			String dfRegex = projectFilename.replaceFirst("%d", "(\\\\d+)")
+					.replaceAll("\\.", "\\\\.");
+			String lfRegex = publistFilename.replaceFirst("%d", "(\\\\d+)")
 					.replaceAll("\\.", "\\\\.");
 			String[] fns = dir.list();
 			if (null != fns) {
 				for (String fn : fns) {
-					if (fn.matches(regex)) {
-						String rcnStr = findFirstMatch(fn, regex, 1);
+					if (fn.matches(dfRegex)) {
+						String rcnStr = findFirstMatch(fn, dfRegex, 1);
+						rcns.add(Integer.parseInt(rcnStr));
+					} else if (fn.matches(lfRegex)) {
+						String rcnStr = findFirstMatch(fn, lfRegex, 1);
 						rcns.add(Integer.parseInt(rcnStr));
 					}
 				}
 			}
 			count = rcns.size();
-			LOG.info("Found {} RCNs (already downloaded project pages).", count);
+			LOG.info("Found {} RCNs in already downloaded files' names.", count);
 		}
 	}
 
@@ -325,9 +335,11 @@ public class ProjectDownloader {
 	 * @param readRCNsFromDirectory
 	 *            If set, ProjectDownloader in 'all' mode will read RCNs from
 	 *            already downloaded project pages' filenames (using filename
-	 *            template), instead of crawling CORDIS. This is useful when
-	 *            you've got only project pages and need publication list JSON
-	 *            files.
+	 *            templates), instead of crawling CORDIS. This is useful when
+	 *            you don't want to fetch the RCN list from CORDIS again,
+	 *            probably you have some missing files, or you want to
+	 *            re-download them again, or want to export (feature coming
+	 *            soon!) downloaded files. Default is FALSE.
 	 * @return The current ProjectDownloader object.
 	 */
 	public ProjectDownloader readRCNsFromDirectory(boolean readRCNsFromDirectory) {
@@ -338,7 +350,8 @@ public class ProjectDownloader {
 	/**
 	 * 
 	 * @param skipExisting
-	 *            Whether to skip downloading already existing files.
+	 *            Whether to skip downloading already existing files. Default is
+	 *            TRUE.
 	 * @return The current ProjectDownloader object.
 	 */
 	public ProjectDownloader skipExisting(boolean skipExisting) {

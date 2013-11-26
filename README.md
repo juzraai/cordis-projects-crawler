@@ -5,7 +5,7 @@ With this app/API you can fetch information of all [CORDIS projects](http://cord
 
 Users can use the binary with CLI, developers can use the classes! :)
 
-####Current version: 1.0.1-SNAPSHOT
+####[Download latest release here!](https://github.com/juzraai/Cordis-Projects-Crawler/releases)
 
 
 ##1. Features
@@ -15,7 +15,7 @@ Users can use the binary with CLI, developers can use the classes! :)
 * download files into output directory
 * can skip already existing files
 * filename templates can be configured
-* can download JSONs for existing project data pages
+* can read RCNs from already downloaded files' names instead of crawling CORDIS list
 * CLI for set up and run crawler
 
 
@@ -65,7 +65,7 @@ All possible options:
 		.outputDir("outputdir/")	// sets output directory
 		.projectFilename("%d.html")	// sets project data page filename
 		.publistFilename("%d.json")	// sets publication list JSON filename
-		.readRCNsFromDirectory()	// when you need only the JSONs
+		.readRCNsFromDirectory()	// when you don't want to ask CORDIS for the list
 		.skipExisting(false)		// turns on re-downloading
 		.all(); // .byRCN(90433);
 ```

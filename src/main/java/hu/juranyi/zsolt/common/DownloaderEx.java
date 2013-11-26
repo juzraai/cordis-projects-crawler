@@ -4,14 +4,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // TODO JAVADOC
+// TODO settings!
 public class DownloaderEx extends Downloader {
 
 	private static final Logger LOG = LoggerFactory
-			.getLogger(JSoupDownloader.class);
-	private int beforeSleepMs = 1000;
+			.getLogger(DownloaderEx.class);
+	private int beforeSleepMs = 0000;
 	private int retryCount = 10;
 	private int retrySleepMs = 3000;
 	private int retrySleepMul = 2;
+	private String serverErrorMessageRegex;
 
 	public DownloaderEx() {
 	}
@@ -36,8 +38,8 @@ public class DownloaderEx extends Downloader {
 		int triesRemaining = retryCount;
 		while (triesRemaining > 0) {
 			LOG.info("Downloading URL: " + url);
-			super.download();
-			if (super.download()) {
+			boolean success = super.download();
+			if (success && !serverErrorFound(getHtml())) {
 				LOG.info("Download complete.");
 				return true;
 			} else {
@@ -53,6 +55,30 @@ public class DownloaderEx extends Downloader {
 		}
 		LOG.error("Download failed.");
 		return false;
+	}
+
+	public String getServerErrorMessageRegex() {
+		return serverErrorMessageRegex;
+	}
+
+	private boolean serverErrorFound(String html) {
+		if (null != serverErrorMessageRegex) {
+			LOG.info("Checking server errors...");
+			if (html.matches(".*" + serverErrorMessageRegex + ".*")) {
+				LOG.error("Server error message found!");
+				return true;
+			} // TODO WHY NOT WORK ?!?!?!?!
+
+			// TODO when works, update feature list, PD javadoc
+			// TODO when works, update PD to use THIS instead of Jsoup
+			// downloader, and write to method javadocs that
+			// "It uses DownloaderEx class to download."
+		}
+		return false;
+	}
+
+	public void setServerErrorMessageRegex(String serverErrorMessageRegex) {
+		this.serverErrorMessageRegex = serverErrorMessageRegex;
 	}
 
 	@Override
