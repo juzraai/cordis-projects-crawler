@@ -19,6 +19,7 @@ Users can use the binary with CLI, developers can use the classes! :)
 * filename templates can be configured
 * can read RCNs from already downloaded files' names instead of crawling CORDIS list
 * CLI for set up and run crawler
+* file logging
 
 
 ##2. Requirements
