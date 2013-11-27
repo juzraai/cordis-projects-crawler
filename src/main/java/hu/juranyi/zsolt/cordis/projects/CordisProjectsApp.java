@@ -1,5 +1,7 @@
 package hu.juranyi.zsolt.cordis.projects;
 
+import java.util.List;
+
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -63,15 +65,18 @@ public class CordisProjectsApp {
 						+ "Must include a '%d' placeholder for RCN. "
 						+ "Ex.: project-%d.json");
 		options.addOption("ns", "no-skip", false,
-				"Program will NOT skip already existing files, will re-download them instead.");
-		options.addOption(
-				"rd",
-				"read-rcns-from-dir",
-				false,
-				"When using beside 'a', the program will read RCNs from already "
-						+ "downloaded project pages' filenames (using filename template), "
-						+ "instead of crawling CORDIS. This is useful when you've got "
-						+ "only project pages and need publication list JSON files.");
+				"Program will NOT skip already existing files, will "
+						+ "re-download them instead.");
+		options.addOption("rd", "read-rcns-from-dir", false,
+				"When using beside 'a', the program will read RCNs from "
+						+ "already downloaded project pages' filenames (using "
+						+ "filename template), instead of crawling CORDIS. "
+						+ "This is useful when you've got only project pages "
+						+ "and need publication list JSON files.");
+		options.addOption("xcsv", "export-2-csv", true,
+				"When using beside 'a', the program will export processed "
+						+ "projects to a CSV file. Publication list will not "
+						+ "be included.");
 
 		options.getOption("1").setType(Number.class);
 
@@ -103,7 +108,10 @@ public class CordisProjectsApp {
 				downloader.byRCN(((Number) line.getParsedOptionValue("1"))
 						.intValue());
 			} else if (line.hasOption("a")) {
-				downloader.all();
+				List<Project> projects = downloader.all();
+				if (line.hasOption("xcsv")) {
+					Export2Csv.export(projects, line.getOptionValue("xcsv"));
+				}
 			}
 		} catch (ParseException exp) {
 			System.err.println(exp.getMessage());

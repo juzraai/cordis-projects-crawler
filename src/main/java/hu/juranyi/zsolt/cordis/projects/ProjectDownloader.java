@@ -24,8 +24,7 @@ import org.slf4j.LoggerFactory;
  * downloaded files, and can load RCNs from already downloaded files in output
  * directory. This is useful when you don't want to fetch the RCN list from
  * CORDIS again, probably you have some missing files, or you want to
- * re-download them again, or want to export (feature coming soon!) downloaded
- * files.<br/>
+ * re-download them again, or want to export downloaded files.<br/>
  * <br/>
  * Example code:
  * 
@@ -54,7 +53,8 @@ public class ProjectDownloader {
 	private static final String ERR_MSGS = "Server does not respond"
 			+ "|The requested record could not be loaded."
 			+ "|DocReader returned error code"
-			+ "|An unexpected error has occurred. The system administrators have been informed.";
+			+ "|An unexpected error has occurred. The system administrators have been informed."
+			+ "|ERROR: Template XSLT not Found";
 
 	private int count = -1;
 	private String outputDir = "./";
@@ -342,10 +342,16 @@ public class ProjectDownloader {
 				for (String fn : fns) {
 					if (fn.matches(dfRegex)) {
 						String rcnStr = findFirstMatch(fn, dfRegex, 1);
-						rcns.add(Integer.parseInt(rcnStr));
+						int rcn = Integer.parseInt(rcnStr);
+						if (!rcns.contains(rcn)) {
+							rcns.add(rcn);
+						}
 					} else if (fn.matches(lfRegex)) {
 						String rcnStr = findFirstMatch(fn, lfRegex, 1);
-						rcns.add(Integer.parseInt(rcnStr));
+						int rcn = Integer.parseInt(rcnStr);
+						if (!rcns.contains(rcn)) {
+							rcns.add(rcn);
+						}
 					}
 				}
 			}

@@ -22,6 +22,7 @@ Users can use the binary with CLI, developers can use the classes! :)
 * file logging
 * can parse all info from project page (NEW IN CODE)
 * can parse publication list JSON strings (NEW IN CODE)
+* can export projects' data to CSV file (NEW IN CODE)
 
 
 ##2. Requirements
@@ -41,6 +42,11 @@ java -jar cordis-crawler-VERSION.jar -a -d outputdir/
 Download only project with RCN 90433:
 ```
 java -jar cordis-crawler-VERSION.jar -1 90433 -d outputdir/
+```
+
+Export already downloaded project files to one CSV:
+```
+java -jar cordis-crawler-VERSION.jar -a -rd -xcsv myexport.csv
 ```
 
 To see detailed usage information, run the binary with no arguments.
@@ -75,6 +81,12 @@ All possible options:
 		.all(); // .byRCN(90433);
 ```
 
+Export projects' data to CSV:
+```java
+List<Project> projects = new ProjectDownloader().outputDir("outputdir/");
+Export2Csv.export(projects, "myexport.csv");
+````
+
 Javadoc will come soon! :-)
 
 
@@ -83,6 +95,7 @@ Javadoc will come soon! :-)
 * parse the whole project data page
 * parse JSON objects
 * export project and publications data to XML or database
+* v2.0 with reorganized classes to increase universality and modularity
 
 
 ##5. Thanks to
