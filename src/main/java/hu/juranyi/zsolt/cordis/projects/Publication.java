@@ -2,6 +2,7 @@ package hu.juranyi.zsolt.cordis.projects;
 
 import java.util.List;
 
+// TODO JAVADOC
 public class Publication {
 
 	private List<String> authors;

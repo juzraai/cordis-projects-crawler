@@ -8,6 +8,7 @@ public class Project {
 
 	private String contractType;
 
+	private Participant coordinator; // TODO It's sure there's only one?!
 	private int cost;
 	private String costCurrency;
 	private Date datesFrom;
@@ -17,6 +18,7 @@ public class Project {
 	private Date lastUpdatedOn;
 	private String name;
 	private String objective;
+	private List<Participant> participants;
 	private String programmeAcronym;
 	private List<Publication> publications;
 	private int rcn;
@@ -28,6 +30,10 @@ public class Project {
 
 	public String getContractType() {
 		return contractType;
+	}
+
+	public Participant getCoordinator() {
+		return coordinator;
 	}
 
 	public int getCost() {
@@ -66,6 +72,10 @@ public class Project {
 		return objective;
 	}
 
+	public List<Participant> getParticipants() {
+		return participants;
+	}
+
 	public String getProgrammeAcronym() {
 		return programmeAcronym;
 	}
@@ -102,6 +112,10 @@ public class Project {
 		this.contractType = contractType;
 	}
 
+	public void setCoordinator(Participant coordinator) {
+		this.coordinator = coordinator;
+	}
+
 	public void setCost(int cost) {
 		this.cost = cost;
 	}
@@ -136,6 +150,10 @@ public class Project {
 
 	public void setObjective(String objective) {
 		this.objective = objective;
+	}
+
+	public void setParticipants(List<Participant> participants) {
+		this.participants = participants;
 	}
 
 	public void setProgrammeAcronym(String programmeAcronym) {

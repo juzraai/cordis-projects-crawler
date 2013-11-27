@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -167,6 +168,30 @@ public class ProjectParser {
 			LOG.error("Could not parse contract type.");
 		}
 
+		// Coordinator
+		els = doc.select("div.projcoord div.main");
+		if (!els.isEmpty()) {
+			p.setCoordinator(parseParticipant(els.first().html()));
+			if (els.size() > 1) {
+				LOG.warn("There are more than one coordinator!");
+			}
+		} else {
+			LOG.error("Could not find coordinator.");
+		}
+
+		// Participants
+		els = doc.select("div.participant div.main");
+		if (!els.isEmpty()) {
+			List<Participant> participants = new ArrayList<Participant>();
+			p.setParticipants(participants);
+			for (Element el : els) {
+				participants.add(parseParticipant(el.html()));
+			}
+		} else {
+			LOG.error("Could not find any participants.");
+		}
+
+		// Record info
 		els = doc.select("div#recinfo");
 		if (!els.isEmpty()) {
 			String text = els.first().text();
@@ -194,6 +219,31 @@ public class ProjectParser {
 
 		// TODO parse data: Coordinator, Participants
 		return p;
+	}
+
+	public static Participant parseParticipant(String participantHTML) {
+		/*
+		 * private String name; div.name
+		 * 
+		 * private String country; div.country OWNTEXT!
+		 * 
+		 * FOLLOWING IN: div.optional.item-content TEXT
+		 * 
+		 * private String administrativeContact; "Administrative contact: (.*)"
+		 * TILL NEW LINE...
+		 * 
+		 * private String address;
+		 * 
+		 * private String tel; "Tel: (.*) "
+		 * 
+		 * private String fax; "Fax: (.*) "
+		 * 
+		 * private String website; a element
+		 */
+
+		// TODO parse!
+
+		return null;
 	}
 
 	public static void updatePublications(String publicationsJSON,
