@@ -53,7 +53,8 @@ public class ProjectDownloader {
 			.getLogger(ProjectDownloader.class);
 	private static final String ERR_MSGS = "Server does not respond"
 			+ "|The requested record could not be loaded."
-			+ "|DocReader returned error code";
+			+ "|DocReader returned error code"
+			+ "|An unexpected error has occurred. The system administrators have been informed.";
 
 	private int count = -1;
 	private String outputDir = "./";
@@ -105,7 +106,11 @@ public class ProjectDownloader {
 						+ ref;
 				filename = String.format(publistFilename, rcn);
 				String json = fetchContent(url, filename, true);
-				ProjectParser.updatePublications(json, project); // parse
+				if (null != json) {
+					ProjectParser.updatePublications(json, project); // parse
+				} else {
+					LOG.error("Failed to retrieve JSON. RCN: {}", rcn);
+				}
 				return project;
 			} else { // could not parse ref. no.
 				LOG.error("Project data page is corrupt. RCN: {}", rcn);
@@ -139,6 +144,8 @@ public class ProjectDownloader {
 			TextFile f = new TextFile(file.getAbsolutePath());
 			if (f.load()) {
 				content = f.getContent();
+				// TODO (?) check for server errors in content (?)
+				// TODO (?) del files if server error found (?)
 				LOG.info("Successfully loaded from file.");
 			} else {
 				LOG.error("Failed to load from file: {}",
@@ -171,7 +178,6 @@ public class ProjectDownloader {
 				LOG.error("Failed to download. URL: ", url);
 			}
 		}
-		// TODO (?) content for server errors: delete file
 		return content;
 	}
 

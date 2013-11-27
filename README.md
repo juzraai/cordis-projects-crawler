@@ -20,7 +20,7 @@ Users can use the binary with CLI, developers can use the classes! :)
 * can read RCNs from already downloaded files' names instead of crawling CORDIS list
 * CLI for set up and run crawler
 * file logging
-* can parse a lot of info from project page (NEW IN CODE)
+* can parse all info from project page (NEW IN CODE)
 * can parse publication list JSON strings (NEW IN CODE)
 
 

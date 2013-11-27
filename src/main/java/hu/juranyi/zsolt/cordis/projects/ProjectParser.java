@@ -89,8 +89,11 @@ public class ProjectParser {
 		// Objective
 		els = doc.select("div.projdescr div.full div.tech p");
 		if (!els.isEmpty()) {
-			p.setObjective(els.first().text());
-			// TODO maybe we should handle <br/> tags
+			// I add an own delimiter, because Jsoup's text() doesn't convert
+			// <br/>-s to \n-s.
+			String html = els.first().html().replaceAll("<br />", "#####");
+			String text = Jsoup.parse(html).text().replaceAll("#####", "\n");
+			p.setObjective(text);
 		}
 		if (null == p.getObjective()) {
 			LOG.error("Could not parse objective.");
@@ -169,7 +172,7 @@ public class ProjectParser {
 		}
 
 		// Coordinator
-		els = doc.select("div.projcoord div.main");
+		els = doc.select("div.projcoord");
 		if (!els.isEmpty()) {
 			p.setCoordinator(parseParticipant(els.first().html()));
 			if (els.size() > 1) {
@@ -180,7 +183,7 @@ public class ProjectParser {
 		}
 
 		// Participants
-		els = doc.select("div.participant div.main");
+		els = doc.select("div.participant");
 		if (!els.isEmpty()) {
 			List<Participant> participants = new ArrayList<Participant>();
 			p.setParticipants(participants);
@@ -217,33 +220,80 @@ public class ProjectParser {
 			LOG.error("Could not parse last updated on.");
 		}
 
-		// TODO parse data: Coordinator, Participants
 		return p;
 	}
 
 	public static Participant parseParticipant(String participantHTML) {
-		/*
-		 * private String name; div.name
-		 * 
-		 * private String country; div.country OWNTEXT!
-		 * 
-		 * FOLLOWING IN: div.optional.item-content TEXT
-		 * 
-		 * private String administrativeContact; "Administrative contact: (.*)"
-		 * TILL NEW LINE...
-		 * 
-		 * private String address;
-		 * 
-		 * private String tel; "Tel: (.*) "
-		 * 
-		 * private String fax; "Fax: (.*) "
-		 * 
-		 * private String website; a element
-		 */
+		Participant participant = new Participant();
 
-		// TODO parse!
+		Document doc = Jsoup.parse(participantHTML);
+		Elements els;
 
-		return null;
+		// Name
+		els = doc.select("div.name");
+		if (!els.isEmpty()) {
+			participant.setName(els.first().text());
+		} else {
+			LOG.error("Could not parse participant name.");
+		}
+
+		// Country
+		els = doc.select("div.country");
+		if (!els.isEmpty()) {
+			participant.setCountry(els.first().ownText());
+		} else {
+			LOG.error("Could not parse participant country.");
+		}
+
+		els = doc.select("div.optional.item-content");
+		if (!els.isEmpty()) {
+			// I add an own delimiter, because Jsoup's text() doesn't convert
+			// <br/>-s to \n-s.
+			String html = els.first().html().replaceAll("<br />", "#####");
+			Document dataDoc = Jsoup.parse(html + "#####");
+			String text = dataDoc.text(); // need 2 unescape and make UTF8
+
+			// Administrative contact
+			String adminCont = findFirstMatch(text,
+					"Administrative contact: (.*?)#####", 1);
+			if (null != adminCont) {
+				participant.setAdministrativeContact(adminCont.trim());
+			}
+
+			// Address
+			String address = findFirstMatch(text,
+					"Administrative contact: .*?#####(.*?)#####", 1);
+			if (null != address) {
+				participant.setAddress(address.trim());
+			}
+
+			// Tel
+			String tel = findFirstMatch(text, "Tel:(.*?)#####", 1);
+			if (null != tel) {
+				participant.setTel(tel.trim());
+			}
+
+			// Fax
+			String fax = findFirstMatch(text, "Fax:(.*?)#####", 1);
+			if (null != fax) {
+				participant.setFax(fax.trim());
+			}
+
+			// Website
+			els = doc.select("a[target=_blank]");
+			if (!els.isEmpty()) {
+				participant.setWebsite(els.first().attr("href"));
+			}
+		}
+		if (null == participant.getAdministrativeContact()) {
+			LOG.error("Could not parse participant administrative contact.");
+		}
+		if (null == participant.getAddress()) {
+			LOG.error("Could not parse participant address.");
+		}
+		// other fields are really optional, they are not everywhere
+
+		return participant;
 	}
 
 	public static void updatePublications(String publicationsJSON,
@@ -315,7 +365,6 @@ public class ProjectParser {
 				} else {
 					LOG.error("Could not find 'authors' array in JSON.");
 				}
-				System.out.println();
 			} // publications
 
 			LOG.info("Found {} publications.", publications.size());
