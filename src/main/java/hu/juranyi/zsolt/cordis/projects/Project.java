@@ -1,13 +1,13 @@
 package hu.juranyi.zsolt.cordis.projects;
 
 import java.util.Date;
+import java.util.List;
 
 //TODO JAVADOC
 public class Project {
-	// TODO bean with project properties, getters, setters
-	// private List<Publication> publications;
 
 	private String contractType;
+
 	private int cost;
 	private String costCurrency;
 	private Date datesFrom;
@@ -18,6 +18,7 @@ public class Project {
 	private String name;
 	private String objective;
 	private String programmeAcronym;
+	private List<Publication> publications;
 	private int rcn;
 	private String reference;
 	private String status;
@@ -67,6 +68,10 @@ public class Project {
 
 	public String getProgrammeAcronym() {
 		return programmeAcronym;
+	}
+
+	public List<Publication> getPublications() {
+		return publications;
 	}
 
 	public int getRcn() {
@@ -135,6 +140,10 @@ public class Project {
 
 	public void setProgrammeAcronym(String programmeAcronym) {
 		this.programmeAcronym = programmeAcronym;
+	}
+
+	public void setPublications(List<Publication> publications) {
+		this.publications = publications;
 	}
 
 	public void setRcn(int rcn) {

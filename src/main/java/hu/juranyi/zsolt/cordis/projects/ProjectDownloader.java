@@ -105,7 +105,7 @@ public class ProjectDownloader {
 						+ ref;
 				filename = String.format(publistFilename, rcn);
 				String json = fetchContent(url, filename, true);
-				ProjectParser.updatePublications(json, project);
+				ProjectParser.updatePublications(json, project); // parse
 				return project;
 			} else { // could not parse ref. no.
 				LOG.error("Project data page is corrupt. RCN: {}", rcn);

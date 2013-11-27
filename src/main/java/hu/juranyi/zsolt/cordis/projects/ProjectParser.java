@@ -3,12 +3,20 @@ package hu.juranyi.zsolt.cordis.projects;
 import static hu.juranyi.zsolt.common.StringTools.findFirstMatch;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 //TODO JAVADOC
 public class ProjectParser {
@@ -184,12 +192,85 @@ public class ProjectParser {
 			LOG.error("Could not parse last updated on.");
 		}
 
-		// TODO parse data
+		// TODO parse data: Coordinator, Participants
 		return p;
 	}
 
 	public static void updatePublications(String publicationsJSON,
 			Project project) {
-		// TODO parse publication data
+		LOG.info("Parsing publication list JSON...");
+
+		JsonElement el = new JsonParser().parse(publicationsJSON); // exception!
+		JsonObject root = el.getAsJsonObject();
+
+		// Project name
+		JsonElement projectNameEl = root.get("project");
+		if (null != projectNameEl && projectNameEl.isJsonPrimitive()) {
+			String projectName = projectNameEl.getAsString();
+			if (!project.getName().equals(projectName)) {
+				LOG.error("Project name in JSON ({}) differs from "
+						+ "one in Project object ({}). "
+						+ "Publication list parsing aborted.", projectName,
+						project.getName());
+				return;
+			}
+		} else {
+			LOG.error("Could not parse project name from JSON. "
+					+ "Publication list parsing aborted.");
+			return;
+		}
+
+		// Publications
+		JsonElement pubsEl = root.get("docs");
+		if (null != pubsEl && pubsEl.isJsonArray()) {
+			List<Publication> publications = new ArrayList<Publication>();
+			project.setPublications(publications);
+
+			JsonArray pubsArr = root.getAsJsonArray("docs");
+			Iterator<JsonElement> pubsIt = pubsArr.iterator();
+			while (pubsIt.hasNext()) {
+				JsonObject pubEl = pubsIt.next().getAsJsonObject();
+
+				Publication publication = new Publication();
+				publications.add(publication);
+
+				// Publication title
+				JsonElement title = pubEl.get("title");
+				if (null != title && !title.isJsonNull()) {
+					publication.setTitle(title.getAsString()
+							.replaceAll("\\n", " ").replaceAll(" +", " ")
+							.trim());
+				} else {
+					LOG.error("Could not parse publication title.");
+				}
+
+				// Publication URL
+				JsonElement url = pubEl.get("url");
+				if (null != url && !url.isJsonNull()) {
+					publication.setUrl(url.getAsString());
+				}
+
+				// Publication authors
+				JsonElement ausEl = pubEl.get("authors");
+				if (null != ausEl && ausEl.isJsonArray()) {
+					List<String> authors = new ArrayList<String>();
+					publication.setAuthors(authors);
+
+					JsonArray ausArr = ausEl.getAsJsonArray();
+					Iterator<JsonElement> auIt = ausArr.iterator();
+					while (auIt.hasNext()) {
+						JsonElement au = auIt.next();
+						authors.add(au.getAsString());
+					} // authors
+				} else {
+					LOG.error("Could not find 'authors' array in JSON.");
+				}
+				System.out.println();
+			} // publications
+
+			LOG.info("Found {} publications.", publications.size());
+		} else {
+			LOG.error("Could not find 'docs' array in JSON.");
+		}
 	}
 }
