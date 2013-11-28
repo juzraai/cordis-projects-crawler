@@ -92,8 +92,6 @@ Javadoc will come soon! :-)
 
 ##4. Future plans, ideas
 
-* parse the whole project data page
-* parse JSON objects
 * export project and publications data to XML or database
 * v2.0 with reorganized classes to increase universality and modularity
 

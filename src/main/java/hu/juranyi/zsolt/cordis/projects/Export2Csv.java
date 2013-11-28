@@ -44,36 +44,78 @@ public class Export2Csv {
 			out.write("\n");
 
 			for (Project p : projects) {
-				out.write(p.getName() + ";");
-				out.write(p.getTitle() + ";");
-				out.write(p.getWebsite() + ";");
+				if (null == p)
+					continue;
 
-				out.write(p.getCoordinator().getCountry() + ";");
+				StringBuilder sb = new StringBuilder();
+				sb.append(p.getName());
+				sb.append(";");
+				sb.append(p.getTitle());
+				sb.append(";");
+				sb.append(p.getWebsite());
+				sb.append(";");
 
-				out.write(p.getPublications().size() + ";");
+				try {
+					sb.append(p.getCoordinator().getCountry());
+				} catch (Exception e) {
+					sb.append("N/A");
+				}
+				sb.append(";");
+				try {
+					sb.append(p.getPublications().size());
+				} catch (Exception e) {
+					sb.append("N/A");
+				}
+				sb.append(";");
+				try {
+					sb.append(dateFormat.format(p.getDatesFrom()));
+				} catch (Exception e) {
+					sb.append("N/A");
+				}
+				sb.append(";");
+				try {
+					sb.append(dateFormat.format(p.getDatesTo()));
+				} catch (Exception e) {
+					sb.append("N/A");
+				}
+				sb.append(";");
 
-				out.write(dateFormat.format(p.getDatesFrom()) + ";");
-				out.write(dateFormat.format(p.getDatesTo()) + ";");
-				out.write(p.getStatus() + ";");
+				sb.append(p.getStatus());
+				sb.append(";");
 
-				out.write(p.getContractType() + ";");
-				out.write(p.getCost() + ";");
-				out.write(p.getCostCurrency() + ";");
-				out.write(p.getEuContribution() + ";");
-				out.write(p.getEuContributionCurrency() + ";");
+				sb.append(p.getContractType());
+				sb.append(";");
+				sb.append(p.getCost());
+				sb.append(";");
+				sb.append(p.getCostCurrency());
+				sb.append(";");
+				sb.append(p.getEuContribution());
+				sb.append(";");
+				sb.append(p.getEuContributionCurrency());
+				sb.append(";");
 
-				out.write(p.getProgrammeAcronym() + ";");
-				out.write(p.getSubprogrammeArea() + ";");
+				sb.append(p.getProgrammeAcronym());
+				sb.append(";");
+				sb.append(p.getSubprogrammeArea());
+				sb.append(";");
 
-				out.write(p.getRcn() + ";");
-				out.write(p.getReference() + ";");
-				out.write(dateFormat.format(p.getLastUpdatedOn()) + ";");
+				sb.append(p.getRcn());
+				sb.append(";");
+				sb.append(p.getReference());
+				sb.append(";");
+				try {
+					sb.append(dateFormat.format(p.getLastUpdatedOn()));
+				} catch (Exception e) {
+					sb.append("N/A");
+				}
+				sb.append(";");
 
-				out.write(String.format(
+				sb.append(String.format(
 						"http://cordis.europa.eu/projects/rcn/%d_en.html;",
 						p.getRcn()));
 
-				out.write("\n");
+				sb.append("\n");
+				out.write(sb.toString());
 			}
 			out.flush();
 		} catch (IOException e) {

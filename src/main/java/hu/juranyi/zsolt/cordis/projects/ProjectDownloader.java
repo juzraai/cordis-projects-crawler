@@ -75,7 +75,10 @@ public class ProjectDownloader {
 		for (int i = 0; i < rcns.size(); i++) {
 			LOG.info("Fetching project {}/{}, RCN: {}", i + 1, rcns.size(),
 					rcns.get(i));
-			projects.add(byRCN(rcns.get(i)));
+			Project project = byRCN(rcns.get(i));
+			if (null != project) {
+				projects.add(project);
+			}
 		}
 		return projects;
 	}

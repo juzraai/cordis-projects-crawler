@@ -300,76 +300,84 @@ public class ProjectParser {
 			Project project) {
 		LOG.info("Parsing publication list JSON...");
 
-		JsonElement el = new JsonParser().parse(publicationsJSON); // exception!
-		JsonObject root = el.getAsJsonObject();
+		try {
+			JsonElement el = new JsonParser().parse(publicationsJSON);
+			// parse throws exception for invalid JSON
 
-		// Project name
-		JsonElement projectNameEl = root.get("project");
-		if (null != projectNameEl && projectNameEl.isJsonPrimitive()) {
-			String projectName = projectNameEl.getAsString();
-			if (!project.getName().equals(projectName)) {
-				LOG.error("Project name in JSON ({}) differs from "
-						+ "one in Project object ({}). "
-						+ "Publication list parsing aborted.", projectName,
-						project.getName());
+			JsonObject root = el.getAsJsonObject();
+
+			// Project name
+			JsonElement projectNameEl = root.get("project");
+			if (null != projectNameEl && projectNameEl.isJsonPrimitive()) {
+				String projectName = projectNameEl.getAsString();
+				if (!project.getName().equals(projectName)) {
+					LOG.error("Project name in JSON ({}) differs from "
+							+ "one in Project object ({}). "
+							+ "Publication list parsing aborted.", projectName,
+							project.getName());
+					return;
+				}
+			} else {
+				LOG.error("Could not parse project name from JSON. "
+						+ "Publication list parsing aborted.");
 				return;
 			}
-		} else {
-			LOG.error("Could not parse project name from JSON. "
-					+ "Publication list parsing aborted.");
-			return;
-		}
 
-		// Publications
-		JsonElement pubsEl = root.get("docs");
-		if (null != pubsEl && pubsEl.isJsonArray()) {
-			List<Publication> publications = new ArrayList<Publication>();
-			project.setPublications(publications);
+			// Publications
+			JsonElement pubsEl = root.get("docs");
+			if (null != pubsEl && pubsEl.isJsonArray()) {
+				List<Publication> publications = new ArrayList<Publication>();
+				project.setPublications(publications);
 
-			JsonArray pubsArr = root.getAsJsonArray("docs");
-			Iterator<JsonElement> pubsIt = pubsArr.iterator();
-			while (pubsIt.hasNext()) {
-				JsonObject pubEl = pubsIt.next().getAsJsonObject();
+				JsonArray pubsArr = root.getAsJsonArray("docs");
+				Iterator<JsonElement> pubsIt = pubsArr.iterator();
+				while (pubsIt.hasNext()) {
+					JsonObject pubEl = pubsIt.next().getAsJsonObject();
 
-				Publication publication = new Publication();
-				publications.add(publication);
+					Publication publication = new Publication();
+					publications.add(publication);
 
-				// Publication title
-				JsonElement title = pubEl.get("title");
-				if (null != title && !title.isJsonNull()) {
-					publication.setTitle(title.getAsString()
-							.replaceAll("\\n", " ").replaceAll(" +", " ")
-							.trim());
-				} else {
-					LOG.error("Could not parse publication title.");
-				}
+					// Publication title
+					JsonElement title = pubEl.get("title");
+					if (null != title && !title.isJsonNull()) {
+						publication.setTitle(title.getAsString()
+								.replaceAll("\\n", " ").replaceAll(" +", " ")
+								.trim());
+					} else {
+						LOG.error("Could not parse publication title.");
+					}
 
-				// Publication URL
-				JsonElement url = pubEl.get("url");
-				if (null != url && !url.isJsonNull()) {
-					publication.setUrl(url.getAsString());
-				}
+					// Publication URL
+					JsonElement url = pubEl.get("url");
+					if (null != url && !url.isJsonNull()) {
+						publication.setUrl(url.getAsString());
+					}
 
-				// Publication authors
-				JsonElement ausEl = pubEl.get("authors");
-				if (null != ausEl && ausEl.isJsonArray()) {
-					List<String> authors = new ArrayList<String>();
-					publication.setAuthors(authors);
+					// Publication authors
+					JsonElement ausEl = pubEl.get("authors");
+					if (null != ausEl && ausEl.isJsonArray()) {
+						List<String> authors = new ArrayList<String>();
+						publication.setAuthors(authors);
 
-					JsonArray ausArr = ausEl.getAsJsonArray();
-					Iterator<JsonElement> auIt = ausArr.iterator();
-					while (auIt.hasNext()) {
-						JsonElement au = auIt.next();
-						authors.add(au.getAsString());
-					} // authors
-				} else {
-					LOG.error("Could not find 'authors' array in JSON.");
-				}
-			} // publications
+						JsonArray ausArr = ausEl.getAsJsonArray();
+						Iterator<JsonElement> auIt = ausArr.iterator();
+						while (auIt.hasNext()) {
+							JsonElement au = auIt.next();
+							authors.add(au.getAsString());
+						} // authors
+					} else {
+						LOG.error("Could not find 'authors' array in JSON.");
+					}
+				} // publications
 
-			LOG.info("Found {} publications.", publications.size());
-		} else {
-			LOG.error("Could not find 'docs' array in JSON.");
+				LOG.info("Found {} publications.", publications.size());
+			} else {
+				LOG.error("Could not find 'docs' array in JSON.");
+			}
+		} catch (Exception e) {
+			LOG.error(
+					"Could not parse JSON string, its invalid. Exception: {}",
+					e.getMessage());
 		}
 	}
 }
