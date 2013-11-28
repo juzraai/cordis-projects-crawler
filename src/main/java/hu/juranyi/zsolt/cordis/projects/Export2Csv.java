@@ -47,75 +47,80 @@ public class Export2Csv {
 				if (null == p)
 					continue;
 
+				// TODO remove ';'-s from Strings...
+
 				StringBuilder sb = new StringBuilder();
 				sb.append(p.getName());
-				sb.append(";");
+				sb.append("#####");
 				sb.append(p.getTitle());
-				sb.append(";");
+				sb.append("#####");
 				sb.append(p.getWebsite());
-				sb.append(";");
+				sb.append("#####");
 
 				try {
 					sb.append(p.getCoordinator().getCountry());
 				} catch (Exception e) {
 					sb.append("N/A");
 				}
-				sb.append(";");
+				sb.append("#####");
 				try {
 					sb.append(p.getPublications().size());
 				} catch (Exception e) {
 					sb.append("N/A");
 				}
-				sb.append(";");
+				sb.append("#####");
 				try {
 					sb.append(dateFormat.format(p.getDatesFrom()));
 				} catch (Exception e) {
 					sb.append("N/A");
 				}
-				sb.append(";");
+				sb.append("#####");
 				try {
 					sb.append(dateFormat.format(p.getDatesTo()));
 				} catch (Exception e) {
 					sb.append("N/A");
 				}
-				sb.append(";");
+				sb.append("#####");
 
 				sb.append(p.getStatus());
-				sb.append(";");
+				sb.append("#####");
 
 				sb.append(p.getContractType());
-				sb.append(";");
+				sb.append("#####");
 				sb.append(p.getCost());
-				sb.append(";");
+				sb.append("#####");
 				sb.append(p.getCostCurrency());
-				sb.append(";");
+				sb.append("#####");
 				sb.append(p.getEuContribution());
-				sb.append(";");
+				sb.append("#####");
 				sb.append(p.getEuContributionCurrency());
-				sb.append(";");
+				sb.append("#####");
 
 				sb.append(p.getProgrammeAcronym());
-				sb.append(";");
+				sb.append("#####");
 				sb.append(p.getSubprogrammeArea());
-				sb.append(";");
+				sb.append("#####");
 
 				sb.append(p.getRcn());
-				sb.append(";");
+				sb.append("#####");
 				sb.append(p.getReference());
-				sb.append(";");
+				sb.append("#####");
 				try {
 					sb.append(dateFormat.format(p.getLastUpdatedOn()));
 				} catch (Exception e) {
 					sb.append("N/A");
 				}
-				sb.append(";");
+				sb.append("#####");
 
 				sb.append(String.format(
-						"http://cordis.europa.eu/projects/rcn/%d_en.html;",
+						"http://cordis.europa.eu/projects/rcn/%d_en.html#####",
 						p.getRcn()));
 
 				sb.append("\n");
-				out.write(sb.toString());
+				String s = sb.toString();
+				s = s.replaceAll(";", ",.").replaceAll("#####", ";");
+				s = s.replaceAll(";\"", ";").replaceAll("\";", ";");
+				out.write(s);
 			}
 			out.flush();
 		} catch (IOException e) {

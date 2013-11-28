@@ -32,7 +32,7 @@ public class ProjectParser {
 		Elements els;
 
 		// Project name (main title / short title)
-		els = doc.select("h1");
+		els = doc.select("div.projttl h1");
 		if (!els.isEmpty()) {
 			p.setName(els.first().text());
 		}
@@ -41,7 +41,7 @@ public class ProjectParser {
 		}
 
 		// Project title (sub title / long title)
-		els = doc.select("h2");
+		els = doc.select("div.projttl h2");
 		if (!els.isEmpty()) {
 			p.setTitle(els.first().text());
 		}
@@ -106,6 +106,8 @@ public class ProjectParser {
 			// Project reference
 			String ref = findFirstMatch(text, "Project reference: ([^ ]+) ", 1);
 			p.setReference(ref);
+			// TODO FIX http://cordis.europa.eu/projects/rcn/19535_en.html
+			// TODO convert it to text with line breaks like in participants
 
 			// Project status
 			String status = findFirstMatch(text, "Status: (.*?) Total cost", 1);
@@ -160,6 +162,9 @@ public class ProjectParser {
 			p.setProgrammeAcronym(progAcronym);
 			p.setSubprogrammeArea(subprogArea);
 			p.setContractType(contrType);
+			// TODO FIX http://cordis.europa.eu/projects/rcn/31599_en.html
+			// TODO convert it to text with line breaks like in participants
+
 		}
 		if (null == p.getProgrammeAcronym()) {
 			LOG.error("Could not parse programme acronym.");
