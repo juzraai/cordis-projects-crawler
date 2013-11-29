@@ -4,7 +4,6 @@ import static hu.juranyi.zsolt.common.StringTools.findFirstMatch;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.jsoup.Jsoup;
@@ -14,10 +13,7 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.Gson;
 
 //TODO JAVADOC
 public class ProjectParser {
@@ -323,84 +319,26 @@ public class ProjectParser {
 		LOG.info("Parsing publication list JSON...");
 
 		try {
-			JsonElement el = new JsonParser().parse(publicationsJSON);
-			// parse throws exception for invalid JSON
+			Gson gson = new Gson();
+			OpenAirePublicationList oapl = gson.fromJson(publicationsJSON,
+					OpenAirePublicationList.class);
 
-			JsonObject root = el.getAsJsonObject();
-
-			// Project name
-			JsonElement projectNameEl = root.get("project");
-			if (null != projectNameEl && projectNameEl.isJsonPrimitive()) {
-				String projectName = projectNameEl.getAsString();
-				if (!project.getName().equals(projectName)) {
-					LOG.error("Project name in JSON ({}) differs from "
-							+ "one in Project object ({}). "
-							+ "Publication list parsing aborted.", projectName,
-							project.getName());
-					return;
+			if (oapl.getProject().equals(project.getName())) {
+				if (null != oapl.getDocs()) {
+					LOG.info("Found {} publications.", oapl.getDocs().size());
+					project.setPublications(oapl.getDocs());
+				} else {
+					LOG.warn("Could not find 'docs' array in JSON.");
+					project.setPublications(new ArrayList<Publication>());
 				}
 			} else {
-				LOG.error("Could not parse project name from JSON. "
-						+ "Publication list parsing aborted.");
-				return;
-			}
-
-			// Publications
-			// now we have a valid, verified JSON, we can have an empty publist
-			List<Publication> publications = new ArrayList<Publication>();
-			project.setPublications(publications);
-
-			JsonElement pubsEl = root.get("docs");
-			if (null != pubsEl && pubsEl.isJsonArray()) {
-				JsonArray pubsArr = root.getAsJsonArray("docs");
-				Iterator<JsonElement> pubsIt = pubsArr.iterator();
-				while (pubsIt.hasNext()) {
-					JsonObject pubEl = pubsIt.next().getAsJsonObject();
-
-					Publication publication = new Publication();
-					publications.add(publication);
-
-					// Publication title
-					JsonElement title = pubEl.get("title");
-					if (null != title && !title.isJsonNull()) {
-						publication.setTitle(title.getAsString()
-								.replaceAll("\\n", " ").replaceAll(" +", " ")
-								.trim());
-					} else {
-						LOG.warn("Could not parse publication title.");
-					}
-
-					// Publication URL
-					JsonElement url = pubEl.get("url");
-					if (null != url && !url.isJsonNull()) {
-						publication.setUrl(url.getAsString());
-					}
-
-					// Publication authors
-					JsonElement ausEl = pubEl.get("authors");
-					if (null != ausEl && ausEl.isJsonArray()) {
-						List<String> authors = new ArrayList<String>();
-						publication.setAuthors(authors);
-
-						JsonArray ausArr = ausEl.getAsJsonArray();
-						Iterator<JsonElement> auIt = ausArr.iterator();
-						while (auIt.hasNext()) {
-							JsonElement au = auIt.next();
-							authors.add(au.getAsString());
-						} // authors
-					} else {
-						LOG.error("Could not find 'authors' array in JSON.");
-					}
-				} // publications
-
-				LOG.info("Found {} publications.", publications.size());
-			} else {
-				LOG.warn("Could not find 'docs' array in JSON.");
+				LOG.error("Project name in JSON ({}) differs from "
+						+ "one in Project object ({}). "
+						+ "Publication list parsing aborted.",
+						oapl.getProject(), project.getName());
 			}
 		} catch (Exception e) {
-			LOG.error(
-					"Could not parse JSON string, its invalid. Exception: {}",
-					e.getMessage());
+			LOG.error("Publication list JSON is invalid: {}", e.getMessage());
 		}
 	}
 }
