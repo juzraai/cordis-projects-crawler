@@ -105,7 +105,7 @@ public class ProjectDownloader {
 			Project project = ProjectParser.buildProject(docStr); // parse
 			String ref = project.getReference();
 			if (null != project.getReference()) {
-				LOG.info("RCN {} <=> Project reference {}", rcn, ref);
+				LOG.debug("RCN {} <=> Project reference {}", rcn, ref);
 				LOG.info("Fetching publication list by project reference: {}",
 						ref);
 				url = "http://www.openaire.eu/hu/component/openaire/widget/data/?format=raw&ga="
@@ -146,13 +146,13 @@ public class ProjectDownloader {
 		String content = null;
 		File file = new File(outputDir + filename);
 		if (file.exists() && skipExisting) {
-			LOG.info("File found ({}), skipping download.", filename);
+			LOG.debug("File found ({}), skipping download.", filename);
 			TextFile f = new TextFile(file.getAbsolutePath());
 			if (f.load()) {
 				content = f.getContent();
 				// TODO (?) check for server errors in content (?)
 				// TODO (?) del files if server error found (?)
-				LOG.info("Successfully loaded from file.");
+				LOG.debug("Successfully loaded from file.");
 			} else {
 				LOG.error("Failed to load from file: {}",
 						file.getAbsolutePath());
@@ -162,7 +162,7 @@ public class ProjectDownloader {
 			d.setServerErrorMessageRegex(ERR_MSGS);
 			if (d.download()) {
 				content = d.getHtml();
-				LOG.info("Successfully downloaded.");
+				LOG.debug("Successfully downloaded.");
 				if (normaliseJSON) {
 					if (!content.startsWith("{"))
 						content = content.substring(content.indexOf('{'));
@@ -175,7 +175,7 @@ public class ProjectDownloader {
 				TextFile f = new TextFile(file.getAbsolutePath());
 				f.setContent(content);
 				if (f.save()) {
-					LOG.info("Successfully saved to file ({}).", filename);
+					LOG.debug("Successfully saved to file ({}).", filename);
 				} else {
 					LOG.error("Failed to save to file: {}",
 							file.getAbsolutePath());
@@ -202,7 +202,7 @@ public class ProjectDownloader {
 			readRCNsFromDirectory();
 		} else {
 			if (-1 == count) {
-				LOG.info("Retrieving project count...");
+				LOG.debug("Retrieving project count...");
 				String url = String
 						.format("%s&start=%d&end=%d", BASE_URL, 1, 1);
 				// Document xml = new JSoupDownloader().downloadDocument(url);
@@ -215,7 +215,7 @@ public class ProjectDownloader {
 						String countStr = findFirstMatch(els.first().text(),
 								"Number of results : \\d+ of (\\d+)", 1);
 						count = Integer.parseInt(countStr);
-						LOG.info("There are {} projects.", count);
+						LOG.debug("There are {} projects.", count);
 					} catch (Exception ex) {
 						LOG.error("Result XML format is corrupt!");
 					}
@@ -248,7 +248,7 @@ public class ProjectDownloader {
 				int perpage = 1000;
 				do {
 					int end = start + perpage - 1;
-					LOG.info("Fetching items {}-{}/{}", start, end, count);
+					LOG.debug("Fetching items {}-{}/{}", start, end, count);
 					String url = String.format("%s&start=%d&end=%d", BASE_URL,
 							start, end);
 					// Document xml = new
@@ -270,15 +270,15 @@ public class ProjectDownloader {
 								LOG.error("Link format is corrupt: {}", link);
 							}
 						} // item urls
-						LOG.info("Found RCNs so far: {}", rcns.size());
+						LOG.debug("Found RCNs so far: {}", rcns.size());
 					} else { // failed to download XML
 						LOG.error("Failed fetching items {}-{}.", start, end);
 					}
 					start += perpage;
 				} while (start < count);
 			} // should fetch
+			LOG.info("Parsed {} RCNs from XMLs.", rcns.size());
 		} // XML downloading mode
-		LOG.info("Parsed {} RCNs from XMLs.", rcns.size());
 		return rcns;
 	}
 

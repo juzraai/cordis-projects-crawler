@@ -28,7 +28,7 @@ public class DownloaderEx extends Downloader {
 
 	@Override
 	public boolean download() {
-		LOG.info("Download parameters: {}", this);
+		LOG.debug("Download parameters: {}", this);
 		try {
 			Thread.sleep(beforeSleepMs);
 		} catch (InterruptedException ex) {
@@ -37,14 +37,14 @@ public class DownloaderEx extends Downloader {
 		int currentSleepMs = retrySleepMs;
 		int triesRemaining = retryCount;
 		while (triesRemaining > 0) {
-			LOG.info("Downloading URL: " + url);
+			LOG.debug("Downloading URL: " + url);
 			boolean success = super.download();
 			if (success && !serverErrorFound(getHtml())) {
-				LOG.info("Download complete.");
+				LOG.debug("Download complete.");
 				return true;
 			} else {
 				triesRemaining--;
-				LOG.info("Download failed, retrying after {} ms...",
+				LOG.warn("Download failed, retrying after {} ms...",
 						currentSleepMs);
 				try {
 					Thread.sleep(currentSleepMs);
@@ -63,7 +63,7 @@ public class DownloaderEx extends Downloader {
 
 	private boolean serverErrorFound(String html) {
 		if (null != serverErrorMessageRegex) {
-			LOG.info("Checking server errors...");
+			LOG.debug("Checking server errors...");
 			if (null != StringTools.findFirstMatch(html,
 					serverErrorMessageRegex, 0)) {
 				LOG.error("Server error message found!");

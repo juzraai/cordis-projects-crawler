@@ -325,7 +325,7 @@ public class ProjectParser {
 
 			if (oapl.getProject().equals(project.getName())) {
 				if (null != oapl.getDocs()) {
-					LOG.info("Found {} publications.", oapl.getDocs().size());
+					LOG.debug("Found {} publications.", oapl.getDocs().size());
 					project.setPublications(oapl.getDocs());
 				} else {
 					LOG.warn("Could not find 'docs' array in JSON.");

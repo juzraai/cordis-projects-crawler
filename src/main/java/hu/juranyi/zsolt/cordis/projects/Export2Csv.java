@@ -47,8 +47,6 @@ public class Export2Csv {
 				if (null == p)
 					continue;
 
-				// TODO remove ';'-s from Strings...
-
 				StringBuilder sb = new StringBuilder();
 				sb.append(p.getName());
 				sb.append("#####");
