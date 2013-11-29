@@ -51,6 +51,7 @@ public class ProjectDownloader {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ProjectDownloader.class);
 	private static final String ERR_MSGS = "Server does not respond"
+			+ "|<!-- Template mode: ERROR -->"
 			+ "|The requested record could not be loaded."
 			+ "|DocReader returned error code"
 			+ "|An unexpected error has occurred. The system administrators have been informed."
@@ -76,9 +77,11 @@ public class ProjectDownloader {
 			LOG.info("Fetching project {}/{}, RCN: {}", i + 1, rcns.size(),
 					rcns.get(i));
 			Project project = byRCN(rcns.get(i));
-			if (null != project) {
-				projects.add(project);
+			if (null == project) {
+				project = new Project();
+				project.setRcn(rcns.get(i));
 			}
+			projects.add(project);
 		}
 		return projects;
 	}

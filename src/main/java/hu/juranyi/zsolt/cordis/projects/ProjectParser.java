@@ -38,6 +38,7 @@ public class ProjectParser {
 		}
 		if (null == p.getName()) {
 			LOG.error("Could not parse project name.");
+			// not just warn, it's important!
 		}
 
 		// Project title (sub title / long title)
@@ -46,7 +47,7 @@ public class ProjectParser {
 			p.setTitle(els.first().text());
 		}
 		if (null == p.getTitle()) {
-			LOG.error("Could not parse project title.");
+			LOG.warn("Could not parse project title.");
 		}
 
 		// Project dates
@@ -56,7 +57,7 @@ public class ProjectParser {
 
 			// From
 			String datesFrom = findFirstMatch(text,
-					"From (\\d{4}-\\d{2}-\\d{2}) ", 1);
+					"From (\\d{4}-\\d{2}-\\d{2})", 1);
 			try {
 				p.setDatesFrom(dateFormat.parse(datesFrom));
 			} catch (Exception e) {
@@ -77,46 +78,57 @@ public class ProjectParser {
 			}
 		}
 		if (null == p.getDatesFrom()) {
-			LOG.error("Could not parse 'from' date.");
+			LOG.warn("Could not parse 'from' date.");
 		}
 		if (null == p.getDatesTo()) {
-			LOG.error("Could not parse 'to' date.");
+			LOG.warn("Could not parse 'to' date.");
 		}
 		if (null == p.getWebsite()) {
 			LOG.warn("Webiste link not found.");
 		}
 
-		// Objective
-		els = doc.select("div.projdescr div.full div.tech p");
+		// Objective, General information
+		els = doc.select("div.projdescr div.full div.tech");
 		if (!els.isEmpty()) {
-			// I add an own delimiter, because Jsoup's text() doesn't convert
-			// <br/>-s to \n-s.
-			String html = els.first().html().replaceAll("<br />", "#####");
-			String text = Jsoup.parse(html).text().replaceAll("#####", "\n");
-			p.setObjective(text);
+			String h3Before = "";
+			for (Element e : els.first().children()) {
+				if (e.tagName().equals("h3")) {
+					h3Before = e.text();
+				} else if (e.tagName().equals("p")) {
+					Document dataDoc = brToOwnDelimiter(e);
+					String text = dataDoc.text().replaceAll("#####", "\n");
+					if (h3Before.equals("Objective")) {
+						p.setObjective(text);
+					} else if (h3Before.equals("General Information")) {
+						p.setGeneralInformation(text);
+					}
+				}
+			}
 		}
 		if (null == p.getObjective()) {
-			LOG.error("Could not parse objective.");
+			LOG.warn("Could not parse objective.");
+		}
+		if (null == p.getGeneralInformation()) {
+			LOG.warn("Could not parse general information.");
 		}
 
 		els = doc.select("div.projdet div.box-left");
 		if (!els.isEmpty()) {
-			String text = els.first().text();
+			Document dataDoc = brToOwnDelimiter(els.first());
+			String text = dataDoc.text();
 
 			// Project reference
-			String ref = findFirstMatch(text, "Project reference: ([^ ]+) ", 1);
+			String ref = findFirstMatch(text, "Project reference: (.*?)#####",
+					1);
 			p.setReference(ref);
-			// TODO FIX http://cordis.europa.eu/projects/rcn/19535_en.html
-			// TODO convert it to text with line breaks like in participants
 
 			// Project status
-			String status = findFirstMatch(text, "Status: (.*?) Total cost", 1);
+			String status = findFirstMatch(text, "Status: (.*?)#####", 1);
 			p.setStatus(status.trim());
 
 			// Total cost
 			try {
-				String line = findFirstMatch(text,
-						"Total cost: (.*?) EU contribution", 1);
+				String line = findFirstMatch(text, "Total cost: (.*?)#####", 1);
 				line = line.replaceAll(" ", "");
 				String curr = findFirstMatch(line, "([A-Z]+)\\d+", 1);
 				String value = findFirstMatch(line, "[A-Z]+(\\d+)", 1);
@@ -127,7 +139,8 @@ public class ProjectParser {
 
 			// EU contribution
 			try {
-				String line = findFirstMatch(text, "EU contribution: (.*)", 1);
+				String line = findFirstMatch(text,
+						"EU contribution: (.*?)#####", 1);
 				line = line.replaceAll(" ", "").trim();
 				String curr = findFirstMatch(line, "([A-Z]+)\\d+", 1);
 				String value = findFirstMatch(line, "[A-Z]+(\\d+)", 1);
@@ -137,16 +150,17 @@ public class ProjectParser {
 			}
 		}
 		if (null == p.getReference()) {
-			LOG.error("Could not parse refrence number.");
+			LOG.error("Could not parse reference number.");
+			// not just warn, it's important!
 		}
 		if (null == p.getStatus()) {
-			LOG.error("Could not parse status.");
+			LOG.warn("Could not parse status.");
 		}
 		if (null == p.getCostCurrency() || 0 == p.getCost()) {
-			LOG.error("Could not parse total cost.");
+			LOG.warn("Could not parse total cost.");
 		}
 		if (null == p.getEuContributionCurrency() || 0 == p.getEuContribution()) {
-			LOG.error("Could not parse EU contribution.");
+			LOG.warn("Could not parse EU contribution.");
 		}
 
 		els = doc.select("div.projdet div.box-right");
@@ -155,25 +169,23 @@ public class ProjectParser {
 
 			// Programme acronym, Subprogramme area, Contract type
 			String progAcronym = findFirstMatch(text,
-					"Programme acronym: ([^ ]+?) Subprogramme area", 1);
+					"Programme acronym: ([^ ]+?) ", 1);
 			String subprogArea = findFirstMatch(text,
 					"Subprogramme area: ([^ ]+?) Contract type", 1);
 			String contrType = findFirstMatch(text, "Contract type: (.*)", 1);
+
 			p.setProgrammeAcronym(progAcronym);
 			p.setSubprogrammeArea(subprogArea);
 			p.setContractType(contrType);
-			// TODO FIX http://cordis.europa.eu/projects/rcn/31599_en.html
-			// TODO convert it to text with line breaks like in participants
-
 		}
 		if (null == p.getProgrammeAcronym()) {
-			LOG.error("Could not parse programme acronym.");
+			LOG.warn("Could not parse programme acronym.");
 		}
 		if (null == p.getSubprogrammeArea()) {
-			LOG.error("Could not parse subprogramme area.");
+			LOG.warn("Could not parse subprogramme area.");
 		}
 		if (null == p.getContractType()) {
-			LOG.error("Could not parse contract type.");
+			LOG.warn("Could not parse contract type.");
 		}
 
 		// Coordinator
@@ -184,7 +196,7 @@ public class ProjectParser {
 				LOG.warn("There are more than one coordinator!");
 			}
 		} else {
-			LOG.error("Could not find coordinator.");
+			LOG.warn("Could not find coordinator.");
 		}
 
 		// Participants
@@ -196,7 +208,7 @@ public class ProjectParser {
 				participants.add(parseParticipant(el.html()));
 			}
 		} else {
-			LOG.error("Could not find any participants.");
+			LOG.warn("Could not find any participants.");
 		}
 
 		// Record info
@@ -219,13 +231,21 @@ public class ProjectParser {
 			}
 		}
 		if (0 == p.getRcn()) {
-			LOG.error("Could not parse RCN.");
+			LOG.warn("Could not parse RCN.");
 		}
 		if (null == p.getLastUpdatedOn()) {
-			LOG.error("Could not parse last updated on.");
+			LOG.warn("Could not parse last updated on.");
 		}
 
 		return p;
+	}
+
+	private static Document brToOwnDelimiter(Element withBr) {
+		// I add an own delimiter, because Jsoup's text() doesn't convert
+		// <br/>-s to \n-s.
+		String html = withBr.html().replaceAll("<br />", "#####");
+		Document withOwnDelimiter = Jsoup.parse(html + "#####");
+		return withOwnDelimiter;
 	}
 
 	public static Participant parseParticipant(String participantHTML) {
@@ -239,7 +259,7 @@ public class ProjectParser {
 		if (!els.isEmpty()) {
 			participant.setName(els.first().text());
 		} else {
-			LOG.error("Could not parse participant name.");
+			LOG.warn("Could not parse participant name.");
 		}
 
 		// Country
@@ -247,15 +267,12 @@ public class ProjectParser {
 		if (!els.isEmpty()) {
 			participant.setCountry(els.first().ownText());
 		} else {
-			LOG.error("Could not parse participant country.");
+			LOG.warn("Could not parse participant country.");
 		}
 
 		els = doc.select("div.optional.item-content");
 		if (!els.isEmpty()) {
-			// I add an own delimiter, because Jsoup's text() doesn't convert
-			// <br/>-s to \n-s.
-			String html = els.first().html().replaceAll("<br />", "#####");
-			Document dataDoc = Jsoup.parse(html + "#####");
+			Document dataDoc = brToOwnDelimiter(els.first());
 			String text = dataDoc.text(); // need 2 unescape and make UTF8
 
 			// Administrative contact
@@ -291,10 +308,10 @@ public class ProjectParser {
 			}
 		}
 		if (null == participant.getAdministrativeContact()) {
-			LOG.error("Could not parse participant administrative contact.");
+			LOG.warn("Could not parse participant administrative contact.");
 		}
 		if (null == participant.getAddress()) {
-			LOG.error("Could not parse participant address.");
+			LOG.warn("Could not parse participant address.");
 		}
 		// other fields are really optional, they are not everywhere
 
@@ -329,11 +346,12 @@ public class ProjectParser {
 			}
 
 			// Publications
+			// now we have a valid, verified JSON, we can have an empty publist
+			List<Publication> publications = new ArrayList<Publication>();
+			project.setPublications(publications);
+
 			JsonElement pubsEl = root.get("docs");
 			if (null != pubsEl && pubsEl.isJsonArray()) {
-				List<Publication> publications = new ArrayList<Publication>();
-				project.setPublications(publications);
-
 				JsonArray pubsArr = root.getAsJsonArray("docs");
 				Iterator<JsonElement> pubsIt = pubsArr.iterator();
 				while (pubsIt.hasNext()) {
@@ -349,7 +367,7 @@ public class ProjectParser {
 								.replaceAll("\\n", " ").replaceAll(" +", " ")
 								.trim());
 					} else {
-						LOG.error("Could not parse publication title.");
+						LOG.warn("Could not parse publication title.");
 					}
 
 					// Publication URL
@@ -377,7 +395,7 @@ public class ProjectParser {
 
 				LOG.info("Found {} publications.", publications.size());
 			} else {
-				LOG.error("Could not find 'docs' array in JSON.");
+				LOG.warn("Could not find 'docs' array in JSON.");
 			}
 		} catch (Exception e) {
 			LOG.error(

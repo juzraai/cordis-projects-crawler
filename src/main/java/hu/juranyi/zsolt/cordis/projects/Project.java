@@ -7,7 +7,6 @@ import java.util.List;
 public class Project {
 
 	private String contractType;
-
 	private Participant coordinator; // TODO It's sure there's only one?!
 	private int cost;
 	private String costCurrency;
@@ -15,6 +14,7 @@ public class Project {
 	private Date datesTo;
 	private int euContribution;
 	private String euContributionCurrency;
+	private String generalInformation;
 	private Date lastUpdatedOn;
 	private String name;
 	private String objective;
@@ -58,6 +58,10 @@ public class Project {
 
 	public String getEuContributionCurrency() {
 		return euContributionCurrency;
+	}
+
+	public String getGeneralInformation() {
+		return generalInformation;
 	}
 
 	public Date getLastUpdatedOn() {
@@ -138,6 +142,10 @@ public class Project {
 
 	public void setEuContributionCurrency(String euContributionCurrency) {
 		this.euContributionCurrency = euContributionCurrency;
+	}
+
+	public void setGeneralInformation(String generalInformation) {
+		this.generalInformation = generalInformation;
 	}
 
 	public void setLastUpdatedOn(Date lastUpdatedOn) {

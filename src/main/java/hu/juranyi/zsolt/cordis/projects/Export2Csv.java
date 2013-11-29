@@ -120,6 +120,7 @@ public class Export2Csv {
 				String s = sb.toString();
 				s = s.replaceAll(";", ",.").replaceAll("#####", ";");
 				s = s.replaceAll(";\"", ";").replaceAll("\";", ";");
+				s = s.replaceAll("null;", "N/A;");
 				out.write(s);
 			}
 			out.flush();
