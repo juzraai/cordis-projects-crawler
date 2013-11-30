@@ -56,6 +56,9 @@
 <li>can read RCNs from already downloaded files' names instead of crawling CORDIS list</li>
 <li>CLI for set up and run crawler</li>
 <li>file logging</li>
+<li>can parse all info from project page</li>
+<li>can parse publication list JSON strings</li>
+<li>can export projects' data to CSV file</li>
 </ul><h2>
 <a name="2-requirements" class="anchor" href="#2-requirements"><span class="octicon octicon-link"></span></a>2. Requirements</h2>
 
@@ -75,6 +78,11 @@
 <p>Download only project with RCN 90433:</p>
 
 <pre><code>java -jar cordis-crawler-VERSION.jar -1 90433 -d outputdir/
+</code></pre>
+
+<p>Export already downloaded project files to one CSV:</p>
+
+<pre><code>java -jar cordis-crawler-VERSION.jar -a -rd -xcsv myexport.csv
 </code></pre>
 
 <p>To see detailed usage information, run the binary with no arguments.</p>
@@ -109,15 +117,20 @@
         <span class="o">.</span><span class="na">all</span><span class="o">();</span> <span class="c1">// .byRCN(90433);</span>
 </pre></div>
 
+<p>Export projects' data to CSV:</p>
+
+<div class="highlight highlight-java"><pre><span class="n">List</span><span class="o">&lt;</span><span class="n">Project</span><span class="o">&gt;</span> <span class="n">projects</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ProjectDownloader</span><span class="o">().</span><span class="na">outputDir</span><span class="o">(</span><span class="s">"outputdir/"</span><span class="o">);</span>
+<span class="n">Export2Csv</span><span class="o">.</span><span class="na">export</span><span class="o">(</span><span class="n">projects</span><span class="o">,</span> <span class="s">"myexport.csv"</span><span class="o">);</span>
+</pre></div>
+
 <p>Javadoc will come soon! :-)</p>
 
 <h2>
 <a name="4-future-plans-ideas" class="anchor" href="#4-future-plans-ideas"><span class="octicon octicon-link"></span></a>4. Future plans, ideas</h2>
 
 <ul>
-<li>parse the whole project data page</li>
-<li>parse JSON objects</li>
 <li>export project and publications data to XML or database</li>
+<li>v2.0 with reorganized classes to increase universality and modularity</li>
 </ul><h2>
 <a name="5-thanks-to" class="anchor" href="#5-thanks-to"><span class="octicon octicon-link"></span></a>5. Thanks to</h2>
 
