@@ -20,6 +20,14 @@ public class ProjectParser {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ProjectParser.class);
 
+	private static Document brToOwnDelimiter(Element withBr) {
+		// I add an own delimiter, because Jsoup's text() doesn't convert
+		// <br/>-s to \n-s.
+		String html = withBr.html().replaceAll("<br />", "#####");
+		Document withOwnDelimiter = Jsoup.parse(html + "#####");
+		return withOwnDelimiter;
+	}
+
 	public static Project buildProject(String projectDataPage) {
 		LOG.info("Parsing project data...");
 		Project p = new Project();
@@ -234,14 +242,6 @@ public class ProjectParser {
 		}
 
 		return p;
-	}
-
-	private static Document brToOwnDelimiter(Element withBr) {
-		// I add an own delimiter, because Jsoup's text() doesn't convert
-		// <br/>-s to \n-s.
-		String html = withBr.html().replaceAll("<br />", "#####");
-		Document withOwnDelimiter = Jsoup.parse(html + "#####");
-		return withOwnDelimiter;
 	}
 
 	public static Participant parseParticipant(String participantHTML) {
