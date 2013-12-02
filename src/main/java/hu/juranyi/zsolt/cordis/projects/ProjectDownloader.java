@@ -105,6 +105,7 @@ public class ProjectDownloader {
 			Project project = ProjectParser.buildProject(docStr); // parse
 			String ref = project.getReference();
 			if (null != project.getReference()) {
+				ref = project.getReference().trim(); // just to be sure :)
 				LOG.debug("RCN {} <=> Project reference {}", rcn, ref);
 				LOG.info("Fetching publication list by project reference: {}",
 						ref);

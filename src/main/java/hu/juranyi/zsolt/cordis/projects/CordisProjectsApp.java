@@ -20,7 +20,7 @@ import org.apache.commons.cli.ParseException;
  */
 public class CordisProjectsApp {
 
-	private static final String VERSION = "1.2.0";
+	private static final String VERSION = "1.2.1-SNAPSHOT";
 
 	/**
 	 * Provides a CLI which helps users set up and run crawls to fetch

@@ -124,7 +124,9 @@ public class ProjectParser {
 			// Project reference
 			String ref = findFirstMatch(text, "Project reference: (.*?)#####",
 					1);
-			p.setReference(ref);
+			if (null != ref) {
+				p.setReference(ref.trim());
+			}
 
 			// Project status
 			String status = findFirstMatch(text, "Status: (.*?)#####", 1);

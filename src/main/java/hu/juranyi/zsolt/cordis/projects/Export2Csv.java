@@ -117,7 +117,7 @@ public class Export2Csv {
 				sb.append("\n");
 				String s = sb.toString();
 				s = s.replaceAll(";", ",.").replaceAll("#####", ";");
-				s = s.replaceAll(";\"", ";").replaceAll("\";", ";");
+				s = s.replaceAll("\"", ""); // more radical cleaning - needed
 				s = s.replaceAll("null;", "N/A;");
 				out.write(s);
 			}

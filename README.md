@@ -93,7 +93,8 @@ Javadoc will come soon! :-)
 ##4. Future plans, ideas
 
 * export project and publications data to XML or database
-* v2.0 with reorganized classes to increase universality and modularity
+* v2.0 with reorganized classes to increase flexibility
+* configurable download settings
 
 
 ##5. Thanks to
