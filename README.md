@@ -23,6 +23,7 @@ Users can use the binary with CLI, developers can use the classes! :)
 * can parse all info from project page
 * can parse publication list JSON strings
 * can export projects' data to CSV file
+* can export all data to MySQL database
 
 
 ##2. Requirements

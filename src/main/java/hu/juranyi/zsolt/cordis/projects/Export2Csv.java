@@ -61,12 +61,14 @@ public class Export2Csv {
 					sb.append("N/A");
 				}
 				sb.append("#####");
+
 				try {
 					sb.append(p.getPublications().size());
 				} catch (Exception e) {
 					sb.append("N/A");
 				}
 				sb.append("#####");
+
 				try {
 					sb.append(dateFormat.format(p.getDatesFrom()));
 				} catch (Exception e) {
