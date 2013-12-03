@@ -23,6 +23,11 @@ public class Export2MySQL {
 	public static void export(List<Project> projects) {
 		LOG.info("Exporting {} projects to MySQL...", projects.size());
 		// TODO export...
+
+		// Project id: (int) rcn
+		// Publication id: (string) md5(title+url+authors)
+		// Participant id: (string) md5(all data)
+		// Author id: (int) id, auto_increment
 	}
 
 }
