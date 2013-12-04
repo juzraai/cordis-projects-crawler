@@ -1,5 +1,6 @@
 package hu.juranyi.zsolt.cordis.projects;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.cli.BasicParser;
@@ -75,17 +76,15 @@ public class CordisProjectsApp {
 						+ "This is useful when you've got only project pages "
 						+ "and need publication list JSON files.");
 		options.addOption("xcsv", "export-2-csv", true,
-				"When using beside 'a', the program will export processed "
-						+ "projects to a CSV file. Publication list will not "
-						+ "be included.");
+				"Projects' data will be exported to a CSV file. Publication "
+						+ "list and participants' data will not be included.");
 		options.addOption(OptionBuilder
 				.hasArgs(4)
 				.withLongOpt("export-2-mysql")
 				.withDescription(
-						"Using beside 'a', the program will export all data"
-								+ " into a MySQL database. Arguments:"
-								+ " <host:port> <database name> <user>"
-								+ " <password>").create("xdb"));
+						"All data will be exported into a MySQL database. "
+								+ "Arguments: <host:port> <database name> "
+								+ "<user> <password>").create("xdb"));
 
 		options.getOption("1").setType(Number.class);
 
@@ -112,28 +111,32 @@ public class CordisProjectsApp {
 				downloader.readRCNsFromDirectory(true);
 			}
 
-			// commands
+			// downloader commands
+			List<Project> projects = new ArrayList<Project>();
 			if (line.hasOption("1")) {
-				downloader.byRCN(((Number) line.getParsedOptionValue("1"))
-						.intValue());
+				int rcn = ((Number) line.getParsedOptionValue("1")).intValue();
+				Project project = downloader.byRCN(rcn);
+				projects = new ArrayList<Project>();
+				projects.add(project);
 			} else if (line.hasOption("a")) {
-				List<Project> projects = downloader.all();
-				if (line.hasOption("xcsv")) {
-					Export2Csv.export(projects, line.getOptionValue("xcsv"));
-				}
-				if (line.hasOption("xdb")) {
-					String[] v = line.getOptionValues("xdb");
-					if (v != null && 4 == v.length) {
-						String host = v[0];
-						String name = v[1];
-						String user = v[2];
-						String pass = v[3];
-						Export2MySQL x = new Export2MySQL(host, name, user,
-								pass);
-						x.export(projects);
-					} else {
-						System.out.println("Not enough parameters for 'xdb' !");
-					}
+				projects.addAll(downloader.all());
+			}
+
+			// export commands
+			if (line.hasOption("xcsv")) {
+				Export2Csv.export(projects, line.getOptionValue("xcsv"));
+			}
+			if (line.hasOption("xdb")) {
+				String[] v = line.getOptionValues("xdb");
+				if (v != null && 4 == v.length) {
+					String host = v[0];
+					String name = v[1];
+					String user = v[2];
+					String pass = v[3];
+					Export2MySQL x = new Export2MySQL(host, name, user, pass);
+					x.export(projects);
+				} else {
+					System.out.println("Not enough parameters for 'xdb' !");
 				}
 			}
 		} catch (ParseException exp) {

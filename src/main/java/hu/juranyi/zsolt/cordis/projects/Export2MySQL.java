@@ -65,7 +65,11 @@ public class Export2MySQL {
 			LOG.debug("Connected. Now inserting records...");
 
 			// do the work
-			for (Project project : projects) {
+			for (int i = 0; i < projects.size(); i++) {
+				Project project = projects.get(i);
+				LOG.info("Inserting project {}/{}, RCN: {}", i + 1,
+						projects.size(), project.getRcn());
+
 				insertProject(project, connection);
 
 				Participant coordinator = project.getCoordinator();
@@ -81,6 +85,7 @@ public class Export2MySQL {
 					insertPublication(publication, connection);
 					insertProjectPublication(publication, project, connection);
 					for (String author : publication.getAuthors()) {
+						author = author.trim(); // need cleaning!
 						insertAuthor(author, connection);
 						insertAuthoring(author, publication, connection);
 					}
@@ -94,30 +99,13 @@ public class Export2MySQL {
 
 	private void insertAuthor(String author, Connection connection) {
 		PreparedStatement ps;
-		try { // TODO SYNTAX ERROR ?!?!
-			ps = connection.prepareStatement("SELECT id FROM Author"
-					+ "WHERE name=?");
+		try {
+			ps = connection.prepareStatement("INSERT IGNORE INTO Author "
+					+ "(name) VALUES (?)");
 			ps.setString(1, author);
-			ResultSet results = ps.executeQuery();
-			Integer authorId = null;
-			while (results.next()) {
-				authorId = results.getInt(1);
-			}
-			results.close();
+			ps.execute();
 			ps.close();
-			LOG.debug("SEARCH DONE. ID: {}", authorId);
-			if (null != authorId) {
-				ps = connection.prepareStatement("INSERT INTO Author"
-						+ "(name) VALUES (?)");
-				ps.setString(1, author);
-				ps.execute();
-				ps.close();
-			}
 
-			/*
-			 * ps = connection.prepareStatement("INSERT IGNORE INTO Author" +
-			 * "SET name=?"); ps.setString(1, author); ps.execute(); ps.close();
-			 */
 		} catch (SQLException e) {
 			LOG.error("Could not insert author {}: {}", author, e.getMessage());
 		}
@@ -126,8 +114,8 @@ public class Export2MySQL {
 	private void insertAuthoring(String author, Publication publication,
 			Connection connection) {
 		PreparedStatement ps;
-		try { // TODO SYNTAX ERROR ?!?!
-			ps = connection.prepareStatement("SELECT id FROM Author"
+		try {
+			ps = connection.prepareStatement("SELECT id FROM Author "
 					+ "WHERE name=?");
 			ps.setString(1, author);
 			ResultSet results = ps.executeQuery();
@@ -142,7 +130,7 @@ public class Export2MySQL {
 				throw new Exception("Could not find author.");
 			}
 
-			ps = connection.prepareStatement("REPLACE Authoring"
+			ps = connection.prepareStatement("REPLACE Authoring "
 					+ "(author_id, publication_id) VALUES (?,?)");
 			ps.setInt(1, authorId);
 			ps.setString(2, calcPublicationId(publication));
@@ -159,7 +147,7 @@ public class Export2MySQL {
 			Connection connection) {
 		PreparedStatement ps;
 		try {
-			ps = connection.prepareStatement("REPLACE Participant"
+			ps = connection.prepareStatement("REPLACE Participant "
 					+ "(id, address, administrative_contact, country, fax,"
 					+ "name, tel, website) VALUES (?,?,?,?,?,?,?,?)");
 			ps.setString(1, calcParticipantId(participant));
@@ -181,7 +169,7 @@ public class Export2MySQL {
 			Connection connection) {
 		PreparedStatement ps;
 		try {
-			ps = connection.prepareStatement("REPLACE Participation"
+			ps = connection.prepareStatement("REPLACE Participation "
 					+ "(project_rcn, participant_id) VALUES (?,?)");
 			ps.setInt(1, project.getRcn());
 			ps.setString(2, calcParticipantId(participant));
@@ -196,12 +184,12 @@ public class Export2MySQL {
 	private void insertProject(Project project, Connection connection) {
 		PreparedStatement ps;
 		try {
-			ps = connection.prepareStatement("REPLACE Project"
+			ps = connection.prepareStatement("REPLACE Project "
 					+ "(rcn, contract_type, cost, cost_currency,"
 					+ "eu_contribution, eu_contribution_currency, dates_from,"
 					+ "dates_to, general_information, last_updated, name,"
 					+ "objective, programme_acronym, reference, status,"
-					+ "subprogramme_area, title, website)"
+					+ "subprogramme_area, title, website) "
 					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			ps.setInt(1, project.getRcn());
 			ps.setString(2, project.getContractType());
@@ -234,7 +222,7 @@ public class Export2MySQL {
 			Project project, Connection connection) {
 		PreparedStatement ps;
 		try {
-			ps = connection.prepareStatement("REPLACE Project_Publication"
+			ps = connection.prepareStatement("REPLACE Project_Publication "
 					+ "(project_rcn, publication_id) VALUES (?,?)");
 			ps.setInt(1, project.getRcn());
 			ps.setString(2, calcPublicationId(publication));
@@ -251,7 +239,7 @@ public class Export2MySQL {
 			Connection connection) {
 		PreparedStatement ps;
 		try {
-			ps = connection.prepareStatement("REPLACE Publication"
+			ps = connection.prepareStatement("REPLACE Publication "
 					+ "(id, title, url) VALUES (?, ?,?);");
 			ps.setString(1, calcPublicationId(publication));
 			ps.setString(2, publication.getTitle());

@@ -38,7 +38,7 @@ public class ProjectParser {
 		// Project name (main title / short title)
 		els = doc.select("div.projttl h1");
 		if (!els.isEmpty()) {
-			p.setName(els.first().text());
+			p.setName(els.first().text().trim());
 		}
 		if (null == p.getName()) {
 			LOG.error("Could not parse project name.");
@@ -48,7 +48,7 @@ public class ProjectParser {
 		// Project title (sub title / long title)
 		els = doc.select("div.projttl h2");
 		if (!els.isEmpty()) {
-			p.setTitle(els.first().text());
+			p.setTitle(els.first().text().trim());
 		}
 		if (null == p.getTitle()) {
 			LOG.warn("Could not parse project title.");
@@ -182,7 +182,7 @@ public class ProjectParser {
 
 			p.setProgrammeAcronym(progAcronym);
 			p.setSubprogrammeArea(subprogArea);
-			p.setContractType(contrType);
+			p.setContractType(contrType.trim());
 		}
 		if (null == p.getProgrammeAcronym()) {
 			LOG.warn("Could not parse programme acronym.");
@@ -255,7 +255,7 @@ public class ProjectParser {
 		// Name
 		els = doc.select("div.name");
 		if (!els.isEmpty()) {
-			participant.setName(els.first().text());
+			participant.setName(els.first().text().trim());
 		} else {
 			LOG.warn("Could not parse participant name.");
 		}
@@ -263,7 +263,7 @@ public class ProjectParser {
 		// Country
 		els = doc.select("div.country");
 		if (!els.isEmpty()) {
-			participant.setCountry(els.first().ownText());
+			participant.setCountry(els.first().ownText().trim());
 		} else {
 			LOG.warn("Could not parse participant country.");
 		}
