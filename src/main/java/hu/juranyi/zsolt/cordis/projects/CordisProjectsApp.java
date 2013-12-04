@@ -7,6 +7,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -77,6 +78,14 @@ public class CordisProjectsApp {
 				"When using beside 'a', the program will export processed "
 						+ "projects to a CSV file. Publication list will not "
 						+ "be included.");
+		options.addOption(OptionBuilder
+				.hasArgs(4)
+				.withLongOpt("export-2-mysql")
+				.withDescription(
+						"Using beside 'a', the program will export all data"
+								+ " into a MySQL database. Arguments:"
+								+ " <host:port> <database name> <user>"
+								+ " <password>").create("xdb"));
 
 		options.getOption("1").setType(Number.class);
 
@@ -111,6 +120,20 @@ public class CordisProjectsApp {
 				List<Project> projects = downloader.all();
 				if (line.hasOption("xcsv")) {
 					Export2Csv.export(projects, line.getOptionValue("xcsv"));
+				}
+				if (line.hasOption("xdb")) {
+					String[] v = line.getOptionValues("xdb");
+					if (v != null && 4 == v.length) {
+						String host = v[0];
+						String name = v[1];
+						String user = v[2];
+						String pass = v[3];
+						Export2MySQL x = new Export2MySQL(host, name, user,
+								pass);
+						x.export(projects);
+					} else {
+						System.out.println("Not enough parameters for 'xdb' !");
+					}
 				}
 			}
 		} catch (ParseException exp) {

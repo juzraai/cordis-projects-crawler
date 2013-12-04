@@ -1,5 +1,10 @@
 package hu.juranyi.zsolt.cordis.projects;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -13,16 +18,46 @@ public class Export2MySQL {
 			.getLogger(Export2MySQL.class);
 
 	// TODO private boolean dropExisting = false;
-	private String host = "localhost";
-	private String name = "cordis";
-	private String user = "root";
-	private String pass = "root";
+	private String host;
+	private String name;
+	private String user;
+	private String pass;
 
-	// TODO settings should be passed to constructor
+	public Export2MySQL(String host, String name, String user, String pass) {
+		this.host = host;
+		this.name = name;
+		this.user = user;
+		this.pass = pass;
+	}
 
-	public static void export(List<Project> projects) {
+	public void export(List<Project> projects) {
 		LOG.info("Exporting {} projects to MySQL...", projects.size());
 		// TODO export...
+
+		// TODO ÚGY KÉNE, HOGY FRISSÍT!!! INSERT HELYETT REPLACE!
+
+		try {
+			// connection
+			LOG.debug("Connecting...");
+			Connection connection = DriverManager.getConnection("jdbc:mysql://"
+					+ host, user, pass);
+			LOG.debug("Selecting database...");
+			Statement s = connection.createStatement();
+			s.execute("USE " + name);
+			s.close();
+			LOG.debug("Connected.");
+
+			// do the work
+			for (Project project : projects) {
+				insertProject(project, connection);
+				// for participants ...
+				// for publications, inside: for authors...
+				// do connections
+			}
+
+		} catch (SQLException ex) {
+			LOG.error("Error: {}", ex.getMessage());
+		}
 
 		// Project id: (int) rcn
 		// Publication id: (string) md5(title+url+authors)
@@ -30,4 +65,40 @@ public class Export2MySQL {
 		// Author id: (int) id, auto_increment
 	}
 
+	private void insertProject(Project project, Connection conn) {
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement("REPLACE Project"
+					+ "(rcn, contract_type, cost, cost_currency,"
+					+ "eu_contribution, eu_contribution_currency, dates_from,"
+					+ "dates_to, general_information, last_updated, name,"
+					+ "objective, programme_acronym, reference, status,"
+					+ "subprogramme_area, title, website)"
+					+ "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+			ps.setInt(1, project.getRcn());
+			ps.setString(2, project.getContractType());
+			ps.setInt(3, project.getCost());
+			ps.setString(4, project.getCostCurrency());
+			ps.setInt(5, project.getEuContribution());
+			ps.setString(6, project.getEuContributionCurrency());
+			ps.setDate(7, new java.sql.Date(project.getDatesFrom().getTime()));
+			ps.setDate(8, new java.sql.Date(project.getDatesTo().getTime()));
+			ps.setString(9, project.getGeneralInformation());
+			ps.setDate(10, new java.sql.Date(project.getLastUpdatedOn()
+					.getTime()));
+			ps.setString(11, project.getName());
+			ps.setString(12, project.getObjective());
+			ps.setString(13, project.getProgrammeAcronym());
+			ps.setString(14, project.getReference());
+			ps.setString(15, project.getStatus());
+			ps.setString(16, project.getSubprogrammeArea());
+			ps.setString(17, project.getTitle());
+			ps.setString(18, project.getWebsite());
+			ps.execute();
+			ps.close();
+		} catch (SQLException e) {
+			LOG.error("Could not insert project {}: {}", project.getRcn(),
+					e.getMessage());
+		}
+	}
 }
