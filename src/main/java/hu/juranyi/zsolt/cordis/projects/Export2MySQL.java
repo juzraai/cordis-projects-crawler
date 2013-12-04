@@ -1,5 +1,7 @@
 package hu.juranyi.zsolt.cordis.projects;
 
+import hu.juranyi.zsolt.common.MD5;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -11,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // TODO JAVADOC
-// TODO settings!
 public class Export2MySQL {
 
 	private static final Logger LOG = LoggerFactory
@@ -32,9 +33,6 @@ public class Export2MySQL {
 
 	public void export(List<Project> projects) {
 		LOG.info("Exporting {} projects to MySQL...", projects.size());
-		// TODO export...
-
-		// TODO ÚGY KÉNE, HOGY FRISSÍT!!! INSERT HELYETT REPLACE!
 
 		try {
 			// connection
@@ -50,6 +48,15 @@ public class Export2MySQL {
 			// do the work
 			for (Project project : projects) {
 				insertProject(project, connection);
+
+				Participant coordinator = project.getCoordinator();
+				insertParticipant(coordinator, connection);
+				insertParticipation(coordinator, project, connection);
+
+				for (Participant participant : project.getParticipants()) {
+					insertParticipant(participant, connection);
+					insertParticipation(participant, project, connection);
+				}
 				// for participants ...
 				// for publications, inside: for authors...
 				// do connections
@@ -63,6 +70,51 @@ public class Export2MySQL {
 		// Publication id: (string) md5(title+url+authors)
 		// Participant id: (string) md5(all data)
 		// Author id: (int) id, auto_increment
+	}
+
+	private void insertParticipation(Participant participant, Project project,
+			Connection conn) {
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement("REPLACE Participation"
+					+ "(project_rcn, participant_id) VALUES (?,?)");
+			ps.setInt(1, project.getRcn());
+			ps.setString(2, calcParticipantId(participant));
+			ps.execute();
+			ps.close();
+		} catch (Exception e) {
+			LOG.error("Could not insert participation for project {}: {}",
+					project.getRcn(), e.getMessage());
+		}
+	}
+
+	private String calcParticipantId(Participant participant) throws Exception {
+		return MD5.getMD5FromString(participant.getAddress()
+				+ participant.getAdministrativeContact()
+				+ participant.getCountry() + participant.getFax()
+				+ participant.getName() + participant.getTel()
+				+ participant.getWebsite());
+	}
+
+	private void insertParticipant(Participant participant, Connection conn) {
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement("REPLACE Participant"
+					+ "(id, address, administrative_contact, country, fax,"
+					+ "name, tel, website) VALUES (?,?,?,?,?,?,?,?)");
+			ps.setString(1, calcParticipantId(participant));
+			ps.setString(2, participant.getAddress());
+			ps.setString(3, participant.getAdministrativeContact());
+			ps.setString(4, participant.getCountry());
+			ps.setString(5, participant.getFax());
+			ps.setString(6, participant.getName());
+			ps.setString(7, participant.getTel());
+			ps.setString(8, participant.getWebsite());
+			ps.execute();
+			ps.close();
+		} catch (Exception e) {
+			LOG.error("Could not insert participant: {}", e.getMessage());
+		}
 	}
 
 	private void insertProject(Project project, Connection conn) {
