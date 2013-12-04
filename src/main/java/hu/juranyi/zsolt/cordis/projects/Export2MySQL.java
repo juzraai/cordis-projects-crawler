@@ -21,14 +21,22 @@ public class Export2MySQL {
 	// TODO private boolean dropExisting = false;
 	private String host;
 	private String name;
-	private String user;
 	private String pass;
+	private String user;
 
 	public Export2MySQL(String host, String name, String user, String pass) {
 		this.host = host;
 		this.name = name;
 		this.user = user;
 		this.pass = pass;
+	}
+
+	private String calcParticipantId(Participant participant) throws Exception {
+		return MD5.getMD5FromString(participant.getAddress()
+				+ participant.getAdministrativeContact()
+				+ participant.getCountry() + participant.getFax()
+				+ participant.getName() + participant.getTel()
+				+ participant.getWebsite());
 	}
 
 	public void export(List<Project> projects) {
@@ -57,6 +65,15 @@ public class Export2MySQL {
 					insertParticipant(participant, connection);
 					insertParticipation(participant, project, connection);
 				}
+
+				for (Publication publication : project.getPublications()) {
+					insertPublication(publication, connection);
+					insertProjectPublication(publication, project, connection);
+					for (String author : publication.getAuthors()) {
+						insertAuthor(author, connection);
+						insertAuthoring(author, publication, connection);
+					}
+				}
 				// for participants ...
 				// for publications, inside: for authors...
 				// do connections
@@ -72,34 +89,31 @@ public class Export2MySQL {
 		// Author id: (int) id, auto_increment
 	}
 
-	private void insertParticipation(Participant participant, Project project,
-			Connection conn) {
+	private void insertAuthor(String author, Connection connection) {
 		PreparedStatement ps;
 		try {
-			ps = conn.prepareStatement("REPLACE Participation"
-					+ "(project_rcn, participant_id) VALUES (?,?)");
-			ps.setInt(1, project.getRcn());
-			ps.setString(2, calcParticipantId(participant));
+			ps = connection.prepareStatement("INSERT IGNORE INTO Author"
+					+ "(name) VALUES (?);");
+			ps.setString(1, author);
 			ps.execute();
 			ps.close();
-		} catch (Exception e) {
-			LOG.error("Could not insert participation for project {}: {}",
-					project.getRcn(), e.getMessage());
+		} catch (SQLException e) {
+			LOG.error("Could not insert author {}: {}", author, e.getMessage());
 		}
+
 	}
 
-	private String calcParticipantId(Participant participant) throws Exception {
-		return MD5.getMD5FromString(participant.getAddress()
-				+ participant.getAdministrativeContact()
-				+ participant.getCountry() + participant.getFax()
-				+ participant.getName() + participant.getTel()
-				+ participant.getWebsite());
+	private void insertAuthoring(String author, Publication publication,
+			Connection connection) {
+		// TODO Auto-generated method stub
+
 	}
 
-	private void insertParticipant(Participant participant, Connection conn) {
+	private void insertParticipant(Participant participant,
+			Connection connection) {
 		PreparedStatement ps;
 		try {
-			ps = conn.prepareStatement("REPLACE Participant"
+			ps = connection.prepareStatement("REPLACE Participant"
 					+ "(id, address, administrative_contact, country, fax,"
 					+ "name, tel, website) VALUES (?,?,?,?,?,?,?,?)");
 			ps.setString(1, calcParticipantId(participant));
@@ -117,10 +131,26 @@ public class Export2MySQL {
 		}
 	}
 
-	private void insertProject(Project project, Connection conn) {
+	private void insertParticipation(Participant participant, Project project,
+			Connection connection) {
 		PreparedStatement ps;
 		try {
-			ps = conn.prepareStatement("REPLACE Project"
+			ps = connection.prepareStatement("REPLACE Participation"
+					+ "(project_rcn, participant_id) VALUES (?,?)");
+			ps.setInt(1, project.getRcn());
+			ps.setString(2, calcParticipantId(participant));
+			ps.execute();
+			ps.close();
+		} catch (Exception e) {
+			LOG.error("Could not insert participation for project {}: {}",
+					project.getRcn(), e.getMessage());
+		}
+	}
+
+	private void insertProject(Project project, Connection connection) {
+		PreparedStatement ps;
+		try {
+			ps = connection.prepareStatement("REPLACE Project"
 					+ "(rcn, contract_type, cost, cost_currency,"
 					+ "eu_contribution, eu_contribution_currency, dates_from,"
 					+ "dates_to, general_information, last_updated, name,"
@@ -152,5 +182,17 @@ public class Export2MySQL {
 			LOG.error("Could not insert project {}: {}", project.getRcn(),
 					e.getMessage());
 		}
+	}
+
+	private void insertProjectPublication(Publication publication,
+			Project project, Connection connection) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void insertPublication(Publication publication,
+			Connection connection) {
+		// TODO Auto-generated method stub
+
 	}
 }
