@@ -46,13 +46,13 @@ CREATE  TABLE IF NOT EXISTS `cordis`.`Authoring` (
   CONSTRAINT `authoring_author`
     FOREIGN KEY (`author_id` )
     REFERENCES `cordis`.`Author` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `authoring_publication`
     FOREIGN KEY (`publication_id` )
     REFERENCES `cordis`.`Publication` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -116,13 +116,13 @@ CREATE  TABLE IF NOT EXISTS `cordis`.`Participation` (
   CONSTRAINT `participation_participant`
     FOREIGN KEY (`participant_id` )
     REFERENCES `cordis`.`Participant` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `participation_project`
     FOREIGN KEY (`project_rcn` )
     REFERENCES `cordis`.`Project` (`rcn` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -140,13 +140,13 @@ CREATE  TABLE IF NOT EXISTS `cordis`.`Project_Publication` (
   CONSTRAINT `pp_project`
     FOREIGN KEY (`project_rcn` )
     REFERENCES `cordis`.`Project` (`rcn` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `pp_publication`
     FOREIGN KEY (`publication_id` )
     REFERENCES `cordis`.`Publication` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 

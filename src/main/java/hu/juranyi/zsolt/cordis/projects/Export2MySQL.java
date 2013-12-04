@@ -5,6 +5,7 @@ import hu.juranyi.zsolt.common.MD5;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
@@ -39,6 +40,16 @@ public class Export2MySQL {
 				+ participant.getWebsite());
 	}
 
+	private String calcPublicationId(Publication publication) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append(publication.getTitle());
+		sb.append(publication.getUrl());
+		for (String author : publication.getAuthors()) {
+			sb.append(author);
+		}
+		return MD5.getMD5FromString(sb.toString());
+	}
+
 	public void export(List<Project> projects) {
 		LOG.info("Exporting {} projects to MySQL...", projects.size());
 
@@ -51,7 +62,7 @@ public class Export2MySQL {
 			Statement s = connection.createStatement();
 			s.execute("USE " + name);
 			s.close();
-			LOG.debug("Connected.");
+			LOG.debug("Connected. Now inserting records...");
 
 			// do the work
 			for (Project project : projects) {
@@ -74,39 +85,74 @@ public class Export2MySQL {
 						insertAuthoring(author, publication, connection);
 					}
 				}
-				// for participants ...
-				// for publications, inside: for authors...
-				// do connections
 			}
 
 		} catch (SQLException ex) {
 			LOG.error("Error: {}", ex.getMessage());
 		}
-
-		// Project id: (int) rcn
-		// Publication id: (string) md5(title+url+authors)
-		// Participant id: (string) md5(all data)
-		// Author id: (int) id, auto_increment
 	}
 
 	private void insertAuthor(String author, Connection connection) {
 		PreparedStatement ps;
-		try {
-			ps = connection.prepareStatement("INSERT IGNORE INTO Author"
-					+ "(name) VALUES (?);");
+		try { // TODO SYNTAX ERROR ?!?!
+			ps = connection.prepareStatement("SELECT id FROM Author"
+					+ "WHERE name=?");
 			ps.setString(1, author);
-			ps.execute();
+			ResultSet results = ps.executeQuery();
+			Integer authorId = null;
+			while (results.next()) {
+				authorId = results.getInt(1);
+			}
+			results.close();
 			ps.close();
+			LOG.debug("SEARCH DONE. ID: {}", authorId);
+			if (null != authorId) {
+				ps = connection.prepareStatement("INSERT INTO Author"
+						+ "(name) VALUES (?)");
+				ps.setString(1, author);
+				ps.execute();
+				ps.close();
+			}
+
+			/*
+			 * ps = connection.prepareStatement("INSERT IGNORE INTO Author" +
+			 * "SET name=?"); ps.setString(1, author); ps.execute(); ps.close();
+			 */
 		} catch (SQLException e) {
 			LOG.error("Could not insert author {}: {}", author, e.getMessage());
 		}
-
 	}
 
 	private void insertAuthoring(String author, Publication publication,
 			Connection connection) {
-		// TODO Auto-generated method stub
+		PreparedStatement ps;
+		try { // TODO SYNTAX ERROR ?!?!
+			ps = connection.prepareStatement("SELECT id FROM Author"
+					+ "WHERE name=?");
+			ps.setString(1, author);
+			ResultSet results = ps.executeQuery();
+			Integer authorId = null;
+			while (results.next()) {
+				authorId = results.getInt(1);
+			}
+			results.close();
+			ps.close();
 
+			if (null == authorId) {
+				throw new Exception("Could not find author.");
+			}
+
+			ps = connection.prepareStatement("REPLACE Authoring"
+					+ "(author_id, publication_id) VALUES (?,?)");
+			ps.setInt(1, authorId);
+			ps.setString(2, calcPublicationId(publication));
+			ps.execute();
+			ps.close();
+
+		} catch (Exception e) {
+			LOG.error("Could not insert authoring for author {}: {}", author,
+					e.getMessage());
+		}
 	}
 
 	private void insertParticipant(Participant participant,
@@ -186,13 +232,34 @@ public class Export2MySQL {
 
 	private void insertProjectPublication(Publication publication,
 			Project project, Connection connection) {
-		// TODO Auto-generated method stub
-
+		PreparedStatement ps;
+		try {
+			ps = connection.prepareStatement("REPLACE Project_Publication"
+					+ "(project_rcn, publication_id) VALUES (?,?)");
+			ps.setInt(1, project.getRcn());
+			ps.setString(2, calcPublicationId(publication));
+			ps.execute();
+			ps.close();
+		} catch (Exception e) {
+			LOG.error(
+					"Could not insert publication relation for project {}: {}",
+					project.getRcn(), e.getMessage());
+		}
 	}
 
 	private void insertPublication(Publication publication,
 			Connection connection) {
-		// TODO Auto-generated method stub
-
+		PreparedStatement ps;
+		try {
+			ps = connection.prepareStatement("REPLACE Publication"
+					+ "(id, title, url) VALUES (?, ?,?);");
+			ps.setString(1, calcPublicationId(publication));
+			ps.setString(2, publication.getTitle());
+			ps.setString(3, publication.getUrl());
+			ps.execute();
+			ps.close();
+		} catch (Exception e) {
+			LOG.error("Could not insert publication: {}", e.getMessage());
+		}
 	}
 }
