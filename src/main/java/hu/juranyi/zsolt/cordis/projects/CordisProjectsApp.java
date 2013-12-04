@@ -94,6 +94,22 @@ public class CordisProjectsApp {
 			CommandLine line = parser.parse(options, args);
 			ProjectDownloader downloader = new ProjectDownloader();
 
+			// pre-check MySQL connection if needed
+			// TODO not an elegant solution for pre-check :)
+			if (line.hasOption("xdb")) {
+				String[] v = line.getOptionValues("xdb");
+				if (v != null && 4 == v.length) {
+					String host = v[0];
+					String name = v[1];
+					String user = v[2];
+					String pass = v[3];
+					Export2MySQL x = new Export2MySQL(host, name, user, pass);
+					x.export(new ArrayList<Project>());
+				} else {
+					System.out.println("Not enough parameters for 'xdb' !");
+				}
+			}
+
 			// options
 			if (line.hasOption("d")) {
 				downloader.outputDir(line.getOptionValue("d"));

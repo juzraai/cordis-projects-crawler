@@ -130,7 +130,9 @@ public class ProjectParser {
 
 			// Project status
 			String status = findFirstMatch(text, "Status: (.*?)#####", 1);
-			p.setStatus(status.trim());
+			if (null != status) {
+				p.setStatus(status.trim());
+			}
 
 			// Total cost
 			try {
@@ -182,7 +184,9 @@ public class ProjectParser {
 
 			p.setProgrammeAcronym(progAcronym);
 			p.setSubprogrammeArea(subprogArea);
-			p.setContractType(contrType.trim());
+			if (null != contrType) {
+				p.setContractType(contrType.trim());
+			}
 		}
 		if (null == p.getProgrammeAcronym()) {
 			LOG.warn("Could not parse programme acronym.");
@@ -328,7 +332,29 @@ public class ProjectParser {
 			if (oapl.getProject().equals(project.getName())) {
 				if (null != oapl.getDocs()) {
 					LOG.debug("Found {} publications.", oapl.getDocs().size());
-					project.setPublications(oapl.getDocs());
+
+					// remove NULLs, trim strings
+					List<Publication> pubs = new ArrayList<Publication>();
+					project.setPublications(pubs);
+					for (Publication p : oapl.getDocs()) {
+						if (null != p && null != p.getTitle()) {
+							p.setTitle(p.getTitle().trim());
+							if (null != p.getUrl()) {
+								p.setUrl(p.getUrl().trim());
+							}
+							int a = 0;
+							while (a < p.getAuthors().size()) {
+								if (null != p.getAuthors().get(a)) {
+									p.getAuthors().set(a,
+											p.getAuthors().get(a).trim());
+									a++;
+								} else {
+									p.getAuthors().remove(a);
+								}
+							}
+							pubs.add(p); // add cleaned pub to project
+						}
+					}
 				} else {
 					LOG.warn("Could not find 'docs' array in JSON.");
 					project.setPublications(new ArrayList<Publication>());

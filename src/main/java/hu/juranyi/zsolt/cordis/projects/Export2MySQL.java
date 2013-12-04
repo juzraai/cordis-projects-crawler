@@ -56,10 +56,10 @@ public class Export2MySQL {
 		try {
 			// connection
 			LOG.debug("Connecting...");
-			Connection connection = DriverManager.getConnection("jdbc:mysql://"
+			Connection conn = DriverManager.getConnection("jdbc:mysql://"
 					+ host, user, pass);
 			LOG.debug("Selecting database...");
-			Statement s = connection.createStatement();
+			Statement s = conn.createStatement();
 			s.execute("USE " + name);
 			s.close();
 			LOG.debug("Connected. Now inserting records...");
@@ -70,28 +70,39 @@ public class Export2MySQL {
 				LOG.info("Inserting project {}/{}, RCN: {}", i + 1,
 						projects.size(), project.getRcn());
 
-				insertProject(project, connection);
+				insertProject(project, conn);
 
-				Participant coordinator = project.getCoordinator();
-				insertParticipant(coordinator, connection);
-				insertParticipation(coordinator, project, connection);
-
-				for (Participant participant : project.getParticipants()) {
-					insertParticipant(participant, connection);
-					insertParticipation(participant, project, connection);
+				if (null != project.getCoordinator()) {
+					Participant coordinator = project.getCoordinator();
+					insertParticipant(coordinator, conn);
+					insertParticipation(coordinator, project, conn);
 				}
 
-				for (Publication publication : project.getPublications()) {
-					insertPublication(publication, connection);
-					insertProjectPublication(publication, project, connection);
-					for (String author : publication.getAuthors()) {
-						author = author.trim(); // need cleaning!
-						insertAuthor(author, connection);
-						insertAuthoring(author, publication, connection);
+				if (null != project.getParticipants()) {
+					for (Participant participant : project.getParticipants()) {
+						insertParticipant(participant, conn);
+						insertParticipation(participant, project, conn);
+					}
+				}
+
+				if (null != project.getPublications()) {
+					for (Publication pub : project.getPublications()) {
+						// if (null != pub) {
+						insertPublication(pub, conn);
+						insertProjectPublication(pub, project, conn);
+						if (null != pub.getAuthors()) {
+							for (String author : pub.getAuthors()) {
+								// if (null != author) {
+								author = author.trim();
+								insertAuthor(author, conn);
+								insertAuthoring(author, pub, conn);
+								// }
+							}
+						}
+						// }
 					}
 				}
 			}
-
 		} catch (SQLException ex) {
 			LOG.error("Error: {}", ex.getMessage());
 		}
@@ -197,11 +208,10 @@ public class Export2MySQL {
 			ps.setString(4, project.getCostCurrency());
 			ps.setInt(5, project.getEuContribution());
 			ps.setString(6, project.getEuContributionCurrency());
-			ps.setDate(7, new java.sql.Date(project.getDatesFrom().getTime()));
-			ps.setDate(8, new java.sql.Date(project.getDatesTo().getTime()));
+			ps.setDate(7, toSqlDate(project.getDatesFrom()));
+			ps.setDate(8, toSqlDate(project.getDatesTo()));
 			ps.setString(9, project.getGeneralInformation());
-			ps.setDate(10, new java.sql.Date(project.getLastUpdatedOn()
-					.getTime()));
+			ps.setDate(10, toSqlDate(project.getLastUpdatedOn()));
 			ps.setString(11, project.getName());
 			ps.setString(12, project.getObjective());
 			ps.setString(13, project.getProgrammeAcronym());
@@ -249,5 +259,10 @@ public class Export2MySQL {
 		} catch (Exception e) {
 			LOG.error("Could not insert publication: {}", e.getMessage());
 		}
+	}
+
+	private java.sql.Date toSqlDate(java.util.Date utilDate) {
+		return (null == utilDate) ? null
+				: new java.sql.Date(utilDate.getTime());
 	}
 }
