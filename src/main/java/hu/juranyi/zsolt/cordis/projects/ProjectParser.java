@@ -331,8 +331,8 @@ public class ProjectParser {
 
 			if (oapl.getProject().equals(project.getName())) {
 				if (null != oapl.getDocs()) {
-					LOG.debug("Found {} publications.", oapl.getDocs().size());
-
+					LOG.debug("Publication count before clean: {}", oapl
+							.getDocs().size());
 					// remove NULLs, trim strings
 					List<Publication> pubs = new ArrayList<Publication>();
 					project.setPublications(pubs);
@@ -355,6 +355,8 @@ public class ProjectParser {
 							pubs.add(p); // add cleaned pub to project
 						}
 					}
+					LOG.debug("Found {} publications.", project
+							.getPublications().size());
 				} else {
 					LOG.warn("Could not find 'docs' array in JSON.");
 					project.setPublications(new ArrayList<Publication>());

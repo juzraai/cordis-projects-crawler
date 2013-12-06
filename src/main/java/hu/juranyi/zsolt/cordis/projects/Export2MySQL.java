@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 // TODO JAVADOC
 public class Export2MySQL {
+	// TODO on-the-fly exporting while parsing!!!
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(Export2MySQL.class);
@@ -102,7 +103,20 @@ public class Export2MySQL {
 						// }
 					}
 				}
-			}
+
+				// TODO DELETE THIS IS DEBUG!!!
+				// <DEBUG CODE>
+				/*
+				 * PreparedStatement ps = conn.prepareStatement("" +
+				 * "SELECT count(publication_id)" + " FROM Project_Publication"
+				 * + " WHERE project_rcn=90433;"); ResultSet rs =
+				 * ps.executeQuery(); int c = -1; if (rs.next()) c =
+				 * rs.getInt(1); rs.close(); ps.close();
+				 * LOG.error("*** DYNANETS PUBLICATION COUNT = {}", c);
+				 */
+				// </DEBUG CODE>
+
+			} // projects
 		} catch (SQLException ex) {
 			LOG.error("Error: {}", ex.getMessage());
 		}
