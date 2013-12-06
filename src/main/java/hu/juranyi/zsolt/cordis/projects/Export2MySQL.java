@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 // TODO JAVADOC
 public class Export2MySQL {
 	// TODO on-the-fly exporting while parsing!!!
+	// TODO option to build database (run schema.sql)
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(Export2MySQL.class);

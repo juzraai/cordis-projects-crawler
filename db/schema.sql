@@ -40,19 +40,7 @@ DROP TABLE IF EXISTS `cordis`.`Authoring` ;
 CREATE  TABLE IF NOT EXISTS `cordis`.`Authoring` (
   `author_id` INT NOT NULL ,
   `publication_id` VARCHAR(32) NOT NULL ,
-  PRIMARY KEY (`author_id`, `publication_id`) ,
-  INDEX `authoring_author` (`author_id` ASC) ,
-  INDEX `authoring_publication` (`publication_id` ASC) ,
-  CONSTRAINT `authoring_author`
-    FOREIGN KEY (`author_id` )
-    REFERENCES `cordis`.`Author` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `authoring_publication`
-    FOREIGN KEY (`publication_id` )
-    REFERENCES `cordis`.`Publication` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
+  PRIMARY KEY (`author_id`, `publication_id`) )
 ENGINE = InnoDB;
 
 
@@ -85,6 +73,30 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `cordis`.`Participation`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `cordis`.`Participation` ;
+
+CREATE  TABLE IF NOT EXISTS `cordis`.`Participation` (
+  `project_rcn` INT NOT NULL ,
+  `participant_id` VARCHAR(32) NOT NULL ,
+  PRIMARY KEY (`project_rcn`, `participant_id`) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `cordis`.`Project_Publication`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `cordis`.`Project_Publication` ;
+
+CREATE  TABLE IF NOT EXISTS `cordis`.`Project_Publication` (
+  `project_rcn` INT NOT NULL ,
+  `publication_id` VARCHAR(32) NOT NULL ,
+  PRIMARY KEY (`project_rcn`, `publication_id`) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `cordis`.`Participant`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `cordis`.`Participant` ;
@@ -99,54 +111,6 @@ CREATE  TABLE IF NOT EXISTS `cordis`.`Participant` (
   `tel` VARCHAR(45) NULL ,
   `website` VARCHAR(1023) NULL ,
   PRIMARY KEY (`id`) )
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `cordis`.`Participation`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `cordis`.`Participation` ;
-
-CREATE  TABLE IF NOT EXISTS `cordis`.`Participation` (
-  `project_rcn` INT NOT NULL ,
-  `participant_id` VARCHAR(32) NOT NULL ,
-  PRIMARY KEY (`project_rcn`, `participant_id`) ,
-  INDEX `participation_participant` (`participant_id` ASC) ,
-  INDEX `participation_project` (`project_rcn` ASC) ,
-  CONSTRAINT `participation_participant`
-    FOREIGN KEY (`participant_id` )
-    REFERENCES `cordis`.`Participant` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `participation_project`
-    FOREIGN KEY (`project_rcn` )
-    REFERENCES `cordis`.`Project` (`rcn` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `cordis`.`Project_Publication`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `cordis`.`Project_Publication` ;
-
-CREATE  TABLE IF NOT EXISTS `cordis`.`Project_Publication` (
-  `project_rcn` INT NOT NULL ,
-  `publication_id` VARCHAR(32) NOT NULL ,
-  PRIMARY KEY (`project_rcn`, `publication_id`) ,
-  INDEX `pp_project` (`project_rcn` ASC) ,
-  INDEX `pp_publication` (`publication_id` ASC) ,
-  CONSTRAINT `pp_project`
-    FOREIGN KEY (`project_rcn` )
-    REFERENCES `cordis`.`Project` (`rcn` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `pp_publication`
-    FOREIGN KEY (`publication_id` )
-    REFERENCES `cordis`.`Publication` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
