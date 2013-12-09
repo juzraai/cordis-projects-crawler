@@ -7,7 +7,7 @@ import java.util.List;
 public class Project {
 
 	private String contractType;
-	private Participant coordinator; // TODO It's sure there's only one?!
+	private Participant coordinator;
 	private int cost;
 	private String costCurrency;
 	private Date datesFrom;

@@ -22,6 +22,7 @@ public class Export2MySQL {
 			.getLogger(Export2MySQL.class);
 
 	// TODO private boolean dropExisting = false;
+	private Connection conn;
 	private String host;
 	private String name;
 	private String pass;
@@ -52,75 +53,68 @@ public class Export2MySQL {
 		return MD5.getMD5FromString(sb.toString());
 	}
 
-	public void export(List<Project> projects) {
-		LOG.info("Exporting {} projects to MySQL...", projects.size());
-
+	public boolean connect() {
 		try {
 			// connection
-			LOG.debug("Connecting...");
-			Connection conn = DriverManager.getConnection("jdbc:mysql://"
-					+ host, user, pass);
+			LOG.info("Connecting to MySQL...");
+			conn = DriverManager.getConnection("jdbc:mysql://" + host, user,
+					pass);
 			LOG.debug("Selecting database...");
 			Statement s = conn.createStatement();
 			s.execute("USE " + name);
 			s.close();
-			LOG.debug("Connected. Now inserting records...");
-
-			// do the work
-			for (int i = 0; i < projects.size(); i++) {
-				Project project = projects.get(i);
-				LOG.info("Inserting project {}/{}, RCN: {}", i + 1,
-						projects.size(), project.getRcn());
-
-				insertProject(project, conn);
-
-				if (null != project.getCoordinator()) {
-					Participant coordinator = project.getCoordinator();
-					insertParticipant(coordinator, conn);
-					insertParticipation(coordinator, project, conn);
-				}
-
-				if (null != project.getParticipants()) {
-					for (Participant participant : project.getParticipants()) {
-						insertParticipant(participant, conn);
-						insertParticipation(participant, project, conn);
-					}
-				}
-
-				if (null != project.getPublications()) {
-					for (Publication pub : project.getPublications()) {
-						// if (null != pub) {
-						insertPublication(pub, conn);
-						insertProjectPublication(pub, project, conn);
-						if (null != pub.getAuthors()) {
-							for (String author : pub.getAuthors()) {
-								// if (null != author) {
-								author = author.trim();
-								insertAuthor(author, conn);
-								insertAuthoring(author, pub, conn);
-								// }
-							}
-						}
-						// }
-					}
-				}
-
-				// TODO DELETE THIS IS DEBUG!!!
-				// <DEBUG CODE>
-				/*
-				 * PreparedStatement ps = conn.prepareStatement("" +
-				 * "SELECT count(publication_id)" + " FROM Project_Publication"
-				 * + " WHERE project_rcn=90433;"); ResultSet rs =
-				 * ps.executeQuery(); int c = -1; if (rs.next()) c =
-				 * rs.getInt(1); rs.close(); ps.close();
-				 * LOG.error("*** DYNANETS PUBLICATION COUNT = {}", c);
-				 */
-				// </DEBUG CODE>
-
-			} // projects
-		} catch (SQLException ex) {
-			LOG.error("Error: {}", ex.getMessage());
+			LOG.debug("Connected.");
+			return true;
+		} catch (Exception ex) {
+			LOG.error("Could not connect do database: {}", ex.getMessage());
+			return false;
 		}
+	}
+
+	public void export(List<Project> projects) {
+		LOG.info("Exporting {} projects to MySQL...", projects.size());
+
+		if (null == conn) {
+			if (!connect()) {
+				return;
+			}
+		}
+
+		// do the work
+		for (int i = 0; i < projects.size(); i++) {
+			Project project = projects.get(i);
+			LOG.info("Inserting project {}/{}, RCN: {}", i + 1,
+					projects.size(), project.getRcn());
+
+			insertProject(project, conn);
+
+			if (null != project.getCoordinator()) {
+				Participant coordinator = project.getCoordinator();
+				insertParticipant(coordinator, conn);
+				insertParticipation(coordinator, project, conn);
+			}
+
+			if (null != project.getParticipants()) {
+				for (Participant participant : project.getParticipants()) {
+					insertParticipant(participant, conn);
+					insertParticipation(participant, project, conn);
+				}
+			}
+
+			if (null != project.getPublications()) {
+				for (Publication pub : project.getPublications()) {
+					insertPublication(pub, conn);
+					insertProjectPublication(pub, project, conn);
+					if (null != pub.getAuthors()) {
+						for (String author : pub.getAuthors()) {
+							author = author.trim();
+							insertAuthor(author, conn);
+							insertAuthoring(author, pub, conn);
+						} // authors
+					}
+				} // publications
+			}
+		} // projects
 	}
 
 	private void insertAuthor(String author, Connection connection) {

@@ -22,7 +22,7 @@ import org.apache.commons.cli.ParseException;
  */
 public class CordisProjectsApp {
 
-	private static final String VERSION = "1.3.0-SNAPSHOT";
+	private static final String VERSION = "1.3.0";
 
 	/**
 	 * Provides a CLI which helps users set up and run crawls to fetch
@@ -93,9 +93,9 @@ public class CordisProjectsApp {
 		try {
 			CommandLine line = parser.parse(options, args);
 			ProjectDownloader downloader = new ProjectDownloader();
+			Export2MySQL xdb = null;
 
 			// pre-check MySQL connection if needed
-			// TODO not an elegant solution for pre-check :)
 			if (line.hasOption("xdb")) {
 				String[] v = line.getOptionValues("xdb");
 				if (v != null && 4 == v.length) {
@@ -103,8 +103,13 @@ public class CordisProjectsApp {
 					String name = v[1];
 					String user = v[2];
 					String pass = v[3];
-					Export2MySQL x = new Export2MySQL(host, name, user, pass);
-					x.export(new ArrayList<Project>());
+					xdb = new Export2MySQL(host, name, user, pass);
+					if (!xdb.connect()) {
+						throw new Exception("Cannot connect to MySQL. "
+								+ "Be sure you enter an existing database name"
+								+ " which has a schema compatible with the"
+								+ " schema.sql file bundled with this program.");
+					}
 				} else {
 					System.out.println("Not enough parameters for 'xdb' !");
 				}
@@ -143,22 +148,15 @@ public class CordisProjectsApp {
 				Export2Csv.export(projects, line.getOptionValue("xcsv"));
 			}
 			if (line.hasOption("xdb")) {
-				String[] v = line.getOptionValues("xdb");
-				if (v != null && 4 == v.length) {
-					String host = v[0];
-					String name = v[1];
-					String user = v[2];
-					String pass = v[3];
-					Export2MySQL x = new Export2MySQL(host, name, user, pass);
-					x.export(projects);
-				} else {
-					System.out.println("Not enough parameters for 'xdb' !");
-				}
+				// arguments read before, MySQL connection OK
+				xdb.export(projects);
 			}
-		} catch (ParseException exp) {
-			System.err.println(exp.getMessage());
+		} catch (ParseException ex) {
+			System.err.println(ex.getMessage());
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("cordis-projects", options, true);
+		} catch (Exception ex) {
+			System.err.println(ex.getMessage());
 		}
 	}
 }

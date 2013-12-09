@@ -93,7 +93,7 @@ Javadoc will come soon! :-)
 
 ##4. Future plans, ideas
 
-* export project and publications data to XML or database
+* automatically create database if not exists using schema.sql
 * v2.0 with reorganized classes to increase flexibility
 * configurable download settings
 

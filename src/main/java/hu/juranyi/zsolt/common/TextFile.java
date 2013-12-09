@@ -11,7 +11,7 @@ import java.io.IOException;
  * 
  * @author Zsolt Juranyi
  */
-public class TextFile { // TODO UTF8 READ/WRITE !
+public class TextFile { // TODO UTF8 READ/WRITE ! (?)
 
 	private final String fileName;
 	private String content;
