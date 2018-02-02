@@ -2,6 +2,8 @@ package com.github.juzraai.cordis.projects
 
 import com.beust.jcommander.*
 import com.github.juzraai.cordis.projects.cli.*
+import com.github.juzraai.cordis.projects.read.*
+import com.github.juzraai.cordis.projects.seed.*
 import mu.*
 
 /**
@@ -10,22 +12,33 @@ import mu.*
 fun main(args: Array<String>) {
 	CordisProjectsCrawler().start(args)
 	// Debug:
-	//val a: Array<String> = "-s 1..5".split(' ').toTypedArray()
+	//val a: Array<String> = "-s 213190".split(' ').toTypedArray()
 	//CordisProjectsCrawler().start(a)
 }
 
 class CordisProjectsCrawler {
 
-	// TODO builder -> start(config)
-
 	companion object : KLogging()
 
+	var configuration = CpcConfiguration()
+
+	val readers = mutableListOf(
+			CordisXmlCacheReader(),
+			CordisXmlDownloader()
+	)
+
+	val seedGenerators = mutableListOf(
+			SingleRcnSeed(),
+			RcnRangeSeed(),
+			DirectorySeed(),
+			AllRcnsSeed()
+	)
+
 	fun start(args: Array<String>) {
-		var configuration = CpcConfiguration()
 		with(JCommander.newBuilder().addObject(configuration).build()) {
 			try {
 				parse(*args)
-				start(configuration)
+				start()
 			} catch (e: Exception) {
 				println(e.message + "\n")
 				usage()
@@ -33,25 +46,18 @@ class CordisProjectsCrawler {
 		}
 	}
 
-	fun start(configuration: CpcConfiguration) {
-		iterate(configuration)
+	fun start() {
+		seed()
+				.mapNotNull(this::read)
 				.forEach { println(it) }
 	}
 
-	fun iterate(configuration: CpcConfiguration): Sequence<Long> {
-		with(configuration.scope ?: "") {
-			return when {
-				matches(Regex("\\d+")) -> sequenceOf(toLong())
-				matches(Regex("\\d+\\.\\.\\d+")) -> {
-					val bounds = split(Regex("\\.\\.")).map(String::toLong).sorted()
-					LongRange(bounds[0], bounds[1]).asSequence()
-				}
-				equals("all", true) -> throw UnsupportedOperationException("TODO: fetch RCNs")
-				equals("dir", true) -> throw UnsupportedOperationException("TODO: iterate config.directory")
-				else -> {
-					throw IllegalArgumentException("Invalid scope: $this")
-				}
-			}
-		}
-	}
+	private fun seed() = seedGenerators.asSequence()
+			.mapNotNull { it.generateRcns(configuration.seed, configuration) }
+			.firstOrNull()
+			?: throw UnsupportedOperationException("Invalid seed: ${configuration.seed}")
+
+	private fun read(rcn: Long) = readers.asSequence()
+			.mapNotNull { it.readCordisXmlByRcn(rcn, configuration) }
+			.firstOrNull()
 }
