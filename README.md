@@ -1,12 +1,5 @@
-<h1>Crawler for CORDIS projects</h1>
+# Crawler for CORDIS projects
 
-*Version:* **2.0-SNAPSHOT** &middot; *Author:* Zsolt Jurányi ([web](http://juzraai.github.io/), [github](http://github.com/juzraai))
+The old [v1.3.0](https://github.com/juzraai/cordis-projects-crawler/releases/tag/v1.3.0) is not working anymore on the updated CORDIS website.
 
-!> This is a work in progress!
-
-# Goal
-
-* download and parse project information from [CORDIS](http://cordis.europa.eu/)
-* download modes: 1 record, record range, all records, all records by directory
-* CSV and MySQL export
-* Java API for developers, CLI for users
+**Currently, I'm working on [v2.0](https://github.com/juzraai/cordis-projects-crawler/tree/v2) and I will update master branch when some features are ready to use. The [documentation](https://juzraai.github.io/cordis-projects-crawler) can inform you about the progress.**
