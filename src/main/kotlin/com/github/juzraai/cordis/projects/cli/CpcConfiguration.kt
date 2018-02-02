@@ -13,5 +13,8 @@ data class CpcConfiguration(
 		var directory: String = "cordis-data",
 
 		@Parameter(names = ["-s", "--seed"])
-		var seed: String? = null
+		var seed: String? = null,
+
+		@Parameter(names = ["-v", "--verbose"])
+		var verbose: Boolean = false
 )

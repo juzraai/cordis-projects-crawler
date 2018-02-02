@@ -8,7 +8,9 @@ import com.github.juzraai.cordis.projects.cli.*
 class AllRcnsSeed : IRcnSeedGenerator {
 
 	override fun generateRcns(scope: String?, configuration: CpcConfiguration): Sequence<Long>? {
-		// TODO fetch all RCNs from CORDIS
+		if ("all".equals(scope, true)) {
+			// TODO fetch all RCNs from CORDIS
+		}
 		return null
 	}
 }

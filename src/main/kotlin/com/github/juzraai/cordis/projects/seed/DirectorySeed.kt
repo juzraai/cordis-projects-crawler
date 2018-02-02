@@ -8,7 +8,9 @@ import com.github.juzraai.cordis.projects.cli.*
 class DirectorySeed : IRcnSeedGenerator {
 
 	override fun generateRcns(scope: String?, configuration: CpcConfiguration): Sequence<Long>? {
-		// TODO fetch RCNs from CORDIS cache dir
+		if ("dir".equals(scope, true)) {
+			// TODO fetch RCNs from CORDIS cache dir
+		}
 		return null
 	}
 }
