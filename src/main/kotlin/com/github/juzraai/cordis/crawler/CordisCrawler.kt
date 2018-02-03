@@ -12,20 +12,17 @@ import org.apache.log4j.*
  * @author Zsolt Jurányi
  */
 fun main(args: Array<String>) {
-	//CordisCrawler().start(args)
-	// Debug:
-	val a: Array<String> = "-s 213190 -v".split(' ').toTypedArray()
-	CordisCrawler().start(a)
+	CordisCrawler().start(args)
 }
 
-class CordisCrawler {
+class CordisCrawler(
+		var configuration: CordisCrawlerConfiguration = CordisCrawlerConfiguration()
+) {
 
 	// TODO rename POM artifact to "cordis-crawler"
 	// TODO rename repo accordingly
 
 	companion object : KLogging()
-
-	var configuration = CordisCrawlerConfiguration()
 
 	val readers = mutableListOf(
 			CordisXmlFileCache(),
@@ -56,15 +53,14 @@ class CordisCrawler {
 		start()
 	}
 
-	fun start() {
-		// TODO + fun start(customProcessor: (CordisProject) -> Unit)
+	fun start(customProcessor: ((CordisXml) -> Unit)? = null) {
 		setupLoggers()
 		var t = -System.currentTimeMillis()
 		val c = seed().onEach { logger.info("Processing RCN: $it") }
 				.mapNotNull(this::read)
 				.onEach(this::cache)
 				.mapNotNull(this::parse)
-				.onEach(::println)
+				.onEach { customProcessor?.invoke(it.second) }
 				.count() // <-- need to run the operations on Sequence
 		t += System.currentTimeMillis()
 		logger.info("Processed $c RCNs in ${t / 1000.0} seconds")
