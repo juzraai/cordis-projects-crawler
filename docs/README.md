@@ -12,7 +12,7 @@
 
 * crawl all CORDIS XMLs
 * read RCNs from output directory
-* parse CORDIS XMLs
+* parse CORDIS XMLs - projects and results too
 * CSV and MySQL export
 
 ?> *TODO* building docs

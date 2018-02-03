@@ -1,6 +1,6 @@
-package com.github.juzraai.cordis.projects.read
+package com.github.juzraai.cordis.xml.io
 
-import com.github.juzraai.cordis.projects.cli.*
+import com.github.juzraai.cordis.crawler.*
 import mu.*
 import org.jsoup.*
 
@@ -9,9 +9,11 @@ import org.jsoup.*
  */
 class CordisXmlDownloader : ICordisXmlReader {
 
+	// TODO later: able to download result XML too (".../result/rcn/...")
+
 	companion object : KLogging()
 
-	override fun readCordisXmlByRcn(rcn: Long, configuration: CpcConfiguration): String? {
+	override fun readCordisXmlByRcn(rcn: Long, configuration: CordisCrawlerConfiguration): String? {
 		val url = url(rcn)
 		return try {
 			logger.trace("Fetching XML: $url")

@@ -1,11 +1,11 @@
-package com.github.juzraai.cordis.projects.cli
+package com.github.juzraai.cordis.crawler
 
 import com.beust.jcommander.*
 
 /**
  * @author Zsolt Jurányi
  */
-data class CpcConfiguration(
+data class CordisCrawlerConfiguration(
 		// TODO builder
 		// TODO make it open (kotlin-allopen?)
 
