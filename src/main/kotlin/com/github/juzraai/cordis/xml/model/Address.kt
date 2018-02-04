@@ -11,6 +11,7 @@ data class Address(
 		var country: String? = null,
 		var email: String? = null,
 		var faxNumber: String? = null,
+		var geolocation: String? = null,
 		var postalCode: String? = null,
 		var postBox: String? = null,
 		var street: String? = null,

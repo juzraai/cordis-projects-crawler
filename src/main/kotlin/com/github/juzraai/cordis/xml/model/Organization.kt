@@ -7,13 +7,13 @@ import org.simpleframework.xml.*
  */
 @Default(required = false)
 data class Organization(
-		@field:Attribute
+		@field:Attribute(required = false)
 		var ecContribution: Double? = null,
 
 		@field:Attribute
 		var order: Int? = null,
 
-		@field:Attribute
+		@field:Attribute(required = false)
 		var terminated: Boolean? = null,
 
 		@field:Attribute
@@ -24,8 +24,10 @@ data class Organization(
 
 		var address: Address? = null,
 		var availableLanguages: String? = null,
+		var description: String? = null,
 		var id: Long? = null,
 		var legalName: String? = null,
+		var otherDepartmentName: String? = null,
 		var rcn: Long? = null,
 		var relations: Relations? = null,
 		var shortName: String? = null,

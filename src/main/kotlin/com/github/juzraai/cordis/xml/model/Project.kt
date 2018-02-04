@@ -20,7 +20,7 @@ data class Project(
 		var lastUpdateDate: Date? = null,
 		var objective: String? = null,
 		var rcn: Long? = null,
-		var reference: Long? = null,
+		var reference: String? = null,
 		var relations: Relations? = null,
 		var sourceUpdateDate: Date? = null,
 		var startDate: Date? = null,
