@@ -9,12 +9,14 @@ import java.util.zip.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisXmlFileCache : ICordisXmlCache {
+class CordisXmlFileCache : ICordisCrawlerConfigurationAware, ICordisXmlCache {
+
+	override var configuration: CordisCrawlerConfiguration? = null
 
 	companion object : KLogging()
 
-	override fun readCordisXmlByRcn(rcn: Long, configuration: CordisCrawlerConfiguration): String? {
-		val file = file(rcn, configuration)
+	override fun readCordisXmlByRcn(rcn: Long): String? {
+		val file = file(rcn)
 		if (file.exists()) {
 			logger.trace("Reading XML: $file")
 			try {
@@ -28,8 +30,8 @@ class CordisXmlFileCache : ICordisXmlCache {
 		return null
 	}
 
-	override fun storeCordisXmlForRcn(rcn: Long, xml: String, configuration: CordisCrawlerConfiguration) {
-		val file = file(rcn, configuration)
+	override fun storeCordisXmlForRcn(rcn: Long, xml: String) {
+		val file = file(rcn)
 		logger.trace("Storing XML: $file")
 		try {
 			file.parentFile?.mkdirs()
@@ -39,5 +41,5 @@ class CordisXmlFileCache : ICordisXmlCache {
 		}
 	}
 
-	private fun file(rcn: Long, configuration: CordisCrawlerConfiguration) = File(configuration.directory, "$rcn.xml.gz")
+	private fun file(rcn: Long) = File(configuration!!.directory, "$rcn.xml.gz")
 }

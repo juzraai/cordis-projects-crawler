@@ -1,6 +1,5 @@
 package com.github.juzraai.cordis.xml.io
 
-import com.github.juzraai.cordis.crawler.*
 import mu.*
 import org.jsoup.*
 
@@ -13,7 +12,7 @@ class CordisXmlDownloader : ICordisXmlReader {
 
 	companion object : KLogging()
 
-	override fun readCordisXmlByRcn(rcn: Long, configuration: CordisCrawlerConfiguration): String? {
+	override fun readCordisXmlByRcn(rcn: Long): String? {
 		val url = url(rcn)
 		return try {
 			logger.trace("Fetching XML: $url")

@@ -4,6 +4,7 @@ import com.github.juzraai.cordis.xml.model.*
 import mu.*
 import org.simpleframework.xml.convert.*
 import org.simpleframework.xml.core.*
+import java.util.*
 
 /**
  * @author Zsolt Jurányi
@@ -12,7 +13,9 @@ class CordisProjectXmlParser : ICordisXmlParser {
 
 	companion object : KLogging()
 
-	private var persister: Persister = Persister(AnnotationStrategy())
+	var persister = Persister(RegistryStrategy(Registry().apply {
+		bind(Date::class.java, DateConverter::class.java)
+	}))
 
 	override fun parseCordisXml(xml: String): CordisXml? {
 		try {

@@ -32,6 +32,7 @@ class CordisCrawler(
 	val seedGenerators = mutableListOf(
 			SingleRcnSeed(),
 			RcnRangeSeed(),
+			RcnListSeed(),
 			DirectorySeed(),
 			AllRcnsSeed()
 	)
@@ -54,9 +55,21 @@ class CordisCrawler(
 	}
 
 	fun start(customProcessor: ((CordisXml) -> Unit)? = null) {
+		start(seed(), customProcessor)
+	}
+
+	fun start(seed: Sequence<Long>, customProcessor: ((CordisXml) -> Unit)? = null) {
 		setupLoggers()
+
+		logger.info("Initializing modules")
+		listOf(
+				*readers.toTypedArray(),
+				*seedGenerators.toTypedArray(),
+				*xmlParsers.toTypedArray()
+		).onEach { (it as? ICordisCrawlerConfigurationAware)?.configuration = configuration }
+
 		var t = -System.currentTimeMillis()
-		val c = seed().onEach { logger.info("Processing RCN: $it") }
+		val c = seed.onEach { logger.info("Processing RCN: $it") }
 				.mapNotNull(this::read)
 				.onEach(this::cache)
 				.mapNotNull(this::parse)
@@ -83,7 +96,7 @@ class CordisCrawler(
 	private fun read(rcn: Long): Pair<Long, String>? {
 		logger.trace("Reading XML: $rcn")
 		return readers.asSequence()
-				.mapNotNull { it.readCordisXmlByRcn(rcn, configuration) }
+				.mapNotNull { it.readCordisXmlByRcn(rcn) }
 				.map { Pair(rcn, it) }
 				.firstOrNull()
 	}
@@ -91,7 +104,7 @@ class CordisCrawler(
 	private fun cache(data: Pair<Long, String>) {
 		logger.trace("Caching XML: ${data.first}")
 		readers.mapNotNull { it as? ICordisXmlCache }
-				.onEach { it.storeCordisXmlForRcn(data.first, data.second, configuration) }
+				.onEach { it.storeCordisXmlForRcn(data.first, data.second) }
 	}
 
 	private fun parse(data: Pair<Long, String>): Pair<Long, CordisXml>? {
