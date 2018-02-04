@@ -21,11 +21,12 @@ data class Project(
 		var objective: String? = null,
 		var rcn: Long? = null,
 		var reference: Long? = null,
+		var relations: Relations? = null,
 		var sourceUpdateDate: Date? = null,
 		var startDate: Date? = null,
 		var status: String? = null,
+		var statusDetails: String? = null,
 		var teaser: String? = null,
 		var title: String? = null,
 		var totalCost: Double? = null
-		// TODO ProjectRelations
 )
