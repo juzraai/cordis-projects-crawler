@@ -18,9 +18,17 @@ fun main(args: Array<String>) {
 class CordisCrawler(
 		var configuration: CordisCrawlerConfiguration = CordisCrawlerConfiguration()
 ) {
+	// TODO exporters for projects (JSON, CSV, MySQL)
 
-	// TODO rename POM artifact to "cordis-crawler"
-	// TODO rename repo accordingly
+	// TODO figure out how to handle results
+	// A) seed RCNs are projects. crawl related results transitively
+	// B)
+	// - seed RCNs are Rcn objects (long, ContentType, URL)
+	// - CLI "-s #" replaced by "-p/--project #" and "-r/--result #"
+	// - or "-s #" and crawler will do a search for RCN on CORDIS first
+
+	// TODO ? rename POM artifact to "cordis-crawler"
+	// TODO ? rename repo accordingly
 
 	companion object : KLogging()
 

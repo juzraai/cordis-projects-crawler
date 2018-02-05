@@ -7,14 +7,10 @@ import com.github.juzraai.cordis.crawler.*
  */
 class AllRcnsSeed : IRcnSeedGenerator {
 
-	// TODO later: able to fetch highest result RCN
-
-	// TODO fetch all RCNs from a CORDIS query URL given by user!!!
-	// TODO always fetch PROJECTS only, and their related results?
-
 	override fun generateRcns(scope: String?, configuration: CordisCrawlerConfiguration): Sequence<Long>? {
+		// TODO instead of "all", it should match to "https?://cordis\.europa\.eu/"
 		if ("all".equals(scope, true)) {
-			// TODO fetch highest project RCN from CORDIS
+			// TODO fetch all project RCNs from a CORDIS query URL given by user
 		}
 		return null
 	}
