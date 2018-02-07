@@ -5,12 +5,12 @@ import com.github.juzraai.cordis.crawler.*
 /**
  * @author Zsolt Jurányi
  */
-class AllRcnsSeed : IRcnSeedGenerator {
+class SearchUrlSeed : IRcnSeedGenerator {
 
 	override fun generateRcns(scope: String?, configuration: CordisCrawlerConfiguration): Sequence<Long>? {
-		if ("all".equals(scope, true)) {
-			// TODO fetch all project RCNs from CORDIS
-		}
+		// https://cordis.europa.eu/projects/result_en?
+		// https://cordis.europa.eu/search/result_en?
+		// TODO match URL prefixes above, crawl project RCNs here
 		return null
 	}
 }

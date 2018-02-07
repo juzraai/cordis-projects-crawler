@@ -26,9 +26,20 @@ class CordisCrawler(
 	// - seed RCNs are Rcn objects (long, ContentType, URL)
 	// - CLI "-s #" replaced by "-p/--project #" and "-r/--result #"
 	// - or "-s #" and crawler will do a search for RCN on CORDIS first
+	// C) "-s" can be an URL: record URL or search result URL
 
-	// TODO ? rename POM artifact to "cordis-crawler"
-	// TODO ? rename repo accordingly
+	// D)
+	// - user seeds are project RCNs: RCN, RCN range, RCN list, RCN url, search URL
+	// - URLs are validated, only projects are crawled
+	// - we need multiple engines:
+	// -- mainTask: CordisProject(rcn, projectXml, resultXmls, publications) -> exporters
+	// -- projectTask: record: rcn:Long -> Project -> project exporters
+	// -- resultTask: record: rcn:Long -> Result -> result exporters
+	// - main task calls projectTask, extracts result RCNs, runs resultTasks, exports
+	// - CordisCrawlerContext: config + modules
+
+	// TODO ???? rename POM artifact to "cordis-crawler"
+	// TODO ???? rename repo accordingly
 
 	companion object : KLogging()
 
@@ -41,6 +52,8 @@ class CordisCrawler(
 			SingleRcnSeed(),
 			RcnRangeSeed(),
 			RcnListSeed(),
+			ProjectUrlSeed(),
+			SearchUrlSeed(),
 			DirectorySeed(),
 			AllRcnsSeed()
 	)
