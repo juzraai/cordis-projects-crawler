@@ -1,4 +1,4 @@
-package com.github.juzraai.cordis.crawler
+package com.github.juzraai.cordis.crawler.model
 
 import com.beust.jcommander.*
 

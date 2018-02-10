@@ -1,6 +1,6 @@
 package com.github.juzraai.cordis.crawler.modules.readers
 
-import com.github.juzraai.cordis.crawler.*
+import com.github.juzraai.cordis.crawler.model.*
 import mu.*
 import org.jsoup.*
 
@@ -16,7 +16,7 @@ class CordisProjectXmlDownloader(override var configuration: CordisCrawlerConfig
 	override fun projectXmlByRcn(rcn: Long): String? {
 		val url = projectXmlUrlByRcn(rcn)
 		return try {
-			logger.trace("Fetching XML: $url")
+			logger.trace("Fetching project XML: $url")
 			Thread.sleep(2000)
 			Jsoup.connect(url).maxBodySize(10_000_000).timeout(60_000).execute().body()
 		} catch (e: Exception) {

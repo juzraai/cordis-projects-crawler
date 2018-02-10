@@ -1,4 +1,4 @@
-package com.github.juzraai.cordis.xml.model
+package com.github.juzraai.cordis.crawler.model.xml
 
 import org.simpleframework.xml.*
 
@@ -6,17 +6,13 @@ import org.simpleframework.xml.*
  * @author Zsolt Jurányi
  */
 @Default(required = false)
-data class Person(
+data class Category(
 		@field:Attribute
-		var context: Boolean? = null,
-
+		var classification: String? = null,
 		@field:Attribute
 		var type: String? = null,
 
-		var address: Address? = null,
 		var availableLanguages: String? = null,
-		var firstName: String? = null,
-		var lastName: String? = null,
-		var rcn: Long? = null,
+		var code: String? = null,
 		var title: String? = null
 )

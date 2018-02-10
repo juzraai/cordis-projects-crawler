@@ -1,4 +1,4 @@
-package com.github.juzraai.cordis.xml.model
+package com.github.juzraai.cordis.crawler.model.xml
 
 /**
  * @author Zsolt Jurányi

@@ -1,6 +1,7 @@
-package com.github.juzraai.cordis.xml.parser
+package com.github.juzraai.cordis.crawler.modules.parsers
 
-import com.github.juzraai.cordis.xml.model.*
+import com.github.juzraai.cordis.crawler.model.*
+import com.github.juzraai.cordis.crawler.model.xml.*
 import mu.*
 import org.simpleframework.xml.convert.*
 import org.simpleframework.xml.core.*
@@ -9,7 +10,7 @@ import java.util.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectXmlParser : ICordisXmlParser {
+class CordisProjectXmlParser(override var configuration: CordisCrawlerConfiguration? = null) : ICordisProjectXmlParser {
 
 	companion object : KLogging()
 
@@ -17,11 +18,10 @@ class CordisProjectXmlParser : ICordisXmlParser {
 		bind(Date::class.java, DateConverter::class.java)
 	}))
 
-	override fun parseCordisXml(xml: String): CordisXml? {
+	override fun parseProjectXml(xml: String): Project? {
 		try {
 			xml.byteInputStream().use {
-				val project = persister.read(Project::class.java, it, false)
-				return if (null == project) null else CordisXml(project = project)
+				return persister.read(Project::class.java, it, false)
 			}
 		} catch (e: Exception) {
 			logger.warn("Could not parse XML - ${e.message}")

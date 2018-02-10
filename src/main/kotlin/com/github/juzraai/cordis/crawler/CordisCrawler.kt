@@ -1,11 +1,9 @@
 package com.github.juzraai.cordis.crawler
 
 import com.beust.jcommander.*
+import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.modules.*
-import com.github.juzraai.cordis.crawler.modules.readers.caches.*
 import com.github.juzraai.cordis.crawler.modules.seeds.*
-import com.github.juzraai.cordis.xml.model.*
-import com.github.juzraai.cordis.xml.parser.*
 import mu.*
 import org.apache.log4j.*
 
@@ -13,7 +11,7 @@ import org.apache.log4j.*
  * @author Zsolt Jurányi
  */
 fun main(args: Array<String>) {
-	CordisCrawler().start(args)
+	CordisCrawler().crawlProjects(args)
 }
 
 class CordisCrawler(
@@ -29,15 +27,10 @@ class CordisCrawler(
 	// -- projectTask: record: rcn:Long -> Project -> project exporters
 	// -- resultTask: record: rcn:Long -> Result -> result exporters
 	// - main task calls projectTask, extracts result RCNs, runs resultTasks, exports
-	// - CordisCrawlerContext: config + modules
 
 	companion object : KLogging()
 
-	val xmlParsers = mutableListOf<ICordisXmlParser>(
-			CordisProjectXmlParser()
-	)
-
-	fun start(args: Array<String>) {
+	fun crawlProjects(args: Array<String>) {
 		with(JCommander.newBuilder().addObject(configuration).build()) {
 			try {
 				parse(*args)
@@ -47,28 +40,36 @@ class CordisCrawler(
 				return
 			}
 		}
-		start()
+		crawlProjects()
 	}
 
-	fun start(customProcessor: ((CordisXml) -> Unit)? = null) {
-		start(seed(), customProcessor)
+	fun crawlProjects(customProcessor: ((CordisProject) -> Unit)? = null) {
+		crawlProjects(null, customProcessor)
 	}
 
-	fun start(seed: Sequence<Long>, customProcessor: ((CordisXml) -> Unit)? = null) {
+	fun crawlProjects(seed: Sequence<Long>?, customProcessor: ((CordisProject) -> Unit)? = null) {
 		try {
 			setupLoggers()
+			logger.trace("Configuration: $configuration")
 			logger.info("Initializing modules")
 			modules.initialize(configuration)
 
 			var t = -System.currentTimeMillis()
-			val c = seed.onEach { logger.info("Processing RCN: $it") }
-					.mapNotNull(this::read)
-					.onEach(this::cache)
-					.mapNotNull(this::parse)
-					.onEach { customProcessor?.invoke(it.second) }
+			var allCount = 0L
+			val processedCount = (seed ?: seed())
+					// TODO chunked(100) ?
+					.onEach {
+						logger.info("Processing project RCN: $it")
+						allCount++
+					}
+					.map(CordisProjectCrawler(configuration, modules)::crawlProject)
+					// TODO onEach(this::crawlResultXmls)
+					// TODO onEach(this::crawlPublications)
+					.onEach { customProcessor?.invoke(it) }
+					// TODO export
 					.count() // <-- need to run the operations on Sequence
 			t += System.currentTimeMillis()
-			logger.info("Processed $c RCNs in ${t / 1000.0} seconds")
+			logger.info("Processed $processedCount/$allCount projects in ${t / 1000.0} seconds")
 		} catch (e: Exception) {
 			logger.error("Error", e)
 		} finally {
@@ -91,25 +92,4 @@ class CordisCrawler(
 			.firstOrNull()
 			?: throw UnsupportedOperationException("Invalid seed: ${configuration.seed}")
 
-	private fun read(rcn: Long): Pair<Long, String>? {
-		logger.trace("Reading XML: $rcn")
-		return modules.readers.asSequence()
-				.mapNotNull { it.projectXmlByRcn(rcn) }
-				.map { Pair(rcn, it) }
-				.firstOrNull()
-	}
-
-	private fun cache(data: Pair<Long, String>) {
-		logger.trace("Caching XML: ${data.first}")
-		modules.readers.mapNotNull { it as? ICordisProjectXmlCache }
-				.onEach { it.cacheProjectXml(data.first, data.second) }
-	}
-
-	private fun parse(data: Pair<Long, String>): Pair<Long, CordisXml>? {
-		logger.trace("Parsing XML: ${data.first}")
-		return xmlParsers.asSequence()
-				.mapNotNull { it.parseCordisXml(data.second) }
-				.mapNotNull { Pair(data.first, it) }
-				.firstOrNull()
-	}
 }

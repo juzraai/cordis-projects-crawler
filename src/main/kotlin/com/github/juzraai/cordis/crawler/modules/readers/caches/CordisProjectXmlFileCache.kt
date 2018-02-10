@@ -1,6 +1,6 @@
 package com.github.juzraai.cordis.crawler.modules.readers.caches
 
-import com.github.juzraai.cordis.crawler.*
+import com.github.juzraai.cordis.crawler.model.*
 import mu.*
 import java.io.*
 import java.util.*
@@ -18,7 +18,7 @@ class CordisProjectXmlFileCache(override var configuration: CordisCrawlerConfigu
 	override fun projectXmlByRcn(rcn: Long): String? {
 		val file = projectXmlTargetFile(rcn)
 		if (file.exists()) {
-			logger.trace("Reading XML: $file")
+			logger.trace("Reading project XML: $file")
 			try {
 				Scanner(GZIPInputStream(file.inputStream())).use {
 					return it.useDelimiter("\\A").next()
@@ -32,7 +32,7 @@ class CordisProjectXmlFileCache(override var configuration: CordisCrawlerConfigu
 
 	override fun cacheProjectXml(rcn: Long, xml: String) {
 		val file = projectXmlTargetFile(rcn)
-		logger.trace("Storing XML: $file")
+		logger.trace("Storing project XML: $file")
 		try {
 			file.parentFile?.mkdirs()
 			OutputStreamWriter(GZIPOutputStream(file.outputStream())).use { it.write(xml) }
@@ -41,5 +41,5 @@ class CordisProjectXmlFileCache(override var configuration: CordisCrawlerConfigu
 		}
 	}
 
-	private fun projectXmlTargetFile(rcn: Long) = File(configuration!!.directory, "$rcn.xml.gz")
+	private fun projectXmlTargetFile(rcn: Long) = File(configuration!!.directory, "project${File.separator}$rcn.xml.gz")
 }

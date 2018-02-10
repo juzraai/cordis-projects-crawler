@@ -1,6 +1,7 @@
 package com.github.juzraai.cordis.crawler.modules
 
-import com.github.juzraai.cordis.crawler.*
+import com.github.juzraai.cordis.crawler.model.*
+import com.github.juzraai.cordis.crawler.modules.parsers.*
 import com.github.juzraai.cordis.crawler.modules.readers.*
 import com.github.juzraai.cordis.crawler.modules.readers.caches.*
 import com.github.juzraai.cordis.crawler.modules.seeds.*
@@ -29,7 +30,11 @@ class CordisCrawlerModuleRegistry {
 			CordisProjectXmlDownloader()
 	)
 
-	private fun allModules() = listOf(seeds, readers).flatten()
+	val parsers = mutableListOf(
+			CordisProjectXmlParser()
+	)
+
+	private fun allModules() = listOf(seeds, readers, parsers).flatten()
 
 	fun close() {
 		allModules().onEach {

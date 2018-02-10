@@ -1,4 +1,4 @@
-package com.github.juzraai.cordis.xml.parser
+package com.github.juzraai.cordis.crawler.modules.parsers
 
 import org.simpleframework.xml.convert.*
 import org.simpleframework.xml.stream.*
