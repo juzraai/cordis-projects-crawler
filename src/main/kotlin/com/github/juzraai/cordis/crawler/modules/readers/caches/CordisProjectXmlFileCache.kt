@@ -1,4 +1,4 @@
-package com.github.juzraai.cordis.xml.io
+package com.github.juzraai.cordis.crawler.modules.readers.caches
 
 import com.github.juzraai.cordis.crawler.*
 import mu.*
@@ -9,16 +9,14 @@ import java.util.zip.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisXmlFileCache : ICordisCrawlerConfigurationAware, ICordisXmlCache {
-
-	override var configuration: CordisCrawlerConfiguration? = null
+class CordisProjectXmlFileCache(override var configuration: CordisCrawlerConfiguration? = null) : ICordisProjectXmlCache {
 
 	companion object : KLogging()
 
 	// TODO should store XMLs in subdirectories like: /contentType/rcn_en.xml - so we need URLs here too?
 
-	override fun readCordisXmlByRcn(rcn: Long): String? {
-		val file = file(rcn)
+	override fun projectXmlByRcn(rcn: Long): String? {
+		val file = projectXmlTargetFile(rcn)
 		if (file.exists()) {
 			logger.trace("Reading XML: $file")
 			try {
@@ -32,8 +30,8 @@ class CordisXmlFileCache : ICordisCrawlerConfigurationAware, ICordisXmlCache {
 		return null
 	}
 
-	override fun storeCordisXmlForRcn(rcn: Long, xml: String) {
-		val file = file(rcn)
+	override fun cacheProjectXml(rcn: Long, xml: String) {
+		val file = projectXmlTargetFile(rcn)
 		logger.trace("Storing XML: $file")
 		try {
 			file.parentFile?.mkdirs()
@@ -43,5 +41,5 @@ class CordisXmlFileCache : ICordisCrawlerConfigurationAware, ICordisXmlCache {
 		}
 	}
 
-	private fun file(rcn: Long) = File(configuration!!.directory, "$rcn.xml.gz")
+	private fun projectXmlTargetFile(rcn: Long) = File(configuration!!.directory, "$rcn.xml.gz")
 }

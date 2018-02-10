@@ -1,8 +1,9 @@
 package com.github.juzraai.cordis.crawler
 
 import com.beust.jcommander.*
-import com.github.juzraai.cordis.crawler.seed.*
-import com.github.juzraai.cordis.xml.io.*
+import com.github.juzraai.cordis.crawler.modules.*
+import com.github.juzraai.cordis.crawler.modules.readers.caches.*
+import com.github.juzraai.cordis.crawler.modules.seeds.*
 import com.github.juzraai.cordis.xml.model.*
 import com.github.juzraai.cordis.xml.parser.*
 import mu.*
@@ -16,21 +17,13 @@ fun main(args: Array<String>) {
 }
 
 class CordisCrawler(
-		var configuration: CordisCrawlerConfiguration = CordisCrawlerConfiguration()
+		var configuration: CordisCrawlerConfiguration = CordisCrawlerConfiguration(),
+		var modules: CordisCrawlerModuleRegistry = CordisCrawlerModuleRegistry()
 ) {
 	// TODO exporters for projects (JSON, CSV, MySQL)
 
-	// TODO figure out how to handle results
-	// A) seed RCNs are projects. crawl related results transitively
-	// B)
-	// - seed RCNs are Rcn objects (long, ContentType, URL)
-	// - CLI "-s #" replaced by "-p/--project #" and "-r/--result #"
-	// - or "-s #" and crawler will do a search for RCN on CORDIS first
-	// C) "-s" can be an URL: record URL or search result URL
-
-	// D)
-	// - user seeds are project RCNs: RCN, RCN range, RCN list, RCN url, search URL
-	// - URLs are validated, only projects are crawled
+	// TODO
+	// - user seeds are project RCNs
 	// - we need multiple engines:
 	// -- mainTask: CordisProject(rcn, projectXml, resultXmls, publications) -> exporters
 	// -- projectTask: record: rcn:Long -> Project -> project exporters
@@ -38,25 +31,7 @@ class CordisCrawler(
 	// - main task calls projectTask, extracts result RCNs, runs resultTasks, exports
 	// - CordisCrawlerContext: config + modules
 
-	// TODO ???? rename POM artifact to "cordis-crawler"
-	// TODO ???? rename repo accordingly
-
 	companion object : KLogging()
-
-	val readers = mutableListOf(
-			CordisXmlFileCache(),
-			CordisXmlDownloader()
-	)
-
-	val seedGenerators = mutableListOf(
-			SingleRcnSeed(),
-			RcnRangeSeed(),
-			RcnListSeed(),
-			ProjectUrlSeed(),
-			SearchUrlSeed(),
-			DirectorySeed(),
-			AllRcnsSeed()
-	)
 
 	val xmlParsers = mutableListOf<ICordisXmlParser>(
 			CordisProjectXmlParser()
@@ -80,24 +55,26 @@ class CordisCrawler(
 	}
 
 	fun start(seed: Sequence<Long>, customProcessor: ((CordisXml) -> Unit)? = null) {
-		setupLoggers()
+		try {
+			setupLoggers()
+			logger.info("Initializing modules")
+			modules.initialize(configuration)
 
-		logger.info("Initializing modules")
-		listOf(
-				*readers.toTypedArray(),
-				*seedGenerators.toTypedArray(),
-				*xmlParsers.toTypedArray()
-		).onEach { (it as? ICordisCrawlerConfigurationAware)?.configuration = configuration }
-
-		var t = -System.currentTimeMillis()
-		val c = seed.onEach { logger.info("Processing RCN: $it") }
-				.mapNotNull(this::read)
-				.onEach(this::cache)
-				.mapNotNull(this::parse)
-				.onEach { customProcessor?.invoke(it.second) }
-				.count() // <-- need to run the operations on Sequence
-		t += System.currentTimeMillis()
-		logger.info("Processed $c RCNs in ${t / 1000.0} seconds")
+			var t = -System.currentTimeMillis()
+			val c = seed.onEach { logger.info("Processing RCN: $it") }
+					.mapNotNull(this::read)
+					.onEach(this::cache)
+					.mapNotNull(this::parse)
+					.onEach { customProcessor?.invoke(it.second) }
+					.count() // <-- need to run the operations on Sequence
+			t += System.currentTimeMillis()
+			logger.info("Processed $c RCNs in ${t / 1000.0} seconds")
+		} catch (e: Exception) {
+			logger.error("Error", e)
+		} finally {
+			logger.info("Turning off modules")
+			modules.close()
+		}
 	}
 
 	private fun setupLoggers() {
@@ -109,23 +86,23 @@ class CordisCrawler(
 		}
 	}
 
-	private fun seed() = seedGenerators.asSequence()
-			.mapNotNull { it.generateRcns(configuration.seed, configuration) }
+	private fun seed() = modules.seeds.asSequence()
+			.mapNotNull(ICordisProjectRcnSeed::projectRcns)
 			.firstOrNull()
 			?: throw UnsupportedOperationException("Invalid seed: ${configuration.seed}")
 
 	private fun read(rcn: Long): Pair<Long, String>? {
 		logger.trace("Reading XML: $rcn")
-		return readers.asSequence()
-				.mapNotNull { it.readCordisXmlByRcn(rcn) }
+		return modules.readers.asSequence()
+				.mapNotNull { it.projectXmlByRcn(rcn) }
 				.map { Pair(rcn, it) }
 				.firstOrNull()
 	}
 
 	private fun cache(data: Pair<Long, String>) {
 		logger.trace("Caching XML: ${data.first}")
-		readers.mapNotNull { it as? ICordisXmlCache }
-				.onEach { it.storeCordisXmlForRcn(data.first, data.second) }
+		modules.readers.mapNotNull { it as? ICordisProjectXmlCache }
+				.onEach { it.cacheProjectXml(data.first, data.second) }
 	}
 
 	private fun parse(data: Pair<Long, String>): Pair<Long, CordisXml>? {

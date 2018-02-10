@@ -84,9 +84,13 @@ You can find this documentation in `docs/README.md`. If you wish to browse the p
 
 ?> **TODO** batch states like above + custom processor
 
-?> **TODO** extension points (readers, parsers, etc. lists), custom processor 
 
 
+### Extending
+
+?> **TODO** extension points: module registry (readers, parsers, etc. lists), custom processor 
+
+?> **TODO** init: setter, close: Closeables will be closed automatically
 
 [github]: http://github.com/juzraai
 [release]: https://github.com/juzraai/cordis-projects-crawler/releases/latest
