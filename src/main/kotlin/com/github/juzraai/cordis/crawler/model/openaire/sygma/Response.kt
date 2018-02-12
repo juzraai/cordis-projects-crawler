@@ -8,5 +8,6 @@ import org.simpleframework.xml.*
 @Root(name = "response")
 @Default(required = false)
 data class Response(
-		var header: Header? = null
+		var header: Header? = null,
+		var publications: List<Publication>? = null
 )
