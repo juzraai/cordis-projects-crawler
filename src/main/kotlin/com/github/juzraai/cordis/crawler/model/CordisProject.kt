@@ -1,6 +1,6 @@
 package com.github.juzraai.cordis.crawler.model
 
-import com.github.juzraai.cordis.crawler.model.xml.*
+import com.github.juzraai.cordis.crawler.model.cordis.*
 
 /**
  * @author Zsolt Jurányi

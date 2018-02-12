@@ -57,15 +57,13 @@ class CordisCrawler(
 			var t = -System.currentTimeMillis()
 			var allCount = 0L
 			val processedCount = (seed ?: seed())
-					// TODO chunked(100) ?
 					.onEach {
 						logger.info("Processing project RCN: $it")
 						allCount++
 					}
-					.map(CordisProjectCrawler(configuration, modules)::crawlProject)
-					// TODO onEach(this::crawlResultXmls)
-					// TODO onEach(this::crawlPublications)
-					.onEach { customProcessor?.invoke(it) }
+					.map { CordisProject(it) }
+					.mapNotNull(this::process)
+					// TODO chunked(100) ?
 					// TODO export
 					.count() // <-- need to run the operations on Sequence
 			t += System.currentTimeMillis()
@@ -92,4 +90,13 @@ class CordisCrawler(
 			.firstOrNull()
 			?: throw UnsupportedOperationException("Invalid seed: ${configuration.seed}")
 
+	private fun process(cordisProject: CordisProject): CordisProject? {
+		var r: CordisProject? = cordisProject
+		modules.processors.onEach {
+			val rr = r
+			if (null != rr) r = it.process(rr)
+			// TODO exception handling?
+		}
+		return r
+	}
 }

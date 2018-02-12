@@ -1,4 +1,4 @@
-package com.github.juzraai.cordis.crawler.model.xml
+package com.github.juzraai.cordis.crawler.model.cordis
 
 import org.simpleframework.xml.*
 

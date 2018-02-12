@@ -1,5 +1,6 @@
-package com.github.juzraai.cordis.crawler
+package com.github.juzraai.cordis.crawler.modules.processors
 
+import com.github.juzraai.cordis.crawler.*
 import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.modules.*
 import com.github.juzraai.cordis.crawler.modules.readers.caches.*
@@ -8,14 +9,11 @@ import com.github.juzraai.cordis.crawler.modules.readers.caches.*
  * @author Zsolt Jurányi
  */
 class CordisProjectCrawler(
-		var configuration: CordisCrawlerConfiguration = CordisCrawlerConfiguration(),
-		var modules: CordisCrawlerModuleRegistry = CordisCrawlerModuleRegistry()
-) {
-	fun crawlProject(rcn: Long): CordisProject {
-		return crawlProject(CordisProject(rcn))
-	}
+		override var modules: CordisCrawlerModuleRegistry,
+		override var configuration: CordisCrawlerConfiguration? = null
+) : ICordisProjectProcessor {
 
-	fun crawlProject(cordisProject: CordisProject): CordisProject {
+	override fun process(cordisProject: CordisProject): CordisProject {
 		println(cordisProject)
 		return cordisProject.apply {
 			CordisCrawler.logger.trace("Reading project XML: $rcn")
@@ -29,17 +27,17 @@ class CordisProjectCrawler(
 		}
 	}
 
-	private fun readProjectXml(rcn: Long) = modules.readers.asSequence()
+	private fun readProjectXml(rcn: Long) = modules.projectXmlReaders.asSequence()
 			.mapNotNull { it.projectXmlByRcn(rcn) }
 			.firstOrNull()
 
 	private fun cacheProjectXml(rcn: Long, xml: String) {
-		modules.readers
+		modules.projectXmlReaders
 				.mapNotNull { it as? ICordisProjectXmlCache }
 				.onEach { it.cacheProjectXml(rcn, xml) }
 	}
 
-	private fun parseProjectXml(xml: String) = modules.parsers.asSequence()
+	private fun parseProjectXml(xml: String) = modules.projectXmlParsers.asSequence()
 			.mapNotNull { it.parseProjectXml(xml) }
 			.firstOrNull()
 }
