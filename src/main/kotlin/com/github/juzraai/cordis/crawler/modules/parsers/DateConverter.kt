@@ -10,6 +10,8 @@ import java.util.*
  */
 class DateConverter : Converter<Date> {
 
+	// TODO ? move to util package?
+
 	val patterns = listOf(
 			Pair(Regex("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}"), "yyyy-MM-dd HH:mm:ss"),
 			Pair(Regex("\\d{4}-\\d{2}-\\d{2}"), "yyyy-MM-dd")

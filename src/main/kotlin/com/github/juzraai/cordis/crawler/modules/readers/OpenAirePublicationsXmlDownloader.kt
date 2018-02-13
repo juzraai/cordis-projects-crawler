@@ -10,6 +10,8 @@ import org.jsoup.*
  */
 class OpenAirePublicationsXmlDownloader(override var configuration: CordisCrawlerConfiguration? = null) : IOpenAirePublicationsXmlReader {
 
+	// TODO ? merge 2 downloaders into DefaultDownloader, then we can calc and print stats (reqs, sizes) (close method)
+
 	companion object : KLogging()
 
 	override fun publicationsXmlByProject(project: Project): String? {

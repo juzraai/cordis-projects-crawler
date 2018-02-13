@@ -13,6 +13,8 @@ import java.util.*
 class OpenAirePublicationsXmlParser(override var configuration: CordisCrawlerConfiguration? = null)
 	: IOpenAirePublicationsXmlParser {
 
+	// TODO ? merge 2 parsers, then we can have common Persister
+
 	companion object : KLogging()
 
 	private var persister = Persister(RegistryStrategy(Registry().apply {

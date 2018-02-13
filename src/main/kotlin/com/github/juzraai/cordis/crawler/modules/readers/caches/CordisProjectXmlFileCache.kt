@@ -24,7 +24,7 @@ class CordisProjectXmlFileCache(override var configuration: CordisCrawlerConfigu
 					return it.useDelimiter("\\A").next()
 				}
 			} catch (e: Exception) {
-				logger.warn("Failed to read XML: $file - ${e.message}")
+				logger.warn("Failed to read project XML: $file - ${e.message}")
 			}
 		}
 		return null
@@ -37,7 +37,7 @@ class CordisProjectXmlFileCache(override var configuration: CordisCrawlerConfigu
 			file.parentFile?.mkdirs()
 			OutputStreamWriter(GZIPOutputStream(file.outputStream())).use { it.write(xml) }
 		} catch (e: Exception) {
-			logger.warn("Failed to store XML: $file - ${e.message}")
+			logger.warn("Failed to store project XML: $file - ${e.message}")
 		}
 	}
 

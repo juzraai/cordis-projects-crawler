@@ -35,7 +35,7 @@ class CordisCrawlerModuleRegistry {
 	)
 
 	val publicationsXmlReaders = mutableListOf<IOpenAirePublicationsXmlReader>(
-			// TODO cache
+			OpenAirePublicationsXmlCache(),
 			OpenAirePublicationsXmlDownloader()
 	)
 

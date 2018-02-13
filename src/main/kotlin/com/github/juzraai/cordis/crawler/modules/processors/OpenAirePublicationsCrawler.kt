@@ -3,6 +3,7 @@ package com.github.juzraai.cordis.crawler.modules.processors
 import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.model.cordis.*
 import com.github.juzraai.cordis.crawler.modules.*
+import com.github.juzraai.cordis.crawler.modules.readers.caches.*
 import mu.*
 
 /**
@@ -36,8 +37,8 @@ class OpenAirePublicationsCrawler(
 				logger.trace("Reading publications XML: $rcn")
 				val xml = readPublicationsXml(p)
 				if (null != xml) {
-					//logger.trace("Caching publications XML: $rcn")
-					//cachePublicationsXml(rcn, xml)
+					logger.trace("Caching publications XML: $rcn")
+					cachePublicationsXml(rcn, xml)
 					logger.trace("Parsing publications XML: $rcn")
 					publications = parsePublicationsXml(xml)
 				}
@@ -48,6 +49,12 @@ class OpenAirePublicationsCrawler(
 	private fun readPublicationsXml(project: Project) = modules.publicationsXmlReaders.asSequence()
 			.mapNotNull { it.publicationsXmlByProject(project) }
 			.firstOrNull()
+
+	private fun cachePublicationsXml(rcn: Long, xml: String) {
+		modules.publicationsXmlReaders
+				.mapNotNull { it as? IOpenAirePublicationsXmlCache }
+				.onEach { it.cachePublicationsXml(rcn, xml) }
+	}
 
 	private fun parsePublicationsXml(xml: String) = modules.publicationsXmlParsers.asSequence()
 			.mapNotNull { it.parsePublicationsXml(xml) }
