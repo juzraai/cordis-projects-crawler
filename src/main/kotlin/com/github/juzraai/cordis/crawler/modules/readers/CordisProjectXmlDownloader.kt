@@ -17,7 +17,7 @@ class CordisProjectXmlDownloader(override var configuration: CordisCrawlerConfig
 		val url = projectXmlUrlByRcn(rcn)
 		return try {
 			logger.trace("Fetching project XML: $url")
-			Thread.sleep(2000)
+			Thread.sleep(2000) // TODO more sophisticated
 			Jsoup.connect(url).maxBodySize(10_000_000).timeout(60_000).execute().body()
 		} catch (e: Exception) {
 			logger.warn("Failed to fetch URL: $url - ${e.message}")

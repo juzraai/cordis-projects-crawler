@@ -1,9 +1,9 @@
 package com.github.juzraai.cordis.crawler.modules.processors
 
-import com.github.juzraai.cordis.crawler.*
 import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.modules.*
 import com.github.juzraai.cordis.crawler.modules.readers.caches.*
+import mu.*
 
 /**
  * @author Zsolt Jurányi
@@ -13,15 +13,16 @@ class CordisProjectCrawler(
 		override var configuration: CordisCrawlerConfiguration? = null
 ) : ICordisProjectProcessor {
 
+	companion object : KLogging()
+
 	override fun process(cordisProject: CordisProject): CordisProject {
-		println(cordisProject)
 		return cordisProject.apply {
-			CordisCrawler.logger.trace("Reading project XML: $rcn")
+			logger.trace("Reading project XML: $rcn")
 			val xml = readProjectXml(rcn)
 			if (null != xml) {
-				CordisCrawler.logger.trace("Caching project XML: $rcn")
+				logger.trace("Caching project XML: $rcn")
 				cacheProjectXml(rcn, xml)
-				CordisCrawler.logger.trace("Parsing project XML: $rcn")
+				logger.trace("Parsing project XML: $rcn")
 				project = parseProjectXml(xml)
 			}
 		}

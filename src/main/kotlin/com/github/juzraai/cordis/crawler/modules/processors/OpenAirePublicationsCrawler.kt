@@ -1,13 +1,9 @@
 package com.github.juzraai.cordis.crawler.modules.processors
 
 import com.github.juzraai.cordis.crawler.model.*
-import com.github.juzraai.cordis.crawler.model.openaire.sygma.*
+import com.github.juzraai.cordis.crawler.model.cordis.*
 import com.github.juzraai.cordis.crawler.modules.*
-import com.github.juzraai.cordis.crawler.modules.parsers.*
-import org.jsoup.*
-import org.simpleframework.xml.convert.*
-import org.simpleframework.xml.core.*
-import java.util.*
+import mu.*
 
 /**
  * @author Zsolt Jurányi
@@ -31,23 +27,29 @@ class OpenAirePublicationsCrawler(
 		- max record count is 10K, use it, then no paging is needed
 	 */
 
-	var persister = Persister(RegistryStrategy(Registry().apply {
-		bind(Date::class.java, DateConverter::class.java)
-	}))
+	companion object : KLogging()
 
 	override fun process(cordisProject: CordisProject): CordisProject? {
-		// TODO move out to modules
-		val xml = Jsoup.connect("http://api.openaire.eu/search/publications?projectID=${cordisProject.project!!.reference}&model=sygma&size=10000").maxBodySize(10_000_000).timeout(60_000).execute().body()
-		// TODO cache
-		try {
-			xml.byteInputStream().use {
-				val r = persister.read(Response::class.java, it, false)
-				cordisProject.publications = r.publications
+		return cordisProject.apply {
+			val p = project
+			if (null != p) {
+				logger.trace("Reading publications XML: $rcn")
+				val xml = readPublicationsXml(p)
+				if (null != xml) {
+					//logger.trace("Caching publications XML: $rcn")
+					//cachePublicationsXml(rcn, xml)
+					logger.trace("Parsing publications XML: $rcn")
+					publications = parsePublicationsXml(xml)
+				}
 			}
-			return cordisProject
-		} catch (e: Exception) {
-			CordisProjectXmlParser.logger.warn("Could not parse XML - ${e.message}")
-			return null
 		}
 	}
+
+	private fun readPublicationsXml(project: Project) = modules.publicationsXmlReaders.asSequence()
+			.mapNotNull { it.publicationsXmlByProject(project) }
+			.firstOrNull()
+
+	private fun parsePublicationsXml(xml: String) = modules.publicationsXmlParsers.asSequence()
+			.mapNotNull { it.parsePublicationsXml(xml) }
+			.firstOrNull()
 }

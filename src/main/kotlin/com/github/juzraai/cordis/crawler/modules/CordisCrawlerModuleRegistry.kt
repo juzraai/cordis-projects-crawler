@@ -16,7 +16,30 @@ class CordisCrawlerModuleRegistry {
 
 	companion object : KLogging()
 
-	val seeds = mutableListOf(
+	val processors = mutableListOf<ICordisProjectProcessor>(
+			CordisProjectCrawler(this),
+			OpenAirePublicationsCrawler(this)
+	)
+
+	val projectXmlParsers = mutableListOf<CordisProjectXmlParser>(
+			CordisProjectXmlParser()
+	)
+
+	val projectXmlReaders = mutableListOf<ICordisProjectXmlReader>(
+			CordisProjectXmlFileCache(),
+			CordisProjectXmlDownloader()
+	)
+
+	val publicationsXmlParsers = mutableListOf<IOpenAirePublicationsXmlParser>(
+			OpenAirePublicationsXmlParser()
+	)
+
+	val publicationsXmlReaders = mutableListOf<IOpenAirePublicationsXmlReader>(
+			// TODO cache
+			OpenAirePublicationsXmlDownloader()
+	)
+
+	val seeds = mutableListOf<ICordisProjectRcnSeed>(
 			CordisProjectRcnSeed(),
 			CordisProjectRcnRangeSeed(),
 			CordisProjectRcnListSeed(),
@@ -26,25 +49,13 @@ class CordisCrawlerModuleRegistry {
 			AllCordisProjectRcnSeed()
 	)
 
-	val processors = mutableListOf(
-			CordisProjectCrawler(this),
-			OpenAirePublicationsCrawler(this)
-	)
-
-	val projectXmlReaders = mutableListOf(
-			CordisProjectXmlFileCache(),
-			CordisProjectXmlDownloader()
-	)
-
-	val projectXmlParsers = mutableListOf(
-			CordisProjectXmlParser()
-	)
-
 	private fun allModules() = listOf(
 			seeds,
 			processors,
 			projectXmlReaders,
-			projectXmlParsers
+			projectXmlParsers,
+			publicationsXmlReaders,
+			publicationsXmlParsers
 	).flatten()
 
 	fun close() {
