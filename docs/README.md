@@ -6,27 +6,49 @@
 
 ---
 
-## Features
+## Development progress
 
-**Already working:**
+**Working:**
 
-* Download [CORDIS][cordis] project XMLs into a directory
-* Can download a single RCN or a range of RCNs
-* Can parse some fields from project XML (available to developers)
+* Custom modular batch framework
+* Project RCN seeds: single RCN, RCN list, RCN range, project URL
+* Download and parse [CORDIS][cordis] project XMLs
+* Download and parse publications XML from [OpenAIRE API][oaa] for projects
 
+**TODO:**
 
-**Planned features:**
-
-* Read RCNs from output directory
-* Crawl all RCNs available on CORDIS
-* Parse all fields from project XMLs
-* Handle result XMLs too
-* Recursive crawl (project in seed, crawl related results too)
-* CSV export
-* MySQL export
+* More seeds: directory, CORDIS search URL, all project
+* Exports: CSV, MySQL
+* Crawl result XMLs too
 
 
-## Usage
+---
+
+## What's new in version 2?
+
+* I rebuilt the crawler from scratch, switched from Java to [Kotlin][kotlin].
+* Extracts data from [CORDIS][cordis] XMLs and [OpenAIRE API][oaa] instead of messy HTML pages and encoded JSON strings.
+* Can parse information of all projects, from oldest to newest.
+* There are new ways to tell the crawler which projects are needed.
+* Modular architecture helps developers to extend/alter functionality of the crawler.
+* Sexy documentation using [Docsify][docsify]
+
+
+
+## How it works
+
+* **The input of the crawler are CORDIS project RCNs.** You can specify one or more, even with a CORDIS URL, see [below](#seed).
+* The crawler iterates project RCNs and firstly crawls project data:
+	* Tries to read XML from the output directory.
+	* If it fails, it downloads the XML from [CORDIS][cordis] into the [output directory](#output-directory).
+* Then crawls the publications list:
+	* Tries to read XML from the output directory.
+	* If it fails, it downloads the XML from [OpenAIRE][oaa] into the [output directory](#output-directory).
+* Runs exporter modules to generate exports from project information.
+
+
+
+## Running the crawler
 
 1. Install the freshest [JRE][java]
 2. Download the [latest release][release]
@@ -36,19 +58,46 @@
 java -jar cordis-projects-crawler-VERSION.jar [arguments]
 ```
 
-If you run it without further arguments, the program will print out the available options.
+If you run it without arguments, the program will print out the available options. Let's walk through them here.
 
 
 
-### How it works
+### Seed
 
-?> **TODO** seed, fetch, cache, parse, export
+Seed is the input of the crawler. Seed can be **one or more CORDIS project RCN**, you have a lot of options to specify it:
+
+* Single RCN:  `-s 12345`
+* RCN list:    `-s 12345,12347,12350`
+* RCN range:   `-s 12345..12350`
+* Project URL: `-s https://cordis.europa.eu/project/rcn/12345_en.html`
+
+Full example:
+
+```bash
+java -jar cordis-projects-crawler-VERSION.jar -s 12345..12350
+```
 
 
 
-### Use cases
+### Output directory
 
-?> **TODO** one RCN, RCN range, exports
+By default, the crawler will create a folder named `cordis-data` in the working directory, and put downloaded files and exports under it. You can specify another directory if you wish using the `-d` or `--directory` option:
+
+```bash
+java -jar cordis-projects-crawler-VERSION.jar -d /path/to/custom/cordis/directory
+```
+
+Downloaded files will be placed under `project` and `publications` directory, while exports will be generated into `export` folder inside the output directory.
+
+
+
+### Verbosity
+
+The crawler prints log messages on the screen to inform you what is happening. These log messages contain a timestamp, a level and a message. Log level can be `TRACE`, `DEBUG`, `INFO`, `WARN` or `ERROR`. By default, `TRACE` and `DEBUG` are hidden, because they are useful only when some problem needs investigation, but in other cases they can be disturbing. You can turn them on by adding `-v` or `--verbose` option:
+
+```bash
+java -jar cordis-projects-crawler-VERSION.jar -v
+```
 
 
 
@@ -62,12 +111,18 @@ You can find this documentation in `docs/README.md`. If you wish to browse the p
 
 
 
+### Dependency
+
+Thanks to [JitPack][jitpack], you don't need to clone and build the project to use it as a dependency. Follow the link, click on the green *"Get it"* button next to the latest version and follow the instructions listed there.
+
+
+
 ### Building the project
 
 1. Install the freshest [JDK][java] and [Maven][maven]
-2. Step into the project directory
+2. Clone the repository and step into the project directory
 3. Run `mvn clean install` in the terminal
-4. You can find the JAR file in `target` directory
+4. You can find the JAR file in `target` directory and also in your Maven home
 5. And from this point you can include it in your Maven project:
 
 ```xml
@@ -80,23 +135,34 @@ You can find this documentation in `docs/README.md`. If you wish to browse the p
 
 
 
-### Overview
+### Calling the crawler
 
-?> **TODO** batch states like above + custom processor
+?> **TODO** config obj, cordis crawler starting
+
+
+### Modules
+
+?> **TODO** registry, lists, interfaces, initialization, close, cache
 
 
 
 ### Extending
 
-?> **TODO** extension points: module registry (readers, parsers, etc. lists), custom processor 
+?> **TODO** extension points: module registry (readers, parsers, etc. lists), example custom processor
 
 ?> **TODO** init: setter, close: Closeables will be closed automatically
 
-[github]: http://github.com/juzraai
+
+
+[jitpack]: https://jitpack.io/#juzraai/cordis-projects-crawler
 [release]: https://github.com/juzraai/cordis-projects-crawler/releases/latest
+
+[github]: http://github.com/juzraai
 [www]: http://juzraai.github.io/
 
 [cordis]: https://cordis.europa.eu/
 [docsify]: https://docsify.js.org/#/quickstart
 [java]: http://www.oracle.com/technetwork/java/javase/downloads/index.html
+[kotlin]: https://kotlinlang.org/
 [maven]: https://maven.apache.org/
+[oaa]: http://api.openaire.eu/

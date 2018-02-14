@@ -6,7 +6,7 @@ import com.github.juzraai.cordis.crawler.model.openaire.sygma.*
 /**
  * @author Zsolt Jurányi
  */
-data class CordisProject(
+data class CordisProject( // TODO make it open!
 		val rcn: Long,
 		var project: Project? = null,
 		//val result: Result? = null,
