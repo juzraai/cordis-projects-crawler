@@ -63,8 +63,9 @@ class CordisCrawler(
 					}
 					.map { CordisProject(it) }
 					.mapNotNull(this::process)
-					// TODO chunked(100) ?
-					// TODO export
+					.chunked(100) // TODO config
+					.onEach(this::export)
+					.flatten()
 					.count() // <-- need to run the operations on Sequence
 			t += System.currentTimeMillis()
 			logger.info("Processed $processedCount/$allCount projects in ${t / 1000.0} seconds")
@@ -92,11 +93,17 @@ class CordisCrawler(
 
 	private fun process(cordisProject: CordisProject): CordisProject? {
 		var r: CordisProject? = cordisProject
-		modules.processors.onEach {
-			val rr = r
-			if (null != rr) r = it.process(rr)
-			// TODO exception handling?
+		modules.processors.onEach { p ->
+			r?.also { r = p.process(it) }
+			// TODO catch exception, log error
 		}
 		return r
+	}
+
+	private fun export(cordisProjects: List<CordisProject>) {
+		modules.exporters.onEach {
+			it.exportCordisProjects(cordisProjects)
+			// TODO catch exception, log error
+		}
 	}
 }

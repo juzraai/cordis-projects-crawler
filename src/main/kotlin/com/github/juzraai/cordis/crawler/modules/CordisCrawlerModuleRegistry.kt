@@ -1,6 +1,7 @@
 package com.github.juzraai.cordis.crawler.modules
 
 import com.github.juzraai.cordis.crawler.model.*
+import com.github.juzraai.cordis.crawler.modules.exporters.*
 import com.github.juzraai.cordis.crawler.modules.parsers.*
 import com.github.juzraai.cordis.crawler.modules.processors.*
 import com.github.juzraai.cordis.crawler.modules.readers.*
@@ -15,6 +16,11 @@ import java.io.*
 class CordisCrawlerModuleRegistry {
 
 	companion object : KLogging()
+
+	val exporters = mutableListOf<ICordisProjectExporter>(
+			ProjectsTsvExporter()
+			// TODO add exporters, PublicationsTsvExporter, MySqlExporter
+	)
 
 	val processors = mutableListOf<ICordisProjectProcessor>(
 			CordisProjectCrawler(this),
@@ -55,7 +61,8 @@ class CordisCrawlerModuleRegistry {
 			projectXmlReaders,
 			projectXmlParsers,
 			publicationsXmlReaders,
-			publicationsXmlParsers
+			publicationsXmlParsers,
+			exporters
 	).flatten()
 
 	fun close() {
