@@ -1,6 +1,7 @@
 package com.github.juzraai.cordis.crawler.modules.exporters
 
 import com.github.juzraai.cordis.crawler.model.*
+import com.github.juzraai.cordis.crawler.model.cordis.*
 import mu.*
 import java.io.*
 import java.text.*
@@ -14,9 +15,58 @@ class ProjectsTsvExporter : ICordisProjectExporter,
 
 	companion object : KLogging()
 
+	private data class Column(
+			val header: String,
+			val valueFunction: Project.() -> String?
+	)
+
 	private var enabled = false
-	private val columns = mutableListOf<Pair<String, (CordisProject) -> String>>()
 	private var writer: BufferedWriter? = null
+	private val columns = listOf(
+			Column("rcn", { rcn?.toString() }),
+			Column("cordisUrl", { "https://www.cordis.europa.eu/project/rcn/${rcn}_en.html" }),
+			Column("lastUpdateDate", { formatDate(lastUpdateDate) }),
+			Column("reference", Project::reference),
+			Column("acronym", Project::acronym),
+			Column("status", Project::status),
+			Column("frameworkProgramme", {
+				relations?.associations?.programmes?.firstOrNull { it.type == "relatedProgramme" }?.frameworkProgramme
+			}),
+			Column("programme", {
+				relations?.associations?.programmes?.firstOrNull { it.type == "relatedProgramme" }?.code
+			}),
+			Column("subprogramme", {
+				relations?.associations?.programmes?.firstOrNull { it.type == "relatedSubProgramme" }?.code
+			}),
+			Column("title", Project::title),
+			Column("startDate", { formatDate(startDate) }),
+			Column("endDate", { formatDate(endDate) }),
+			Column("website", {
+				relations?.associations?.webSites?.firstOrNull { it.type == "relatedPpmProjectWebsite" }?.url
+			}),
+			Column("totalCost", { totalCost?.toString() }),
+			Column("ecMaxContribution", { ecMaxContribution?.toString() }),
+			Column("fundingScheme", {
+				relations?.categories?.firstOrNull { it.classification == "projectFundingSchemeCategory" }?.code
+			}),
+			Column("coordinator", {
+				relations?.associations?.organizations?.firstOrNull { it.type == "coordinator" }?.legalName
+			}),
+			Column("coordinatorCountry", {
+				relations?.associations?.organizations?.firstOrNull { it.type == "coordinator" }?.address?.country
+			}),
+			Column("participants", {
+				relations?.associations?.organizations?.filter { it.type == "participant" }
+						?.mapNotNull(Organization::legalName)
+						?.joinToString("; ")
+			}),
+			Column("participantCountries", {
+				relations?.associations?.organizations?.filter { it.type == "participant" }
+						?.mapNotNull { it.address?.country }
+						?.toSet()?.sorted()
+						?.joinToString(",")
+			})
+	)
 
 	private var _configuration: CordisCrawlerConfiguration? = null
 	override var configuration: CordisCrawlerConfiguration?
@@ -27,25 +77,10 @@ class ProjectsTsvExporter : ICordisProjectExporter,
 			if (enabled) {
 				val file = outputFile()
 				openOutputFile(file)
-				buildColumnModel()
 				logger.info("Projects will be exported to: $file")
 				writeHeader()
 			}
 		}
-
-	private fun buildColumnModel() {
-		// CORDIS dataset header:
-		// rcn;id;acronym;status;programme;topics;frameworkProgramme;title;startDate;endDate;projectUrl;objective;totalCost;ecMaxContribution;call;fundingScheme;coordinator;coordinatorCountry;participants;participantCountries;subjects
-
-		// v1.x export header:
-		// Name;Title;Website;Coordinator's country;Publications;From;To;Status;Contract type;Cost;Cost curr.;EU contribution;EU contrib. curr.;Programme acronym;Subprogramme area;Record number (RCN);Project reference;Last updated on;On CORDIS;
-
-		columns.apply {
-			add(Pair("rcn", { it -> it.rcn.toString() }))
-			add(Pair("reference", { it -> it.project?.reference ?: "" }))
-			// TODO add more columns
-		}
-	}
 
 	override fun close() {
 		writer?.close()
@@ -53,11 +88,15 @@ class ProjectsTsvExporter : ICordisProjectExporter,
 
 	override fun exportCordisProjects(cordisProjects: List<CordisProject>) {
 		if (!enabled || null == writer) return
-		cordisProjects.forEach { project ->
-			val line = columns.joinToString("\t") { it.second.invoke(project) }
-			writer?.write(line)
-			writer?.newLine()
+		cordisProjects.forEach { cordisProject ->
+			cordisProject.project?.also { project ->
+				writeLine(project)
+			}
 		}
+	}
+
+	private fun formatDate(date: Date?): String? {
+		return date?.run { SimpleDateFormat("yyyy-MM-dd").format(this) }
 	}
 
 	private fun openOutputFile(file: File) {
@@ -66,13 +105,23 @@ class ProjectsTsvExporter : ICordisProjectExporter,
 	}
 
 	private fun outputFile(): File {
-		val d = SimpleDateFormat("yyyyMMdd-HHmmss").format(Date())
+		val d = SimpleDateFormat("yyyyMMdd-HHmmss").format(configuration?.timestamp)
 		return File(configuration!!.directory, "export${File.separator}$d-projects.csv")
 	}
 
 	private fun writeHeader() {
-		if (!enabled || null == writer) return
-		val line = columns.joinToString("\t") { it.first }
+		val line = columns.map(Column::header).joinToString("\t")
+		writer?.write(line)
+		writer?.newLine()
+	}
+
+	private fun writeLine(project: Project) {
+		val line = columns.map(Column::valueFunction).joinToString("\t") {
+			it.invoke(project)
+					?.replace("\t", "    ")
+					?.replace("\n", " ")
+					?: ""
+		}
 		writer?.write(line)
 		writer?.newLine()
 	}

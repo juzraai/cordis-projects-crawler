@@ -1,6 +1,7 @@
 package com.github.juzraai.cordis.crawler.model
 
 import com.beust.jcommander.*
+import java.util.*
 
 /**
  * @author Zsolt Jurányi
@@ -8,6 +9,8 @@ import com.beust.jcommander.*
 data class CordisCrawlerConfiguration(
 		// TODO builder
 		// TODO make it open (kotlin-allopen?)
+
+		val timestamp: Date = Date(),
 
 		@Parameter(names = ["-d", "--directory"], description = "Where put downloaded/exported files")
 		var directory: String = "cordis-data",

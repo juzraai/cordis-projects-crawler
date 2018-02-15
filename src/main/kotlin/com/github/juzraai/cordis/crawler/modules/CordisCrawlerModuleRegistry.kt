@@ -17,14 +17,20 @@ class CordisCrawlerModuleRegistry {
 
 	companion object : KLogging()
 
+	// TODO how about having ONE modules list? twould be more flexible
+	// + add method: modules(i: I): Seq<I>
+
 	val exporters = mutableListOf<ICordisProjectExporter>(
 			ProjectsTsvExporter()
-			// TODO add exporters, PublicationsTsvExporter, MySqlExporter
+			// TODO PublicationsTsvExporter, MySqlExporter
 	)
 
 	val processors = mutableListOf<ICordisProjectProcessor>(
 			CordisProjectCrawler(this),
 			OpenAirePublicationsCrawler(this)
+			// TODO project documents downloader (webItems)
+			// TODO project results crawler
+			// TODO unified model generator?
 	)
 
 	val projectXmlParsers = mutableListOf<CordisProjectXmlParser>(

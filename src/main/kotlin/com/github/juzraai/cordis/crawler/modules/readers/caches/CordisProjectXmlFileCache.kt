@@ -13,8 +13,6 @@ class CordisProjectXmlFileCache(override var configuration: CordisCrawlerConfigu
 
 	companion object : KLogging()
 
-	// TODO should store XMLs in subdirectories like: /contentType/rcn_en.xml - so we need URLs here too?
-
 	override fun projectXmlByRcn(rcn: Long): String? {
 		val file = projectXmlTargetFile(rcn)
 		if (file.exists()) {

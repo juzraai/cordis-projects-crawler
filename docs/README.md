@@ -14,12 +14,16 @@
 * Project RCN seeds: single RCN, RCN list, RCN range, project URL
 * Download and parse [CORDIS][cordis] project XMLs
 * Download and parse publications XML from [OpenAIRE API][oaa] for projects
+* Export project metadata into TSV file
 
 **TODO:**
 
 * More seeds: directory, CORDIS search URL, all project
-* Exports: CSV, MySQL
+* Exports: MySQL
+* Crawl project documents (`webItem`)
 * Crawl result XMLs too
+* Unified view?
+
 
 
 ---
@@ -88,6 +92,39 @@ java -jar cordis-projects-crawler-VERSION.jar -d /path/to/custom/cordis/director
 ```
 
 Downloaded files will be placed under `project` and `publications` directory, while exports will be generated into `export` folder inside the output directory.
+
+
+
+### TSV export
+
+The crawler can export the selected projects' metadata into a TSV (tabulator separated values) file. TSV files can be easily imported into spreadsheet editor softwares or relational database systems. The first line of the file will be the header. The output file will be named `YYYYMMDD-HHMMSS-projects.tsv` and you can find it under `export` folder inside the output directory. To turn on this export, add `-xt` or `--tsv` to the arguments:
+
+```bash
+java -jar cordis-projects-crawler-VERSION.jar -s 12345 -xt
+```
+
+Exported fields:
+
+* rcn
+* cordisUrl
+* lastUpdateDate
+* reference
+* acronym
+* status
+* frameworkProgramme
+* programme
+* subprogramme
+* title
+* startDate
+* endDate
+* website
+* totalCost
+* ecMaxContribution
+* fundingScheme
+* coordinator
+* coordinatorCountry
+* participants
+* participantCountries
 
 
 

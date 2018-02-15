@@ -18,15 +18,6 @@ class CordisCrawler(
 		var configuration: CordisCrawlerConfiguration = CordisCrawlerConfiguration(),
 		var modules: CordisCrawlerModuleRegistry = CordisCrawlerModuleRegistry()
 ) {
-	// TODO exporters for projects (JSON, CSV, MySQL)
-
-	// TODO
-	// - user seeds are project RCNs
-	// - we need multiple engines:
-	// -- mainTask: CordisProject(rcn, projectXml, resultXmls, publications) -> exporters
-	// -- projectTask: record: rcn:Long -> Project -> project exporters
-	// -- resultTask: record: rcn:Long -> Result -> result exporters
-	// - main task calls projectTask, extracts result RCNs, runs resultTasks, exports
 
 	companion object : KLogging()
 
@@ -43,11 +34,7 @@ class CordisCrawler(
 		crawlProjects()
 	}
 
-	fun crawlProjects(customProcessor: ((CordisProject) -> Unit)? = null) {
-		crawlProjects(null, customProcessor)
-	}
-
-	fun crawlProjects(seed: Sequence<Long>?, customProcessor: ((CordisProject) -> Unit)? = null) {
+	fun crawlProjects(seed: Sequence<Long>? = null) {
 		try {
 			setupLoggers()
 			logger.trace("Configuration: $configuration")
@@ -94,8 +81,10 @@ class CordisCrawler(
 	private fun process(cordisProject: CordisProject): CordisProject? {
 		var r: CordisProject? = cordisProject
 		modules.processors.onEach { p ->
-			r?.also { r = p.process(it) }
-			// TODO catch exception, log error
+			r?.also {
+				r = p.process(it)
+				// TODO catch exception, log error, r = null?
+			}
 		}
 		return r
 	}

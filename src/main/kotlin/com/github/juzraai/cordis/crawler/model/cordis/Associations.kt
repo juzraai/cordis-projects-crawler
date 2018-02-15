@@ -17,5 +17,11 @@ data class Associations(
 		var persons: List<Person>? = null,
 
 		@field:ElementList(inline = true, entry = "programme", required = false)
-		var programmes: List<Programme>? = null
+		var programmes: List<Programme>? = null,
+
+		@field:ElementList(inline = true, entry = "webItem", required = false)
+		var webItems: List<WebItem>? = null,
+
+		@field:ElementList(inline = true, entry = "webSite", required = false)
+		var webSites: List<WebSite>? = null
 )
