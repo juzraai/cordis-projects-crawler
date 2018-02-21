@@ -1,6 +1,5 @@
 package com.github.juzraai.cordis.crawler.modules.readers
 
-import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.model.cordis.*
 import mu.*
 import org.jsoup.*
@@ -8,7 +7,7 @@ import org.jsoup.*
 /**
  * @author Zsolt Jurányi
  */
-class OpenAirePublicationsXmlDownloader(override var configuration: CordisCrawlerConfiguration? = null) : IOpenAirePublicationsXmlReader {
+class OpenAirePublicationsXmlDownloader : IOpenAirePublicationsXmlReader {
 
 	// TODO ? merge 2 downloaders into DefaultDownloader, then we can calc and print stats (reqs, sizes) (close method)
 

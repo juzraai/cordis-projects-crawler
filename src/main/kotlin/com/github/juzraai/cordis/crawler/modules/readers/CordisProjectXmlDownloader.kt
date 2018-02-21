@@ -1,13 +1,12 @@
 package com.github.juzraai.cordis.crawler.modules.readers
 
-import com.github.juzraai.cordis.crawler.model.*
 import mu.*
 import org.jsoup.*
 
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectXmlDownloader(override var configuration: CordisCrawlerConfiguration? = null) : ICordisProjectXmlReader {
+class CordisProjectXmlDownloader : ICordisProjectXmlReader {
 
 	// TODO later?: implement ICordisResultXmlReader and download result XML by RCN (".../result/rcn/...")
 

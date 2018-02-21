@@ -10,12 +10,17 @@ import java.util.zip.*
 /**
  * @author Zsolt Jurányi
  */
-class OpenAirePublicationsXmlCache(override var configuration: CordisCrawlerConfiguration? = null)
-	: IOpenAirePublicationsXmlCache {
+class OpenAirePublicationsXmlCache : IOpenAirePublicationsXmlCache {
 
 	// TODO ? merge 2 caches, then we can reduce code redundancy
 
 	companion object : KLogging()
+
+	private var configuration: CordisCrawlerConfiguration? = null
+
+	override fun initialize(configuration: CordisCrawlerConfiguration) {
+		this.configuration = configuration
+	}
 
 	override fun publicationsXmlByProject(project: Project): String? {
 		val file = publicationsXmlTargetFile(project.rcn!!)

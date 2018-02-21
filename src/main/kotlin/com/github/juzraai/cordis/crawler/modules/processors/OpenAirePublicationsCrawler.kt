@@ -12,8 +12,7 @@ import mu.*
  * @author Zsolt Jurányi
  */
 class OpenAirePublicationsCrawler(
-		override var modules: CordisCrawlerModuleRegistry,
-		override var configuration: CordisCrawlerConfiguration? = null
+		override var modules: CordisCrawlerModuleRegistry
 ) : ICordisProjectProcessor {
 	/*
 		OpenAIRE API: http://api.openaire.eu/search/publications

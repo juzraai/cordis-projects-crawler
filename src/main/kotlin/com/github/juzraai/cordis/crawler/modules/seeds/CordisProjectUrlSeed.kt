@@ -5,7 +5,13 @@ import com.github.juzraai.cordis.crawler.model.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectUrlSeed(override var configuration: CordisCrawlerConfiguration? = null) : ICordisProjectRcnSeed {
+class CordisProjectUrlSeed : ICordisProjectRcnSeed {
+
+	private var configuration: CordisCrawlerConfiguration? = null
+
+	override fun initialize(configuration: CordisCrawlerConfiguration) {
+		this.configuration = configuration
+	}
 
 	override fun projectRcns(): Sequence<Long>? {
 		return (configuration?.seed ?: "").run {

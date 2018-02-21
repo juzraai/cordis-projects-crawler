@@ -9,9 +9,15 @@ import java.util.zip.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectXmlFileCache(override var configuration: CordisCrawlerConfiguration? = null) : ICordisProjectXmlCache {
+class CordisProjectXmlFileCache : ICordisProjectXmlCache {
 
 	companion object : KLogging()
+
+	private var configuration: CordisCrawlerConfiguration? = null
+
+	override fun initialize(configuration: CordisCrawlerConfiguration) {
+		this.configuration = configuration
+	}
 
 	override fun projectXmlByRcn(rcn: Long): String? {
 		val file = projectXmlTargetFile(rcn)

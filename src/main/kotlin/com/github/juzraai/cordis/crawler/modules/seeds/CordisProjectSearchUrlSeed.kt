@@ -5,7 +5,13 @@ import com.github.juzraai.cordis.crawler.model.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectSearchUrlSeed(override var configuration: CordisCrawlerConfiguration? = null) : ICordisProjectRcnSeed {
+class CordisProjectSearchUrlSeed : ICordisProjectRcnSeed {
+
+	private var configuration: CordisCrawlerConfiguration? = null
+
+	override fun initialize(configuration: CordisCrawlerConfiguration) {
+		this.configuration = configuration
+	}
 
 	override fun projectRcns() = (configuration?.seed ?: "").run {
 		if (matches(Regex("https://cordis\\.europa\\.eu/(projects|search)/result_en\\?.*"))) {

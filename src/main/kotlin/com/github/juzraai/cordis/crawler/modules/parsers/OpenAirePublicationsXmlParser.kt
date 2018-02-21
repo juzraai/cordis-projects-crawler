@@ -1,6 +1,5 @@
 package com.github.juzraai.cordis.crawler.modules.parsers
 
-import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.model.openaire.sygma.*
 import mu.*
 import org.simpleframework.xml.convert.*
@@ -10,8 +9,7 @@ import java.util.*
 /**
  * @author Zsolt Jurányi
  */
-class OpenAirePublicationsXmlParser(override var configuration: CordisCrawlerConfiguration? = null)
-	: IOpenAirePublicationsXmlParser {
+class OpenAirePublicationsXmlParser : IOpenAirePublicationsXmlParser {
 
 	// TODO ? merge 2 parsers, then we can have common Persister
 

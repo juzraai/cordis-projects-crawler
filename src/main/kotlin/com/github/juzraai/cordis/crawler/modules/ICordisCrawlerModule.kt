@@ -6,7 +6,6 @@ import com.github.juzraai.cordis.crawler.model.*
  * @author Zsolt Jurányi
  */
 interface ICordisCrawlerModule {
-	var configuration: CordisCrawlerConfiguration?
 
-	// TODO ? fun initialize(configuration: CordisCrawlerConfiguration) {}
+	fun initialize(configuration: CordisCrawlerConfiguration) {}
 }

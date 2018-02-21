@@ -10,8 +10,7 @@ import java.util.*
 /**
  * @author Zsolt Jurányi
  */
-class ProjectsTsvExporter : ICordisProjectExporter,
-		Closeable {
+class ProjectsTsvExporter : ICordisProjectExporter, Closeable {
 
 	companion object : KLogging()
 
@@ -68,19 +67,18 @@ class ProjectsTsvExporter : ICordisProjectExporter,
 			})
 	)
 
-	private var _configuration: CordisCrawlerConfiguration? = null
-	override var configuration: CordisCrawlerConfiguration?
-		get() = _configuration
-		set(value) {
-			_configuration = value
-			enabled = _configuration?.tsv ?: false
-			if (enabled) {
-				val file = outputFile()
-				openOutputFile(file)
-				logger.info("Projects will be exported to: $file")
-				writeHeader()
-			}
+	private var configuration: CordisCrawlerConfiguration? = null
+
+	override fun initialize(configuration: CordisCrawlerConfiguration) {
+		this.configuration = configuration
+		enabled = configuration.tsv
+		if (enabled) {
+			val file = outputFile()
+			openOutputFile(file)
+			logger.info("Projects will be exported to: $file")
+			writeHeader()
 		}
+	}
 
 	override fun close() {
 		writer?.close()

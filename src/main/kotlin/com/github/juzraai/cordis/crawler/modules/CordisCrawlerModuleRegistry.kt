@@ -65,10 +65,11 @@ class CordisCrawlerModuleRegistry {
 	fun initialize(configuration: CordisCrawlerConfiguration) {
 		modules.onEach {
 			logger.trace("Initializing module: ${it.javaClass.name}")
-			it.configuration = configuration
+			it.initialize(configuration)
 		}
 	}
 
+	@Suppress("UNCHECKED_CAST")
 	fun <I : ICordisCrawlerModule> ofType(type: Class<I>) =
 			modules.filter { type.isInstance(it) }.mapNotNull { it as? I }
 }

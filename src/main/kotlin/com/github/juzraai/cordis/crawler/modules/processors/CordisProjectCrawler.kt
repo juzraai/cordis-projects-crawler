@@ -11,8 +11,7 @@ import mu.*
  * @author Zsolt Jurányi
  */
 class CordisProjectCrawler(
-		override var modules: CordisCrawlerModuleRegistry,
-		override var configuration: CordisCrawlerConfiguration? = null
+		override var modules: CordisCrawlerModuleRegistry
 ) : ICordisProjectProcessor {
 
 	companion object : KLogging()
