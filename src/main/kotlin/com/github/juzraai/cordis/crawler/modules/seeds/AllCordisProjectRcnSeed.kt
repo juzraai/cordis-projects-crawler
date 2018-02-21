@@ -15,6 +15,9 @@ class AllCordisProjectRcnSeed : ICordisProjectRcnSeed {
 
 	override fun projectRcns() = if ("all".equals(configuration?.seed, true)) {
 		// TODO fetch all project RCNs from CORDIS
+		// https://cordis.europa.eu/projects/result_en?q=contenttype%3D%27project%27&num=100&srt=/project/contentUpdateDate:decreasing&format=csv
+		// + &p=1
+		// until only header comes
 		throw UnsupportedOperationException()
 	} else null
 }

@@ -86,6 +86,7 @@ class CordisCrawler(
 			r?.also {
 				try {
 					r = p.process(it)
+					if (null == r) logger.trace("Project RCN ${cordisProject.rcn} dropped by ${p.javaClass.name}")
 				} catch (e: Exception) {
 					logger.error("Could not process ${cordisProject.rcn} with ${p.javaClass.name}", e)
 				}

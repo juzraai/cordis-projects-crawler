@@ -11,14 +11,14 @@
 **Working:**
 
 * Custom modular batch framework
-* Project RCN seeds: single RCN, RCN list, RCN range, project URL
+* Project RCN seeds: single RCN, RCN list, RCN range, project URL, output directory
 * Download and parse [CORDIS][cordis] project XMLs
 * Download and parse publications XML from [OpenAIRE API][oaa] for projects
 * Export project and publication metadata into TSV file
 
 **TODO:**
 
-* More seeds: directory, CORDIS search URL, all project
+* More seeds: CORDIS search URL, all project
 * Exports: MySQL
 * Crawl project documents (`webItem`)
 * Crawl result XMLs too
@@ -74,6 +74,7 @@ Seed is the input of the crawler. Seed can be **one or more CORDIS project RCN**
 * RCN list:    `-s 12345,12347,12350`
 * RCN range:   `-s 12345..12350`
 * Project URL: `-s https://cordis.europa.eu/project/rcn/12345_en.html`
+* Read RCNs from output directory: `-s dir`
 
 Full example:
 

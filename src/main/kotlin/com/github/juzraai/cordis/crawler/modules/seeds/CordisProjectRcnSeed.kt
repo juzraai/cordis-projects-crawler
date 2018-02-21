@@ -7,6 +7,8 @@ import com.github.juzraai.cordis.crawler.model.*
  */
 class CordisProjectRcnSeed : ICordisProjectRcnSeed {
 
+	// TODO this is useless, RcnListSeed can handle single RCN too
+
 	private var configuration: CordisCrawlerConfiguration? = null
 
 	override fun initialize(configuration: CordisCrawlerConfiguration) {
