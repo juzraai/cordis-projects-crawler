@@ -19,6 +19,7 @@ class ProjectsTsvExporter : ICordisProjectExporter, Closeable {
 			val valueFunction: Project.() -> String?
 	)
 
+	private var configuration: CordisCrawlerConfiguration? = null
 	private var enabled = false
 	private var writer: BufferedWriter? = null
 	private val columns = listOf(
@@ -67,19 +68,6 @@ class ProjectsTsvExporter : ICordisProjectExporter, Closeable {
 			})
 	)
 
-	private var configuration: CordisCrawlerConfiguration? = null
-
-	override fun initialize(configuration: CordisCrawlerConfiguration) {
-		this.configuration = configuration
-		enabled = configuration.tsv
-		if (enabled) {
-			val file = outputFile()
-			openOutputFile(file)
-			logger.info("Projects will be exported to: $file")
-			writeHeader()
-		}
-	}
-
 	override fun close() {
 		writer?.close()
 	}
@@ -97,6 +85,17 @@ class ProjectsTsvExporter : ICordisProjectExporter, Closeable {
 		return date?.run { SimpleDateFormat("yyyy-MM-dd").format(this) }
 	}
 
+	override fun initialize(configuration: CordisCrawlerConfiguration) {
+		this.configuration = configuration
+		enabled = configuration.tsv
+		if (enabled) {
+			val file = outputFile()
+			openOutputFile(file)
+			logger.info("Projects will be exported to: $file")
+			writeHeader()
+		}
+	}
+
 	private fun openOutputFile(file: File) {
 		file.parentFile?.mkdirs()
 		writer = BufferedWriter(OutputStreamWriter(FileOutputStream(file), "UTF-8"))
@@ -104,7 +103,7 @@ class ProjectsTsvExporter : ICordisProjectExporter, Closeable {
 
 	private fun outputFile(): File {
 		val d = SimpleDateFormat("yyyyMMdd-HHmmss").format(configuration?.timestamp)
-		return File(configuration!!.directory, "export${File.separator}$d-projects.csv")
+		return File(configuration!!.directory, "export${File.separator}$d-projects.tsv")
 	}
 
 	private fun writeHeader() {

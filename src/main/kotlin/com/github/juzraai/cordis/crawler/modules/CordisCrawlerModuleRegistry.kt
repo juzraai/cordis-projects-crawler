@@ -46,8 +46,8 @@ class CordisCrawlerModuleRegistry {
 			OpenAirePublicationsXmlParser(),
 
 			// exporters
-			ProjectsTsvExporter()
-			// TODO PublicationsTsvExporter()
+			ProjectsTsvExporter(),
+			PublicationsTsvExporter()
 			// TODO MySqlExporter()
 	)
 

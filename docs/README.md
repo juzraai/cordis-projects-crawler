@@ -14,7 +14,7 @@
 * Project RCN seeds: single RCN, RCN list, RCN range, project URL
 * Download and parse [CORDIS][cordis] project XMLs
 * Download and parse publications XML from [OpenAIRE API][oaa] for projects
-* Export project metadata into TSV file
+* Export project and publication metadata into TSV file
 
 **TODO:**
 
@@ -97,13 +97,18 @@ Downloaded files will be placed under `project` and `publications` directory, wh
 
 ### TSV export
 
-The crawler can export the selected projects' metadata into a TSV (tabulator separated values) file. TSV files can be easily imported into spreadsheet editor softwares or relational database systems. The first line of the file will be the header. The output file will be named `YYYYMMDD-HHMMSS-projects.tsv` and you can find it under `export` folder inside the output directory. To turn on this export, add `-xt` or `--tsv` to the arguments:
+The crawler can export the selected projects' metadata into TSV (tabulator separated values) files. They can be easily imported into spreadsheet editor softwares or relational database systems. The first line of each file will be its header. The following output files will be generated under `export` folder inside the output directory:
+
+* `YYYYMMDD-HHMMSS-projects.tsv` - project metadata
+* `YYYYMMDD-HHMMSS-publications.tsv` - publication metadata
+
+To turn on these exports, add `-xt` or `--tsv` to the arguments:
 
 ```bash
 java -jar cordis-projects-crawler-VERSION.jar -s 12345 -xt
 ```
 
-Exported fields:
+Exported project fields:
 
 * rcn
 * cordisUrl
@@ -125,6 +130,16 @@ Exported fields:
 * coordinatorCountry
 * participants
 * participantCountries
+
+Exported publication fields:
+
+* projectRcn
+* doi
+* openAireId
+* dateOfAcceptance
+* type
+* title
+* authors
 
 
 
