@@ -3,6 +3,8 @@ package com.github.juzraai.cordis.crawler.modules.processors
 import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.model.cordis.*
 import com.github.juzraai.cordis.crawler.modules.*
+import com.github.juzraai.cordis.crawler.modules.parsers.*
+import com.github.juzraai.cordis.crawler.modules.readers.*
 import com.github.juzraai.cordis.crawler.modules.readers.caches.*
 import mu.*
 
@@ -46,17 +48,18 @@ class OpenAirePublicationsCrawler(
 		}
 	}
 
-	private fun readPublicationsXml(project: Project) = modules.publicationsXmlReaders.asSequence()
-			.mapNotNull { it.publicationsXmlByProject(project) }
-			.firstOrNull()
+	private fun readPublicationsXml(project: Project) =
+			modules.ofType(IOpenAirePublicationsXmlReader::class.java).asSequence()
+					.mapNotNull { it.publicationsXmlByProject(project) }
+					.firstOrNull()
 
 	private fun cachePublicationsXml(rcn: Long, xml: String) {
-		modules.publicationsXmlReaders
-				.mapNotNull { it as? IOpenAirePublicationsXmlCache }
+		modules.ofType(IOpenAirePublicationsXmlCache::class.java)
 				.onEach { it.cachePublicationsXml(rcn, xml) }
 	}
 
-	private fun parsePublicationsXml(xml: String) = modules.publicationsXmlParsers.asSequence()
-			.mapNotNull { it.parsePublicationsXml(xml) }
-			.firstOrNull()
+	private fun parsePublicationsXml(xml: String) =
+			modules.ofType(IOpenAirePublicationsXmlParser::class.java).asSequence()
+					.mapNotNull { it.parsePublicationsXml(xml) }
+					.firstOrNull()
 }

@@ -8,6 +8,5 @@ import com.github.juzraai.cordis.crawler.model.*
 interface ICordisCrawlerModule {
 	var configuration: CordisCrawlerConfiguration?
 
-	// TODO init+close?
-
+	// TODO ? fun initialize(configuration: CordisCrawlerConfiguration) {}
 }

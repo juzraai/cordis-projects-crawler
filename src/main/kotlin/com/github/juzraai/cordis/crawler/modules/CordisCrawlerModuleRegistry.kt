@@ -17,62 +17,42 @@ class CordisCrawlerModuleRegistry {
 
 	companion object : KLogging()
 
-	// TODO how about having ONE modules list? twould be more flexible
-	// + add method: modules(i: I): Seq<I>
+	val modules = mutableListOf<ICordisCrawlerModule>(
 
-	val exporters = mutableListOf<ICordisProjectExporter>(
-			ProjectsTsvExporter()
-			// TODO PublicationsTsvExporter, MySqlExporter
-	)
-
-	val processors = mutableListOf<ICordisProjectProcessor>(
-			CordisProjectCrawler(this),
-			OpenAirePublicationsCrawler(this)
-			// TODO project documents downloader (webItems)
-			// TODO project results crawler
-			// TODO unified model generator?
-	)
-
-	val projectXmlParsers = mutableListOf<CordisProjectXmlParser>(
-			CordisProjectXmlParser()
-	)
-
-	val projectXmlReaders = mutableListOf<ICordisProjectXmlReader>(
-			CordisProjectXmlFileCache(),
-			CordisProjectXmlDownloader()
-	)
-
-	val publicationsXmlParsers = mutableListOf<IOpenAirePublicationsXmlParser>(
-			OpenAirePublicationsXmlParser()
-	)
-
-	val publicationsXmlReaders = mutableListOf<IOpenAirePublicationsXmlReader>(
-			OpenAirePublicationsXmlCache(),
-			OpenAirePublicationsXmlDownloader()
-	)
-
-	val seeds = mutableListOf<ICordisProjectRcnSeed>(
+			// seeds
 			CordisProjectRcnSeed(),
 			CordisProjectRcnRangeSeed(),
 			CordisProjectRcnListSeed(),
 			CordisProjectUrlSeed(),
 			CordisProjectSearchUrlSeed(),
 			CordisProjectRcnDirectorySeed(),
-			AllCordisProjectRcnSeed()
+			AllCordisProjectRcnSeed(),
+
+			// processors
+			CordisProjectCrawler(this),
+			OpenAirePublicationsCrawler(this),
+			// TODO project documents downloader (webItems)
+			// TODO project results crawler
+			// TODO unified model generator?
+
+			// readers
+			CordisProjectXmlFileCache(),
+			CordisProjectXmlDownloader(),
+			OpenAirePublicationsXmlCache(),
+			OpenAirePublicationsXmlDownloader(),
+
+			// parsers
+			CordisProjectXmlParser(),
+			OpenAirePublicationsXmlParser(),
+
+			// exporters
+			ProjectsTsvExporter()
+			// TODO PublicationsTsvExporter()
+			// TODO MySqlExporter()
 	)
 
-	private fun allModules() = listOf(
-			seeds,
-			processors,
-			projectXmlReaders,
-			projectXmlParsers,
-			publicationsXmlReaders,
-			publicationsXmlParsers,
-			exporters
-	).flatten()
-
 	fun close() {
-		allModules().onEach {
+		modules.onEach {
 			if (it is Closeable) try {
 				logger.trace("Closing module: ${it.javaClass.name}")
 				it.close()
@@ -83,9 +63,12 @@ class CordisCrawlerModuleRegistry {
 	}
 
 	fun initialize(configuration: CordisCrawlerConfiguration) {
-		allModules().onEach {
+		modules.onEach {
 			logger.trace("Initializing module: ${it.javaClass.name}")
 			it.configuration = configuration
 		}
 	}
+
+	fun <I : ICordisCrawlerModule> ofType(type: Class<I>) =
+			modules.filter { type.isInstance(it) }.mapNotNull { it as? I }
 }

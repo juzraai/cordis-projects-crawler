@@ -3,6 +3,8 @@ package com.github.juzraai.cordis.crawler
 import com.beust.jcommander.*
 import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.modules.*
+import com.github.juzraai.cordis.crawler.modules.exporters.*
+import com.github.juzraai.cordis.crawler.modules.processors.*
 import com.github.juzraai.cordis.crawler.modules.seeds.*
 import mu.*
 import org.apache.log4j.*
@@ -73,26 +75,32 @@ class CordisCrawler(
 		}
 	}
 
-	private fun seed() = modules.seeds.asSequence()
+	private fun seed() = modules.ofType(ICordisProjectRcnSeed::class.java).asSequence()
 			.mapNotNull(ICordisProjectRcnSeed::projectRcns)
 			.firstOrNull()
 			?: throw UnsupportedOperationException("Invalid seed: ${configuration.seed}")
 
 	private fun process(cordisProject: CordisProject): CordisProject? {
 		var r: CordisProject? = cordisProject
-		modules.processors.onEach { p ->
+		modules.ofType(ICordisProjectProcessor::class.java).onEach { p ->
 			r?.also {
-				r = p.process(it)
-				// TODO catch exception, log error, r = null?
+				try {
+					r = p.process(it)
+				} catch (e: Exception) {
+					logger.error("Could not process ${cordisProject.rcn} with ${p.javaClass.name}", e)
+				}
 			}
 		}
 		return r
 	}
 
 	private fun export(cordisProjects: List<CordisProject>) {
-		modules.exporters.onEach {
-			it.exportCordisProjects(cordisProjects)
-			// TODO catch exception, log error
+		modules.ofType(ICordisProjectExporter::class.java).onEach {
+			try {
+				it.exportCordisProjects(cordisProjects)
+			} catch (e: Exception) {
+				logger.error("Error while exporting data with ${it.javaClass.name}", e)
+			}
 		}
 	}
 }
