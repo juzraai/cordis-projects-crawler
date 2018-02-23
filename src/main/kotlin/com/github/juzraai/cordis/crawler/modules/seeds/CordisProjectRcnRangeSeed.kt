@@ -16,7 +16,7 @@ class CordisProjectRcnRangeSeed : ICordisProjectRcnSeed {
 	override fun projectRcns() = (configuration?.seed ?: "").run {
 		if (matches(Regex("\\d+\\.\\.\\d+"))) {
 			val bounds = split(Regex("\\.\\.")).map(String::toLong).sorted()
-			LongRange(bounds[0], bounds[1]).asSequence()
+			LongRange(bounds[0], bounds[1]).iterator()
 		} else null
 	}
 }

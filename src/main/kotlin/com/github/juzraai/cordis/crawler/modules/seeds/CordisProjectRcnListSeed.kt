@@ -14,7 +14,7 @@ class CordisProjectRcnListSeed : ICordisProjectRcnSeed {
 	}
 
 	override fun projectRcns() = (configuration?.seed ?: "").run {
-		if (matches(Regex("\\d+(,\\d+)*"))) split(",").map(String::toLong).asSequence()
+		if (matches(Regex("\\d+(,\\d+)*"))) split(",").map(String::toLong).iterator()
 		else null
 	}
 }

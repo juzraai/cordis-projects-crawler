@@ -13,11 +13,9 @@ class CordisProjectUrlSeed : ICordisProjectRcnSeed {
 		this.configuration = configuration
 	}
 
-	override fun projectRcns(): Sequence<Long>? {
-		return (configuration?.seed ?: "").run {
-			if (matches(Regex("http://cordis\\.europa\\.eu/project/rcn/\\d+_\\w+.(html|xml)"))) {
-				sequenceOf(replace(Regex("\\D+"), "").toLong())
-			} else null
-		}
+	override fun projectRcns() = (configuration?.seed ?: "").run {
+		if (matches(Regex("http://cordis\\.europa\\.eu/project/rcn/\\d+_\\w+.(html|xml)"))) {
+			listOf(replace(Regex("\\D+"), "").toLong()).iterator()
+		} else null
 	}
 }

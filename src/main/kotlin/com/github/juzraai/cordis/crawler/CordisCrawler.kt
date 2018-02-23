@@ -36,7 +36,7 @@ class CordisCrawler(
 		crawlProjects()
 	}
 
-	fun crawlProjects(seed: Sequence<Long>? = null) {
+	fun crawlProjects(seed: Iterator<Long>? = null) {
 		try {
 			setupLoggers()
 			logger.trace("Configuration: $configuration")
@@ -45,7 +45,7 @@ class CordisCrawler(
 
 			var t = -System.currentTimeMillis()
 			var allCount = 0L
-			val processedCount = (seed ?: seed())
+			val processedCount = (seed ?: seed()).asSequence()
 					.onEach {
 						logger.info("Processing project RCN: $it")
 						allCount++

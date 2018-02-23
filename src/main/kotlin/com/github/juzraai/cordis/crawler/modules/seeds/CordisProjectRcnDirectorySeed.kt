@@ -18,6 +18,7 @@ class CordisProjectRcnDirectorySeed : ICordisProjectRcnSeed {
 		// TODO using ICordisProjextXmlCache.enumerateCachedRcns would be more elegant
 		File(configuration?.directory, "project")
 				.listFiles(FileFilter { it.isFile && it.name.matches(Regex("\\d+\\.xml\\.gz")) })
-				.map { it.name.replace(Regex("\\D"), "").toLong() }.asSequence()
+				.map { it.name.replace(Regex("\\D"), "").toLong() }
+				.iterator()
 	} else null
 }

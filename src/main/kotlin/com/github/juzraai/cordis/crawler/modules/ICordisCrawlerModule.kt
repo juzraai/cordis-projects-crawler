@@ -7,5 +7,5 @@ import com.github.juzraai.cordis.crawler.model.*
  */
 interface ICordisCrawlerModule {
 
-	fun initialize(configuration: CordisCrawlerConfiguration) {}
+	fun initialize(configuration: CordisCrawlerConfiguration) {} // TODO receive modules too?
 }

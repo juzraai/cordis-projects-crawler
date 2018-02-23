@@ -20,13 +20,12 @@ class CordisCrawlerModuleRegistry {
 	val modules = mutableListOf<ICordisCrawlerModule>(
 
 			// seeds
-			CordisProjectRcnSeed(),
 			CordisProjectRcnRangeSeed(),
 			CordisProjectRcnListSeed(),
 			CordisProjectUrlSeed(),
+			AllCordisProjectRcnSeed(), // rewrites to search URL
 			CordisProjectSearchUrlSeed(),
 			CordisProjectRcnDirectorySeed(),
-			AllCordisProjectRcnSeed(),
 
 			// processors
 			CordisProjectCrawler(this),

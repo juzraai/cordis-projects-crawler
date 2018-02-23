@@ -7,5 +7,5 @@ import com.github.juzraai.cordis.crawler.modules.*
  */
 interface ICordisProjectRcnSeed : ICordisCrawlerModule {
 
-	fun projectRcns(): Sequence<Long>?
+	fun projectRcns(): Iterator<Long>?
 }
