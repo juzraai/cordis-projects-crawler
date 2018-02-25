@@ -58,6 +58,6 @@ class Downloader {
 			logger.trace("Sleeping $ms ms before downloading from $domain")
 			Thread.sleep(ms)
 		}
-		lastReqTs[domain] = System.currentTimeMillis()
+		lastReqTs[domain] = System.currentTimeMillis() // TODO should save it AFTER a request! (before return body)
 	}
 }

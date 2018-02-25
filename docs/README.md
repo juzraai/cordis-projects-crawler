@@ -11,14 +11,13 @@
 **Working:**
 
 * Custom modular batch framework
-* Project RCN seeds: single RCN, RCN list, RCN range, project URL, output directory
+* Project RCN seeds: single RCN, RCN list, RCN range, project URL, CORDIS search URL, output directory
 * Download and parse [CORDIS][cordis] project XMLs
 * Download and parse publications XML from [OpenAIRE API][oaa] for projects
 * Export project and publication metadata into TSV file
 
 **TODO:**
 
-* More seeds: CORDIS search URL, all project
 * Exports: MySQL
 * Crawl project documents (`webItem`)
 * Crawl result XMLs too
@@ -68,19 +67,82 @@ If you run it without arguments, the program will print out the available option
 
 ### Seed
 
-Seed is the input of the crawler. Seed can be **one or more CORDIS project RCN**, you have a lot of options to specify it:
-
-* Single RCN:  `-s 12345`
-* RCN list:    `-s 12345,12347,12350`
-* RCN range:   `-s 12345..12350`
-* Project URL: `-s https://cordis.europa.eu/project/rcn/12345_en.html`
-* Read RCNs from output directory: `-s dir`
-
-Full example:
+Seed is the input of the crawler, it can be **one or more CORDIS project RCN**. You can specify it with `-s`:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s 12345..12350
+java -jar cordis-projects-crawler-VERSION.jar -s <seed>
 ```
+
+
+
+#### Fetching a single project
+
+You can specify a single project RCN in the following ways. You can use the RCN itself or one of the CORDIS links for that project.
+
+```
+-s 12345
+-s https://cordis.europa.eu/project/rcn/12345_en.html
+-s https://cordis.europa.eu/project/rcn/12345_en.xml
+```
+
+
+
+#### Fetching multiple projects
+
+You can specify an RCN range. The lower and upper numbers are both inclusive, and the separator is a two dots (`..`), without spaces.
+
+```
+-s 12345..12350
+```
+
+You can also specify a list of RCNs by using comma (`,`) as separator. For example, the range seed above is equivalent to this list seed:
+
+```
+-s 12345,12346,12347,12348,12349,12350
+```
+
+
+
+#### Fetching CORDIS search results
+
+If you need to crawl all projects returned by your search query on CORDIS, you can specify result list URL to the crawler. The first one is produced by the big search box or the *Advanced search* feature, and the second one is from *Search projects and results* box under *Projects & Results*:
+
+```
+-s https://cordis.europa.eu/search/result_en?q=something
+-s https://cordis.europa.eu/projects/result_en?q=%27something%27
+```
+
+The crawler will run through the result list pages and extract project RCNs.
+
+
+
+#### Fetching all projects
+
+You can also tell the crawler to fetch all available projects on CORDIS:
+
+```
+-s all
+```
+
+Actually, this is a shorthand for this search URL seed:
+
+```
+-s https://cordis.europa.eu/projects/result_en?q=contenttype%3D%27project%27
+```
+
+
+
+#### Reprocessing projects
+
+You may need to generate another export, or refresh the files you downloaded previously. Then you can tell the crawler to read project RCNs from the output directory:
+
+```
+-s dir
+```
+
+The program will look for RCNs in filenames like `project/12345.xml.gz` inside the output directory.
+
+?> **TODO** -f option: force redownload, skip cache
 
 
 
@@ -151,6 +213,36 @@ The crawler prints log messages on the screen to inform you what is happening. T
 ```bash
 java -jar cordis-projects-crawler-VERSION.jar -v
 ```
+
+
+
+## Aggressivity, networking
+
+To reduce harm on CORDIS and OpenAIRE servers, the crawler **waits at least 2 seconds before sending another request to the same server**. This does not mean that the program sleeps 2 seconds everytime. After the processing of the previous request, the crawler calculates the required sleep time to ensure a delay of at least 2 seconds. If the processing took more time, then there will be no sleep.
+
+When downloading result lists, the crawler requests the **maximum amount of results per request.** On CORDIS, it's 100, on OpenAIRE it's 10&nbsp;000. This reduces the number of requests needed to crawl a list. In case of OpenAIRE, only one request is sent per project, because I assume that  a project cannot have more than 10K publications.
+
+CORDIS search results are requested in CSV format to reduce bandwith usage.
+
+If there's an HTTP error, or an invalid response is received, the crawler retries the request.
+
+
+
+## Crawl time
+
+Especially when crawling a search result list or a large range of RCNs, you may want to estimate the time needed for the crawl. The main components of crawl time are the request delays and the transfer times of each request. Processing itself doesn't need significant amount of time.
+
+There are 2 requests per project, one for the CORDIS XML and one for the OpenAIRE publication list. The 2 second delay should be counted only one time, because the 2 requests are sent to different servers.
+
+```
+N project by RCN = N * (2 second delay + 2 * request time)
+```
+
+So if you are crawling 1000 projects, and a request takes 1 second, fetching project data takes about an hour.
+
+If you crawl a search result list, there are list pages per every 100 project (delay + request time). Those 1000 projects need 10 list pages, and if a list page needs 2 seconds, fetching these takes only ~40 seconds in addition, so they are not so significant.
+
+Please note that request time depends on both your internet connection and the speed/health of the servers.
 
 
 
