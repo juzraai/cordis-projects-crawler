@@ -7,5 +7,5 @@ import com.github.juzraai.cordis.crawler.modules.readers.*
  */
 interface ICordisProjectXmlCache : ICordisProjectXmlReader {
 
-	fun cacheProjectXml(rcn: Long, xml: String)
+	fun cacheProjectXml(xml: String, rcn: Long)
 }

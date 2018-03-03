@@ -1,6 +1,7 @@
 package com.github.juzraai.cordis.crawler.modules.parsers
 
 import com.github.juzraai.cordis.crawler.model.cordis.*
+import com.github.juzraai.cordis.crawler.util.*
 import mu.*
 import org.simpleframework.xml.convert.*
 import org.simpleframework.xml.core.*

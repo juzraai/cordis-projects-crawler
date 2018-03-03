@@ -39,7 +39,7 @@ class OpenAirePublicationsCrawler(
 				val xml = readPublicationsXml(p)
 				if (null != xml) {
 					logger.trace("Caching publications XML: $rcn")
-					cachePublicationsXml(rcn, xml)
+					cachePublicationsXml(xml, p)
 					logger.trace("Parsing publications XML: $rcn")
 					publications = parsePublicationsXml(xml)
 				}
@@ -52,9 +52,9 @@ class OpenAirePublicationsCrawler(
 					.mapNotNull { it.publicationsXmlByProject(project) }
 					.firstOrNull()
 
-	private fun cachePublicationsXml(rcn: Long, xml: String) {
+	private fun cachePublicationsXml(xml: String, project: Project) {
 		modules.ofType(IOpenAirePublicationsXmlCache::class.java)
-				.onEach { it.cachePublicationsXml(rcn, xml) }
+				.onEach { it.cachePublicationsXml(xml, project) }
 	}
 
 	private fun parsePublicationsXml(xml: String) =

@@ -21,8 +21,10 @@ class CordisProjectCrawler(
 			logger.trace("Reading project XML: $rcn")
 			val xml = readProjectXml(rcn)
 			if (null != xml) {
+				// TODO would be great not to rewrite every processed file...
+				// TODO maybe remember which cache returned the file?
 				logger.trace("Caching project XML: $rcn")
-				cacheProjectXml(rcn, xml)
+				cacheProjectXml(xml, rcn)
 				logger.trace("Parsing project XML: $rcn")
 				project = parseProjectXml(xml)
 			}
@@ -34,9 +36,9 @@ class CordisProjectCrawler(
 					.mapNotNull { it.projectXmlByRcn(rcn) }
 					.firstOrNull()
 
-	private fun cacheProjectXml(rcn: Long, xml: String) {
+	private fun cacheProjectXml(xml: String, rcn: Long) {
 		modules.ofType(ICordisProjectXmlCache::class.java)
-				.onEach { it.cacheProjectXml(rcn, xml) }
+				.onEach { it.cacheProjectXml(xml, rcn) }
 	}
 
 	private fun parseProjectXml(xml: String) =

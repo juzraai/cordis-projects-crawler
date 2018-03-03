@@ -140,7 +140,7 @@ You may need to generate another export, or refresh the files you downloaded pre
 -s dir
 ```
 
-The program will look for RCNs in filenames like `project/12345.xml.gz` inside the output directory.
+The program will look for RCN directories like `project/012345/` inside the output directory.
 
 ?> **TODO** -f option: force redownload, skip cache
 
@@ -154,7 +154,18 @@ By default, the crawler will create a folder named `cordis-data` in the working 
 java -jar cordis-projects-crawler-VERSION.jar -d /path/to/custom/cordis/directory
 ```
 
-Downloaded files will be placed under `project` and `publications` directory, while exports will be generated into `export` folder inside the output directory.
+The output directory will contain a `project` and an `export` directory for downloaded and generated files. Files of each project will be inside the project RCN directory. Sample structure:
+
+```
+cordis-data/
+	export/
+		20180131-2359-projects.tsv
+		20180131-2359-publications.tsv
+	project/
+		012345/
+			012345-project.xml.gz
+			012345-publications.xml.gz
+```
 
 
 

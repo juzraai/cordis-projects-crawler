@@ -24,4 +24,6 @@ data class Associations(
 
 		@field:ElementList(inline = true, entry = "webSite", required = false)
 		var webSites: List<WebSite>? = null
+
+		// TODO project, result, webLink
 )

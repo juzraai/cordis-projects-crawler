@@ -1,5 +1,6 @@
 package com.github.juzraai.cordis.crawler.modules.readers.caches
 
+import com.github.juzraai.cordis.crawler.model.cordis.*
 import com.github.juzraai.cordis.crawler.modules.readers.*
 
 /**
@@ -7,5 +8,5 @@ import com.github.juzraai.cordis.crawler.modules.readers.*
  */
 interface IOpenAirePublicationsXmlCache : IOpenAirePublicationsXmlReader {
 
-	fun cachePublicationsXml(rcn: Long, xml: String)
+	fun cachePublicationsXml(xml: String, project: Project)
 }

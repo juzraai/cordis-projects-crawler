@@ -1,4 +1,4 @@
-package com.github.juzraai.cordis.crawler.modules.parsers
+package com.github.juzraai.cordis.crawler.util
 
 import mu.*
 import org.simpleframework.xml.convert.*
@@ -10,8 +10,6 @@ import java.util.*
  * @author Zsolt Jurányi
  */
 class DateConverter : Converter<Date> {
-
-	// TODO ? move to util package?
 
 	companion object : KLogging()
 
