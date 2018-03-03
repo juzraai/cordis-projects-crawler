@@ -25,10 +25,12 @@ class CordisProjectFileCache : ICordisProjectXmlCache, IOpenAirePublicationsXmlC
 	}
 
 	override fun projectXmlByRcn(rcn: Long) =
-			GzippedTextFile(projectXmlFile(rcn)).read()
+			if (configuration!!.forceDownload) null
+			else GzippedTextFile(projectXmlFile(rcn)).read()
 
 	override fun publicationsXmlByProject(project: Project) =
-			GzippedTextFile(publicationsXmlFile(project)).read()
+			if (configuration!!.forceDownload) null
+			else GzippedTextFile(publicationsXmlFile(project)).read()
 
 	private fun projectDirectory(rcn: String) = File(configuration!!.directory, "project/$rcn")
 

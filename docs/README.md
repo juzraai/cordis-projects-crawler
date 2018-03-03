@@ -142,7 +142,15 @@ You may need to generate another export, or refresh the files you downloaded pre
 
 The program will look for RCN directories like `project/012345/` inside the output directory.
 
-?> **TODO** -f option: force redownload, skip cache
+
+
+### Forcing re-download
+
+The crawler tries to read the required files from the output directory, and only downloads data from the servers if it can't succeed. However, there may be cases when you need to refresh the files. You can pass `-f` or `--force` option to skip cache reading before downloads:
+
+```bash
+java -jar cordis-projects-crawler-VERSION.jar -f
+```
 
 
 
