@@ -8,7 +8,7 @@ import java.io.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectFileCache : ICordisProjectXmlCache, IOpenAirePublicationsXmlCache {
+class CordisCrawlerFileCache : ICordisProjectXmlCache, IOpenAirePublicationsXmlCache {
 
 	private var configuration: CordisCrawlerConfiguration? = null
 
@@ -32,7 +32,7 @@ class CordisProjectFileCache : ICordisProjectXmlCache, IOpenAirePublicationsXmlC
 			if (configuration!!.forceDownload) null
 			else GzippedTextFile(publicationsXmlFile(project)).read()
 
-	private fun projectDirectory(rcn: String) = File(configuration!!.directory, "project/$rcn")
+	private fun projectDirectory(rcn: String) = File(configuration!!.outputDirectory, "project/$rcn")
 
 	private fun projectXmlFile(rcn: Long): File {
 		val s = rcnAsString(rcn)

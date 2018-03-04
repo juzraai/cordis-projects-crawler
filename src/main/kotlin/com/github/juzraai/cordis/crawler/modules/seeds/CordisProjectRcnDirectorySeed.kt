@@ -16,7 +16,7 @@ class CordisProjectRcnDirectorySeed : ICordisProjectRcnSeed {
 
 	override fun projectRcns() = if ("dir".equals(configuration?.seed, true)) {
 		// TODO using an "enumeration" feature of all caches would be more elegant
-		File(configuration?.directory, "project")
+		File(configuration?.outputDirectory, "project")
 				.listFiles(FileFilter { it.isDirectory && it.name.matches(Regex("\\d+")) })
 				.map { it.name.replace(Regex("\\D"), "").toLong() }
 				.iterator()

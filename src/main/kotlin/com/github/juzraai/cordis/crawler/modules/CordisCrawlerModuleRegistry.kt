@@ -35,7 +35,7 @@ class CordisCrawlerModuleRegistry {
 			// TODO unified model generator?
 
 			// readers
-			CordisProjectFileCache(),
+			CordisCrawlerFileCache(),
 			CordisProjectXmlDownloader(),
 			OpenAirePublicationsXmlDownloader(),
 

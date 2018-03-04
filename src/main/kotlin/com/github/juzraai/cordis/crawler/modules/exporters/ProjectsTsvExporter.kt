@@ -87,7 +87,7 @@ class ProjectsTsvExporter : ICordisProjectExporter, Closeable {
 
 	override fun initialize(configuration: CordisCrawlerConfiguration) {
 		this.configuration = configuration
-		enabled = configuration.tsv
+		enabled = configuration.tsvExport
 		if (enabled) {
 			val file = outputFile()
 			openOutputFile(file)
@@ -103,7 +103,7 @@ class ProjectsTsvExporter : ICordisProjectExporter, Closeable {
 
 	private fun outputFile(): File {
 		val d = SimpleDateFormat("yyyyMMdd-HHmmss").format(configuration?.timestamp)
-		return File(configuration!!.directory, "export${File.separator}$d-projects.tsv")
+		return File(configuration!!.outputDirectory, "export${File.separator}$d-projects.tsv")
 	}
 
 	private fun writeHeader() {

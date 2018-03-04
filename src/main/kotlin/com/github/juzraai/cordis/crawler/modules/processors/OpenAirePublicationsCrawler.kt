@@ -31,17 +31,25 @@ class OpenAirePublicationsCrawler(
 
 	companion object : KLogging()
 
+	private var configuration: CordisCrawlerConfiguration? = null
+
+	override fun initialize(configuration: CordisCrawlerConfiguration) {
+		this.configuration = configuration
+	}
+
 	override fun process(cordisProject: CordisProject): CordisProject? {
 		return cordisProject.apply {
-			val p = project
-			if (null != p) {
-				logger.trace("Reading publications XML: $rcn")
-				val xml = readPublicationsXml(p)
-				if (null != xml) {
-					logger.trace("Caching publications XML: $rcn")
-					cachePublicationsXml(xml, p)
-					logger.trace("Parsing publications XML: $rcn")
-					publications = parsePublicationsXml(xml)
+			if (configuration!!.crawlEverything || configuration!!.crawlPublications) {
+				val p = project
+				if (null != p) {
+					logger.trace("Reading publications XML: $rcn")
+					val xml = readPublicationsXml(p)
+					if (null != xml) {
+						logger.trace("Caching publications XML: $rcn")
+						cachePublicationsXml(xml, p)
+						logger.trace("Parsing publications XML: $rcn")
+						publications = parsePublicationsXml(xml)
+					}
 				}
 			}
 		}

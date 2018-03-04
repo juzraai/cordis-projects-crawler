@@ -50,7 +50,7 @@ class PublicationsTsvExporter : ICordisProjectExporter, Closeable {
 
 	override fun initialize(configuration: CordisCrawlerConfiguration) {
 		this.configuration = configuration
-		enabled = configuration.tsv
+		with(configuration) { enabled = tsvExport && (crawlEverything || crawlPublications) }
 		if (enabled) {
 			val file = outputFile()
 			openOutputFile(file)
@@ -66,7 +66,7 @@ class PublicationsTsvExporter : ICordisProjectExporter, Closeable {
 
 	private fun outputFile(): File {
 		val d = SimpleDateFormat("yyyyMMdd-HHmmss").format(configuration?.timestamp)
-		return File(configuration!!.directory, "export${File.separator}$d-publications.tsv")
+		return File(configuration!!.outputDirectory, "export${File.separator}$d-publications.tsv")
 	}
 
 	private fun writeHeader() {

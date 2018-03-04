@@ -71,7 +71,11 @@ class CordisCrawler(
 		Logger.getRootLogger().apply {
 			removeAllAppenders()
 			addAppender(ConsoleAppender(layout, "System.err"))
-			level = if (configuration.verbose) Level.TRACE else Level.INFO
+			level = when {
+				configuration.verbose -> Level.TRACE
+				configuration.quiet -> Level.OFF
+				else -> Level.INFO
+			}
 		}
 	}
 
