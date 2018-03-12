@@ -1,0 +1,23 @@
+create table if not exists cordis_project (
+	rcn                 INT PRIMARY KEY,
+	acronym             VARCHAR(255),
+	availableLanguages  VARCHAR(255),
+	contentCreationDate DATE,
+	contentUpdateDate   DATE,
+	contractDuration    INT,
+	contractEndDate     DATE,
+	contractStartDate   DATE,
+	ecMaxContribution   DOUBLE,
+	endDate             DATE,
+	language            VARCHAR(255),
+	lastUpdateDate      DATE,
+	objective           LONGTEXT,
+	reference           VARCHAR(255),
+	sourceUpdateDate    DATE,
+	startDate           DATE,
+	status              VARCHAR(255),
+	statusDetails       VARCHAR(255),
+	teaser              LONGTEXT,
+	title               VARCHAR(255),
+	totalCost           DOUBLE
+);

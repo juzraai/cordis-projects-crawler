@@ -45,8 +45,8 @@ class CordisCrawlerModuleRegistry {
 
 			// exporters
 			ProjectsTsvExporter(),
-			PublicationsTsvExporter()
-			// TODO MySqlExporter()
+			PublicationsTsvExporter(),
+			CordisProjectMysqlExporter()
 	)
 
 	fun close() {

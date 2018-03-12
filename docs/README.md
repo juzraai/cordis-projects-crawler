@@ -241,6 +241,14 @@ Exported publication fields:
 
 
 
+### MySQL export
+
+```sql
+CREATE SCHEMA `your_database` DEFAULT CHARACTER SET utf8_general_ci;
+```
+
+
+
 ### Console output
 
 The crawler prints log messages on the screen to inform you what is happening. These log messages contain a timestamp, a level and a message. Log level can be `TRACE`, `DEBUG`, `INFO`, `WARN` or `ERROR`. By default, `TRACE` and `DEBUG` are hidden, because they are useful only when some problem needs investigation, but in other cases they can be disturbing. You can turn them on by adding `-v` or `--verbose` option:
