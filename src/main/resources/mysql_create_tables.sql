@@ -1,18 +1,15 @@
-create table if not exists cordis_relation (
-	`id`             VARCHAR(255),
-	`ownerId`        INT,
-	`ownerType`      VARCHAR(20),
-	`ownedId`        VARCHAR(255), -- e.g. categories have code which is string
-	`ownedType`      VARCHAR(20),
-	`type`           VARCHAR(255),
-	`classification` VARCHAR(255),
-	`context`        BOOLEAN,
-	`ecContribution` DOUBLE,
-	`order`          INT,
-	`terminated`     BOOLEAN,
-	PRIMARY KEY (`id`),
-	INDEX `owner_id_idx` (`ownerId`),
-	INDEX `owned_id_idx` (`ownedId`)
+create table if not exists cordis_call (
+	`rcn`        VARCHAR(255),
+	`identifier` VARCHAR(255),
+	`title`      VARCHAR(20),
+	PRIMARY KEY (`rcn`)
+);
+
+create table if not exists cordis_category (
+	`code`               VARCHAR(255),
+	`availableLanguages` VARCHAR(255),
+	`title`              LONGTEXT,
+	PRIMARY KEY (`code`)
 );
 
 create table if not exists cordis_project (
@@ -38,4 +35,21 @@ create table if not exists cordis_project (
 	`title`               VARCHAR(255),
 	`totalCost`           DOUBLE,
 	PRIMARY KEY (`rcn`)
+);
+
+create table if not exists cordis_relation (
+	`id`             VARCHAR(255),
+	`ownerId`        VARCHAR(255),
+	`ownerType`      VARCHAR(20),
+	`ownedId`        VARCHAR(255), -- e.g. categories have code which is string
+	`ownedType`      VARCHAR(20),
+	`type`           VARCHAR(255),
+	`classification` VARCHAR(255),
+	`context`        BOOLEAN,
+	`ecContribution` DOUBLE,
+	`order`          INT,
+	`terminated`     BOOLEAN,
+	PRIMARY KEY (`id`),
+	INDEX `owner_id_idx` (`ownerId`),
+	INDEX `owned_id_idx` (`ownedId`)
 );

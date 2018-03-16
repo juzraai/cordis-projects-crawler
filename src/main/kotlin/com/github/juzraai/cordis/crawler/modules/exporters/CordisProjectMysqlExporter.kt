@@ -39,41 +39,83 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 		db?.batchReplace("cordis_project", projects.map(this::projectToArray))
 		projects.onEach {
 			if (null != it.rcn && null != it.relations) {
-				exportRelations(it.rcn!!, "project", it.relations!!)
+				exportRelations(it.rcn!!.toString(), "Project", it.relations!!)
 			}
 		}
 	}
 
-	private fun exportRelations(ownerId: Long, ownerType: String, relations: Relations) {
+	private fun exportRelations(ownerId: String, ownerType: String, relations: Relations) {
 		val relationArrays = mutableListOf<Array<Any?>>()
 
-		// TODO kéne valami generikusabb megoldás a relation előállításra
-		// Any-ből kiszedhetné az ID-t: rcn, code mező; vagy toString SHA-1 hash-e
-		// a type-ot: typeAttr, vagy ha nincs olyan mező, akkor type
-		// és a többit
+		val calls = relations.associations?.calls?.filter { null != it.rcn } ?: listOf()
+		db?.batchReplace("cordis_call", calls.map(this::callToArray))
+		relationArrays.addAll(calls.map { generateRelationArray(ownerId, ownerType, it) })
 
-		val categoryArrays = mutableListOf<Array<Any?>>()
-		relations.categories?.filter { null != it.code }?.forEach { category ->
-			//categoryArrays.add(categoryToArray(category))
-			relationArrays.add(relationToArray(
-					ownerId, ownerType,
-					category.code!!, "category",
-					category.type, category.classification
-			))
-		}
-		db?.batchReplace("cordis_category", categoryArrays)
+		val categories = relations.categories?.filter { null != it.code } ?: listOf()
+		db?.batchReplace("cordis_category", categories.map(this::categoryToArray))
+		relationArrays.addAll(categories.map { generateRelationArray(ownerId, ownerType, it) })
 
-		val regionArrays = mutableListOf<Array<Any?>>()
-		relations.regions?.filter { null != it.rcn }?.forEach { region ->
-			//regionArrays.add(regionToArray(region))
-			relationArrays.add(relationToArray(
-					ownerId, ownerType,
-					region.rcn!!.toString(), "region",
-					region.type))
-		}
-		db?.batchReplace("cordis_region", regionArrays)
+		val regions = relations.regions?.filter { null != it.rcn } ?: listOf()
+		//db?.batchReplace("cordis_region", regions.map(this::regionToArray))
+		relationArrays.addAll(regions.map { generateRelationArray(ownerId, ownerType, it) })
+
 
 		db?.batchReplace("cordis_relation", relationArrays)
+	}
+
+	private fun generateRelationArray(ownerId: String, ownerType: String, owned: Any): Array<Any?> {
+		val ownedId = getId(owned)
+		val ownedType = owned.javaClass.simpleName
+		val type = getField(owned, "typeAttr") ?: getField(owned, "type")
+		return arrayOf(
+				"$ownerType/$ownerId-$type-$ownedType/$ownedId",
+				ownerId,
+				ownerType,
+				ownedId,
+				ownedType,
+				type,
+				getField(owned, "classification"),
+				getField(owned, "context"),
+				getField(owned, "ecContribution"),
+				getField(owned, "order"),
+				getField(owned, "terminated")
+		)
+	}
+
+	private fun getId(record: Any?): String? {
+		if (null == record) return null
+		return getField(record, "rcn")
+				?: getField(record, "code")
+				?: record.toString() // TODO HASH
+	}
+
+	private fun getField(record: Any, field: String) = try {
+		val f = record.javaClass.getDeclaredField(field)
+		f.isAccessible = true
+		f.get(record)?.toString()
+	} catch (e: Exception) {
+		// field not available
+		null
+	}
+
+	private fun callToArray(call: Call): Array<Any?> {
+		with(call) {
+			return arrayOf(
+					rcn,
+					identifier,
+					title
+			)
+		}
+	}
+
+	private fun categoryToArray(category: Category): Array<Any?> {
+		with(category) {
+			return arrayOf(
+					code,
+					availableLanguages,
+					title
+			)
+		}
 	}
 
 	private fun projectToArray(project: Project): Array<Any?> {
@@ -103,25 +145,4 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 			)
 		}
 	}
-
-	private fun relationToArray(
-			ownerId: Long, ownerType: String, ownedId: String, ownedType: String, type: String?,
-			classification: String? = null, context: Boolean? = null, ecContribution: Double? = null,
-			order: Int? = null, terminated: Boolean? = null): Array<Any?> {
-		return arrayOf(
-				"$ownerType/$ownerId-$type-$ownedType/$ownedId",
-				ownerId,
-				ownerType,
-				ownedId,
-				ownedType,
-				type,
-				classification,
-				context,
-				ecContribution,
-				order,
-				terminated
-		)
-	}
-
-
 }
