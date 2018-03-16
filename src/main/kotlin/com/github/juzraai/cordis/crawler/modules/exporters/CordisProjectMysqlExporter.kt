@@ -36,7 +36,7 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 	}
 
 	private fun exportProjects(projects: List<Project>) {
-		db?.batchReplace("cordis_project", projects.map(this::projectToArray))
+		db?.batchReplace("cordis_project", projects.map(this::toArray))
 		projects.onEach {
 			if (null != it.rcn && null != it.relations) {
 				exportRelations(it.rcn!!.toString(), "Project", it.relations!!)
@@ -48,17 +48,16 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 		val relationArrays = mutableListOf<Array<Any?>>()
 
 		val calls = relations.associations?.calls?.filter { null != it.rcn } ?: listOf()
-		db?.batchReplace("cordis_call", calls.map(this::callToArray))
+		db?.batchReplace("cordis_call", calls.map(this::toArray))
 		relationArrays.addAll(calls.map { generateRelationArray(ownerId, ownerType, it) })
 
 		val categories = relations.categories?.filter { null != it.code } ?: listOf()
-		db?.batchReplace("cordis_category", categories.map(this::categoryToArray))
+		db?.batchReplace("cordis_category", categories.map(this::toArray))
 		relationArrays.addAll(categories.map { generateRelationArray(ownerId, ownerType, it) })
 
 		val regions = relations.regions?.filter { null != it.rcn } ?: listOf()
-		//db?.batchReplace("cordis_region", regions.map(this::regionToArray))
+		db?.batchReplace("cordis_region", regions.map(this::toArray))
 		relationArrays.addAll(regions.map { generateRelationArray(ownerId, ownerType, it) })
-
 
 		db?.batchReplace("cordis_relation", relationArrays)
 	}
@@ -98,7 +97,7 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 		null
 	}
 
-	private fun callToArray(call: Call): Array<Any?> {
+	private fun toArray(call: Call): Array<Any?> {
 		with(call) {
 			return arrayOf(
 					rcn,
@@ -108,7 +107,7 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 		}
 	}
 
-	private fun categoryToArray(category: Category): Array<Any?> {
+	private fun toArray(category: Category): Array<Any?> {
 		with(category) {
 			return arrayOf(
 					code,
@@ -118,7 +117,7 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 		}
 	}
 
-	private fun projectToArray(project: Project): Array<Any?> {
+	private fun toArray(project: Project): Array<Any?> {
 		with(project) {
 			return arrayOf(
 					rcn,
@@ -142,6 +141,18 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 					teaser,
 					title,
 					totalCost
+			)
+		}
+	}
+
+	private fun toArray(region: Region): Array<Any?> {
+		with(region) {
+			return arrayOf(
+					rcn,
+					euCode,
+					isoCode,
+					name,
+					nutsCode
 			)
 		}
 	}
