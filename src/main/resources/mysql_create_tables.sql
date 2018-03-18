@@ -12,22 +12,45 @@ create table if not exists cordis_category (
 	PRIMARY KEY (`code`)
 );
 
+create table if not exists cordis_organization (
+	`rcn`                    INT,
+	`addressCity`            VARCHAR(255),
+	`addressCountry`         VARCHAR(255),
+	`addressEmail`           VARCHAR(255),
+	`addressFaxNumber`       VARCHAR(255),
+	`addressGeolocation`     VARCHAR(255),
+	`addressPostalCode`      VARCHAR(255),
+	`addressPostBox`         VARCHAR(255),
+	`addressStreet`          VARCHAR(255),
+	`addressTelephoneNumber` VARCHAR(255),
+	`addressUrl`             VARCHAR(255),
+	`availableLanguages`     VARCHAR(255),
+	`departmentNames`        LONGTEXT,
+	`description`            LONGTEXT,
+	`id`                     INT,
+	`legalName`              LONGTEXT,
+	`otherDepartmentName`    LONGTEXT,
+	`shortName`              VARCHAR(255),
+	`vatNumber`              VARCHAR(255),
+	PRIMARY KEY (`rcn`)
+);
+
 create table if not exists cordis_person (
-	`rcn`                INT,
-	`availableLanguages` VARCHAR(255),
-	`firstName`          VARCHAR(255),
-	`lastName`           VARCHAR(255),
-	`title`              VARCHAR(255),
-	`city`               VARCHAR(255),
-	`country`            VARCHAR(255),
-	`email`              VARCHAR(255),
-	`faxNumber`          VARCHAR(255),
-	`geolocation`        VARCHAR(255),
-	`postalCode`         VARCHAR(255),
-	`postBox`            VARCHAR(255),
-	`street`             VARCHAR(255),
-	`telephoneNumber`    VARCHAR(255),
-	`url`                VARCHAR(255),
+	`rcn`                    INT,
+	`addressCity`            VARCHAR(255),
+	`addressCountry`         VARCHAR(255),
+	`addressEmail`           VARCHAR(255),
+	`addressFaxNumber`       VARCHAR(255),
+	`addressGeolocation`     VARCHAR(255),
+	`addressPostalCode`      VARCHAR(255),
+	`addressPostBox`         VARCHAR(255),
+	`addressStreet`          VARCHAR(255),
+	`addressTelephoneNumber` VARCHAR(255),
+	`addressUrl`             VARCHAR(255),
+	`availableLanguages`     VARCHAR(255),
+	`firstName`              VARCHAR(255),
+	`lastName`               VARCHAR(255),
+	`title`                  VARCHAR(255),
 	PRIMARY KEY (`rcn`)
 );
 

@@ -1,6 +1,7 @@
 package com.github.juzraai.cordis.crawler.modules.exporters
 
 import com.github.juzraai.cordis.crawler.model.cordis.*
+import com.github.juzraai.cordis.crawler.model.mysql.*
 import org.apache.commons.codec.digest.*
 
 /**
@@ -8,10 +9,11 @@ import org.apache.commons.codec.digest.*
  */
 class CordisProjectMySqlRecordConverter {
 
-	fun anyToArray(any: Any): Array<Any?>? {
+	fun anyToArray(any: Any): ArrayRecord? {
 		return when (any) {
 			is Call -> callToArray(any)
 			is Category -> categoryToArray(any)
+			is Organization -> organizationToArray(any)
 			is Person -> personToArray(any)
 			is Project -> projectToArray(any)
 			is Region -> regiontoArray(any)
@@ -19,31 +21,31 @@ class CordisProjectMySqlRecordConverter {
 		}
 	}
 
-	private fun callToArray(call: Call): Array<Any?> {
+	private fun callToArray(call: Call): ArrayRecord {
 		with(call) {
-			return arrayOf(
+			return ArrayRecord(arrayOf(
 					rcn,
 					identifier,
 					title
-			)
+			))
 		}
 	}
 
-	private fun categoryToArray(category: Category): Array<Any?> {
+	private fun categoryToArray(category: Category): ArrayRecord {
 		with(category) {
-			return arrayOf(
+			return ArrayRecord(arrayOf(
 					code,
 					availableLanguages,
 					title
-			)
+			))
 		}
 	}
 
-	fun generateRelationArray(ownerId: String, ownerType: String, owned: Any): Array<Any?> {
+	fun generateRelationArray(ownerId: String, ownerType: String, owned: Any): ArrayRecord {
 		val ownedId = getId(owned)
 		val ownedType = owned.javaClass.simpleName
 		val type = getField(owned, "typeAttr") ?: getField(owned, "type")
-		return arrayOf(
+		return ArrayRecord(arrayOf(
 				"$ownerType/$ownerId-$type-$ownedType/$ownedId",
 				ownerId,
 				ownerType,
@@ -55,20 +57,20 @@ class CordisProjectMySqlRecordConverter {
 				getField(owned, "ecContribution"),
 				getField(owned, "order"),
 				getField(owned, "terminated")
-		)
+		))
 	}
 
 	private fun getId(record: Any?): String? {
 		if (null == record) return null
-		return getField(record, "rcn")
-				?: getField(record, "code")
+		return getField(record, "rcn")?.toString()
+				?: getField(record, "code")?.toString()
 				?: hash(record.toString())
 	}
 
 	private fun getField(record: Any, field: String) = try {
 		val f = record.javaClass.getDeclaredField(field)
 		f.isAccessible = true
-		f.get(record)?.toString()
+		f.get(record)
 	} catch (e: Exception) {
 		// field not available
 		null
@@ -76,14 +78,10 @@ class CordisProjectMySqlRecordConverter {
 
 	private fun hash(s: String) = DigestUtils.sha1Hex(s)
 
-	private fun personToArray(person: Person): Array<Any?> {
-		with(person) {
-			return arrayOf(
+	private fun organizationToArray(organization: Organization): ArrayRecord {
+		with(organization) {
+			return ArrayRecord(arrayOf(
 					rcn,
-					availableLanguages,
-					firstName,
-					lastName,
-					title,
 					address?.city,
 					address?.country,
 					address?.email,
@@ -93,14 +91,44 @@ class CordisProjectMySqlRecordConverter {
 					address?.postBox,
 					address?.street,
 					address?.telephoneNumber,
-					address?.url
-			)
+					address?.url,
+					availableLanguages,
+					departmentNames?.joinToString("\n", transform = String::trim),
+					description,
+					id,
+					legalName,
+					otherDepartmentName,
+					shortName,
+					vatNumber
+			))
 		}
 	}
 
-	private fun projectToArray(project: Project): Array<Any?> {
+	private fun personToArray(person: Person): ArrayRecord {
+		with(person) {
+			return ArrayRecord(arrayOf(
+					rcn,
+					address?.city,
+					address?.country,
+					address?.email,
+					address?.faxNumber,
+					address?.geolocation,
+					address?.postalCode,
+					address?.postBox,
+					address?.street,
+					address?.telephoneNumber,
+					address?.url,
+					availableLanguages,
+					firstName,
+					lastName,
+					title
+			))
+		}
+	}
+
+	private fun projectToArray(project: Project): ArrayRecord {
 		with(project) {
-			return arrayOf(
+			return ArrayRecord(arrayOf(
 					rcn,
 					acronym,
 					availableLanguages,
@@ -122,19 +150,19 @@ class CordisProjectMySqlRecordConverter {
 					teaser,
 					title,
 					totalCost
-			)
+			))
 		}
 	}
 
-	private fun regiontoArray(region: Region): Array<Any?> {
+	private fun regiontoArray(region: Region): ArrayRecord {
 		with(region) {
-			return arrayOf(
+			return ArrayRecord(arrayOf(
 					rcn,
 					euCode,
 					isoCode,
 					name,
 					nutsCode
-			)
+			))
 		}
 	}
 }
