@@ -4,7 +4,6 @@ import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.model.cordis.*
 import com.github.juzraai.cordis.crawler.util.*
 import mu.*
-import org.apache.commons.codec.digest.*
 import java.util.*
 
 /**
@@ -12,7 +11,9 @@ import java.util.*
  */
 class CordisProjectMysqlExporter : ICordisProjectExporter {
 
-	companion object : KLogging()
+	companion object : KLogging() {
+		private val converter = CordisProjectMySqlRecordConverter()
+	}
 
 	var db: Database? = null
 
@@ -37,7 +38,7 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 	}
 
 	private fun exportProjects(projects: List<Project>) {
-		db?.batchReplace("cordis_project", projects.map(this::toArray))
+		db?.batchReplace("cordis_project", projects.mapNotNull(converter::anyToArray))
 		projects.onEach {
 			if (null != it.rcn && null != it.relations) {
 				exportRelations(it.rcn!!.toString(), "Project", it.relations!!)
@@ -48,115 +49,23 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 	private fun exportRelations(ownerId: String, ownerType: String, relations: Relations) {
 		val relationArrays = mutableListOf<Array<Any?>>()
 
-		val calls = relations.associations?.calls?.filter { null != it.rcn } ?: listOf()
-		db?.batchReplace("cordis_call", calls.map(this::toArray))
-		relationArrays.addAll(calls.map { generateRelationArray(ownerId, ownerType, it) })
+		relationArrays.addAll(exportRelations("cordis_call", ownerId, ownerType,
+				relations.associations?.calls?.filter { null != it.rcn } ?: listOf()))
 
-		val categories = relations.categories?.filter { null != it.code } ?: listOf()
-		db?.batchReplace("cordis_category", categories.map(this::toArray))
-		relationArrays.addAll(categories.map { generateRelationArray(ownerId, ownerType, it) })
+		relationArrays.addAll(exportRelations("cordis_category", ownerId, ownerType,
+				relations.categories?.filter { null != it.code } ?: listOf()))
 
-		val regions = relations.regions?.filter { null != it.rcn } ?: listOf()
-		db?.batchReplace("cordis_region", regions.map(this::toArray))
-		relationArrays.addAll(regions.map { generateRelationArray(ownerId, ownerType, it) })
+		relationArrays.addAll(exportRelations("cordis_region", ownerId, ownerType,
+				relations.regions?.filter { null != it.rcn } ?: listOf()))
 
 		db?.batchReplace("cordis_relation", relationArrays)
 	}
 
-	private fun generateRelationArray(ownerId: String, ownerType: String, owned: Any): Array<Any?> {
-		val ownedId = getId(owned)
-		val ownedType = owned.javaClass.simpleName
-		val type = getField(owned, "typeAttr") ?: getField(owned, "type")
-		return arrayOf(
-				"$ownerType/$ownerId-$type-$ownedType/$ownedId",
-				ownerId,
-				ownerType,
-				ownedId,
-				ownedType,
-				type,
-				getField(owned, "classification"),
-				getField(owned, "context"),
-				getField(owned, "ecContribution"),
-				getField(owned, "order"),
-				getField(owned, "terminated")
-		)
+	private fun exportRelations(table: String, ownerId: String, ownerType: String, records: List<Any>):
+			List<Array<Any?>> {
+		db?.batchReplace(table, records.mapNotNull(converter::anyToArray))
+		return records.map { converter.generateRelationArray(ownerId, ownerType, it) }
 	}
 
-	private fun getId(record: Any?): String? {
-		if (null == record) return null
-		return getField(record, "rcn")
-				?: getField(record, "code")
-				?: hash(record.toString())
-	}
 
-	private fun getField(record: Any, field: String) = try {
-		val f = record.javaClass.getDeclaredField(field)
-		f.isAccessible = true
-		f.get(record)?.toString()
-	} catch (e: Exception) {
-		// field not available
-		null
-	}
-
-	private fun hash(s: String) = DigestUtils.sha1Hex(s)
-
-	private fun toArray(call: Call): Array<Any?> {
-		with(call) {
-			return arrayOf(
-					rcn,
-					identifier,
-					title
-			)
-		}
-	}
-
-	private fun toArray(category: Category): Array<Any?> {
-		with(category) {
-			return arrayOf(
-					code,
-					availableLanguages,
-					title
-			)
-		}
-	}
-
-	private fun toArray(project: Project): Array<Any?> {
-		with(project) {
-			return arrayOf(
-					rcn,
-					acronym,
-					availableLanguages,
-					contentCreationDate,
-					contentUpdateDate,
-					contract?.duration,
-					contract?.endDate,
-					contract?.startDate,
-					ecMaxContribution,
-					endDate,
-					language,
-					lastUpdateDate,
-					objective,
-					reference,
-					sourceUpdateDate,
-					startDate,
-					status,
-					statusDetails,
-					teaser,
-					title,
-					totalCost
-			)
-		}
-	}
-
-	private fun toArray(region: Region): Array<Any?> {
-		with(region) {
-			return arrayOf(
-					rcn,
-					euCode,
-					isoCode,
-					name,
-					nutsCode
-			)
-		}
-	}
 }
