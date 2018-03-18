@@ -38,6 +38,12 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 		return data[table]!!
 	}
 
+	private fun processProgramme(programme: Programme) {
+		addData("cordis_programme", converter.anyToArray(programme))
+		programme.relations?.also { processRelations(programme.rcn!!.toString(), "Programme", it) }
+		programme.parent?.also { processProgramme(it) }
+	}
+
 	private fun processProject(project: Project) {
 		addData("cordis_project", converter.anyToArray(project))
 		project.relations?.also { processRelations(project.rcn!!.toString(), "Project", it) }
@@ -55,10 +61,13 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 				o.relations?.also { r -> processRelations(o.rcn!!.toString(), "Organization", r) }
 			}
 
-			// TODO ...
-		}
+			it.programmes?.filter { null != it.rcn }?.forEach { p ->
+				processRelations("cordis_programme", ownerId, ownerType, listOf(p))
+				processProgramme(p)
+			}
 
-		// TODO call processProject for projects
+			// TODO webItem, webSite, project, result, webLink
+		}
 	}
 
 	private fun processRelations(table: String, ownerId: String, ownerType: String, records: Collection<Any>?) {

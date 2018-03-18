@@ -1,7 +1,7 @@
 create table if not exists cordis_call (
 	`rcn`        INT,
 	`identifier` VARCHAR(255),
-	`title`      VARCHAR(255),
+	`title`      LONGTEXT,
 	PRIMARY KEY (`rcn`)
 );
 
@@ -54,6 +54,19 @@ create table if not exists cordis_person (
 	PRIMARY KEY (`rcn`)
 );
 
+create table if not exists cordis_programme (
+	`rcn`                INT,
+	`parent`             INT,
+	`availableLanguages` VARCHAR(255),
+	`code`               VARCHAR(255),
+	`frameworkProgramme` VARCHAR(255),
+	`pga`                VARCHAR(255),
+	`shortTitle`         VARCHAR(255),
+	`title`              LONGTEXT,
+	`url`                VARCHAR(255),
+	PRIMARY KEY (`rcn`)
+);
+
 create table if not exists cordis_project (
 	`rcn`                 INT,
 	`acronym`             VARCHAR(255),
@@ -74,7 +87,7 @@ create table if not exists cordis_project (
 	`status`              VARCHAR(255),
 	`statusDetails`       VARCHAR(255),
 	`teaser`              LONGTEXT,
-	`title`               VARCHAR(255),
+	`title`               LONGTEXT,
 	`totalCost`           DOUBLE,
 	PRIMARY KEY (`rcn`)
 );

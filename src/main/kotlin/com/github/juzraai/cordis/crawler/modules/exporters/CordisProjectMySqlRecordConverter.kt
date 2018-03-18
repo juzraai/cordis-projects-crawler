@@ -15,6 +15,7 @@ class CordisProjectMySqlRecordConverter {
 			is Category -> categoryToArray(any)
 			is Organization -> organizationToArray(any)
 			is Person -> personToArray(any)
+			is Programme -> programmeToArray(any)
 			is Project -> projectToArray(any)
 			is Region -> regiontoArray(any)
 			else -> null
@@ -122,6 +123,22 @@ class CordisProjectMySqlRecordConverter {
 					firstName,
 					lastName,
 					title
+			))
+		}
+	}
+
+	private fun programmeToArray(programme: Programme): ArrayRecord {
+		with(programme) {
+			return ArrayRecord(arrayOf(
+					rcn,
+					parent?.rcn,
+					availableLanguages,
+					code,
+					frameworkProgramme,
+					pga,
+					shortTitle,
+					title,
+					url
 			))
 		}
 	}
