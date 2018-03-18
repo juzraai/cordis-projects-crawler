@@ -18,7 +18,7 @@ class CordisProjectMySqlRecordConverter {
 		}
 	}
 
-	fun callToArray(call: Call): Array<Any?> {
+	private fun callToArray(call: Call): Array<Any?> {
 		with(call) {
 			return arrayOf(
 					rcn,
@@ -28,7 +28,7 @@ class CordisProjectMySqlRecordConverter {
 		}
 	}
 
-	fun categoryToArray(category: Category): Array<Any?> {
+	private fun categoryToArray(category: Category): Array<Any?> {
 		with(category) {
 			return arrayOf(
 					code,
@@ -57,14 +57,14 @@ class CordisProjectMySqlRecordConverter {
 		)
 	}
 
-	fun getId(record: Any?): String? {
+	private fun getId(record: Any?): String? {
 		if (null == record) return null
 		return getField(record, "rcn")
 				?: getField(record, "code")
 				?: hash(record.toString())
 	}
 
-	fun getField(record: Any, field: String) = try {
+	private fun getField(record: Any, field: String) = try {
 		val f = record.javaClass.getDeclaredField(field)
 		f.isAccessible = true
 		f.get(record)?.toString()
@@ -75,7 +75,7 @@ class CordisProjectMySqlRecordConverter {
 
 	private fun hash(s: String) = DigestUtils.sha1Hex(s)
 
-	fun projectToArray(project: Project): Array<Any?> {
+	private fun projectToArray(project: Project): Array<Any?> {
 		with(project) {
 			return arrayOf(
 					rcn,
@@ -103,7 +103,7 @@ class CordisProjectMySqlRecordConverter {
 		}
 	}
 
-	fun regiontoArray(region: Region): Array<Any?> {
+	private fun regiontoArray(region: Region): Array<Any?> {
 		with(region) {
 			return arrayOf(
 					rcn,
