@@ -12,6 +12,25 @@ create table if not exists cordis_category (
 	PRIMARY KEY (`code`)
 );
 
+create table if not exists cordis_person (
+	`rcn`                INT,
+	`availableLanguages` VARCHAR(255),
+	`firstName`          VARCHAR(255),
+	`lastName`           VARCHAR(255),
+	`title`              VARCHAR(255),
+	`city`               VARCHAR(255),
+	`country`            VARCHAR(255),
+	`email`              VARCHAR(255),
+	`faxNumber`          VARCHAR(255),
+	`geolocation`        VARCHAR(255),
+	`postalCode`         VARCHAR(255),
+	`postBox`            VARCHAR(255),
+	`street`             VARCHAR(255),
+	`telephoneNumber`    VARCHAR(255),
+	`url`                VARCHAR(255),
+	PRIMARY KEY (`rcn`)
+);
+
 create table if not exists cordis_project (
 	`rcn`                 INT,
 	`acronym`             VARCHAR(255),

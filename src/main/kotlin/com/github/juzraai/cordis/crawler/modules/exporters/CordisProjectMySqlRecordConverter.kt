@@ -12,6 +12,7 @@ class CordisProjectMySqlRecordConverter {
 		return when (any) {
 			is Call -> callToArray(any)
 			is Category -> categoryToArray(any)
+			is Person -> personToArray(any)
 			is Project -> projectToArray(any)
 			is Region -> regiontoArray(any)
 			else -> null
@@ -74,6 +75,28 @@ class CordisProjectMySqlRecordConverter {
 	}
 
 	private fun hash(s: String) = DigestUtils.sha1Hex(s)
+
+	private fun personToArray(person: Person): Array<Any?> {
+		with(person) {
+			return arrayOf(
+					rcn,
+					availableLanguages,
+					firstName,
+					lastName,
+					title,
+					address?.city,
+					address?.country,
+					address?.email,
+					address?.faxNumber,
+					address?.geolocation,
+					address?.postalCode,
+					address?.postBox,
+					address?.street,
+					address?.telephoneNumber,
+					address?.url
+			)
+		}
+	}
 
 	private fun projectToArray(project: Project): Array<Any?> {
 		with(project) {

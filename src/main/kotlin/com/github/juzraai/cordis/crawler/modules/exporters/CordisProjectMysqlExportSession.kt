@@ -45,8 +45,9 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 	private fun processRelations(ownerId: String, ownerType: String, relations: Relations) {
 		processRelations("cordis_category", ownerId, ownerType, relations.categories?.filter { null != it.code })
 		processRelations("cordis_region", ownerId, ownerType, relations.regions?.filter { null != it.rcn })
-		relations?.associations?.also {
+		relations.associations?.also {
 			processRelations("cordis_call", ownerId, ownerType, it.calls?.filter { null != it.rcn })
+			processRelations("cordis_person", ownerId, ownerType, it.persons?.filter { null != it.rcn })
 			// TODO ...
 		}
 

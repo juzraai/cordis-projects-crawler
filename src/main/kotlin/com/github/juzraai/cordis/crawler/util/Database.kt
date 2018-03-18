@@ -1,6 +1,5 @@
 package com.github.juzraai.cordis.crawler.util
 
-import com.github.juzraai.cordis.crawler.modules.exporters.*
 import mu.*
 import org.apache.commons.dbcp2.*
 import java.sql.*
@@ -54,7 +53,7 @@ class Database(host: String, port: Int, schema: String, username: String, passwo
 		try {
 			r = ps.executeUpdate()
 		} catch (e: Exception) {
-			CordisProjectMysqlExporter.logger.error("Failed to run SQL command", e)
+			logger.error("Failed to run SQL command", e)
 		} finally {
 			ps.close()
 		}
@@ -75,7 +74,7 @@ class Database(host: String, port: Int, schema: String, username: String, passwo
 	}
 
 	private fun useConnection(block: (Connection) -> Unit) {
-		val connection = dataSource?.connection
+		val connection = dataSource.connection
 		try {
 			block.invoke(connection!!)
 		} catch (e: Exception) {
