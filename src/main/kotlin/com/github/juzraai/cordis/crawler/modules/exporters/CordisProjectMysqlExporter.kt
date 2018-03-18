@@ -4,6 +4,7 @@ import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.model.cordis.*
 import com.github.juzraai.cordis.crawler.util.*
 import mu.*
+import org.apache.commons.codec.digest.*
 import java.util.*
 
 /**
@@ -85,7 +86,7 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 		if (null == record) return null
 		return getField(record, "rcn")
 				?: getField(record, "code")
-				?: record.toString() // TODO HASH
+				?: hash(record.toString())
 	}
 
 	private fun getField(record: Any, field: String) = try {
@@ -96,6 +97,8 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 		// field not available
 		null
 	}
+
+	private fun hash(s: String) = DigestUtils.sha1Hex(s)
 
 	private fun toArray(call: Call): Array<Any?> {
 		with(call) {
