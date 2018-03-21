@@ -9,6 +9,9 @@ import java.util.*
 @Root(name = "project")
 @Default(required = false)
 data class Project(
+		@field:Attribute(name = "type", required = false)
+		var type: String? = null,
+
 		var acronym: String? = null,
 		var availableLanguages: String? = null,
 		var contentCreationDate: Date? = null,

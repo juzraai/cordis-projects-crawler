@@ -19,12 +19,16 @@ data class Associations(
 		@field:ElementList(inline = true, entry = "programme", required = false)
 		var programmes: List<Programme>? = null,
 
+		@field:ElementList(inline = true, entry = "project", required = false)
+		var projects: List<Project>? = null,
+
+		@field:ElementList(inline = true, entry = "result", required = false)
+		var results: List<Result>? = null,
+
 		@field:ElementListUnion(
 				ElementList(inline = true, entry = "webItem", required = false),
 				ElementList(inline = true, entry = "webLink", required = false),
 				ElementList(inline = true, entry = "webSite", required = false)
 		)
 		var webItems: List<WebItem>? = null
-
-		// TODO project, result
 )

@@ -33,6 +33,21 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 		fetchTable(table).addAll(records)
 	}
 
+	private fun addRecordsAndRelations(table: String, ownerId: String, ownerType: String, records: Collection<Any>?) {
+		if (null != records) {
+			addData(table, records.mapNotNull(converter::anyToArray))
+			addRelations(ownerId, ownerType, records)
+		}
+	}
+
+	private fun addRelations(ownerId: String, ownerType: String, records: Collection<Any>?) {
+		if (null != records) {
+			addData("cordis_relation", records.map {
+				converter.generateRelationArray(ownerId, ownerType, it)
+			})
+		}
+	}
+
 	private fun fetchTable(table: String): MutableCollection<ArrayRecord> {
 		if (!data.containsKey(table)) data[table] = mutableSetOf()
 		return data[table]!!
@@ -50,34 +65,29 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 	}
 
 	private fun processRelations(ownerId: String, ownerType: String, relations: Relations) {
-		processRelations("cordis_category", ownerId, ownerType, relations.categories?.filter { null != it.code })
-		processRelations("cordis_region", ownerId, ownerType, relations.regions?.filter { null != it.rcn })
+		addRecordsAndRelations("cordis_category", ownerId, ownerType, relations.categories?.filter { null != it.code })
+		addRecordsAndRelations("cordis_region", ownerId, ownerType, relations.regions?.filter { null != it.rcn })
 		relations.associations?.also {
-			processRelations("cordis_call", ownerId, ownerType, it.calls?.filter { null != it.rcn })
-			processRelations("cordis_person", ownerId, ownerType, it.persons?.filter { null != it.rcn })
+			addRecordsAndRelations("cordis_call", ownerId, ownerType, it.calls?.filter { null != it.rcn })
+			addRecordsAndRelations("cordis_person", ownerId, ownerType, it.persons?.filter { null != it.rcn })
+			addRecordsAndRelations("cordis_webitem", ownerId, ownerType, it.webItems)
 
 			it.organizations?.filter { null != it.rcn }?.forEach { o ->
-				processRelations("cordis_organization", ownerId, ownerType, listOf(o))
+				addRecordsAndRelations("cordis_organization", ownerId, ownerType, listOf(o))
 				o.relations?.also { r -> processRelations(o.rcn!!.toString(), "Organization", r) }
 			}
 
 			it.programmes?.filter { null != it.rcn }?.forEach { p ->
-				processRelations("cordis_programme", ownerId, ownerType, listOf(p))
+				addRelations(ownerId, ownerType, listOf(p))
 				processProgramme(p)
 			}
 
-			processRelations("cordis_webitem", ownerId, ownerType, it.webItems)
-
-			// TODO project, result - store only relation record!!!
+			// only relations, because these are not full records
+			// full records will be fetched with crawl
+			addRelations(ownerId, ownerType, it.projects?.filter { null != it.rcn })
+			addRelations(ownerId, ownerType, it.results?.filter { null != it.rcn })
 		}
 	}
 
-	private fun processRelations(table: String, ownerId: String, ownerType: String, records: Collection<Any>?) {
-		if (null != records) {
-			addData(table, records.mapNotNull(converter::anyToArray))
-			addData("cordis_relation", records.map {
-				converter.generateRelationArray(ownerId, ownerType, it)
-			})
-		}
-	}
+
 }
