@@ -21,8 +21,14 @@ data class CordisCrawlerConfiguration(
 		@Parameter(names = ["-f", "--force-download"], description = "Forces downloading project data even if it already exists in output directory.")
 		var forceDownload: Boolean = false,
 
+		@Parameter(names = ["-m", "--mysql-export"], description = "Turns on MySQL export of project data. Pass connection parameters in this format: 'user@host:port/schema'. Specify connection password using the '-P' option. Schema must be created first.")
+		var mysqlExport: String? = null,
+
 		@Parameter(names = ["-o", "--output-dir"], description = "Path of directory where downloaded/exported files will be placed.")
 		var outputDirectory: String = "cordis-data",
+
+		@Parameter(names = ["-P"], description = "Password for MySQL connection.", password = true)
+		var password: String? = null,
 
 		@Parameter(names = ["-q", "--quiet"], description = "Turns off all console output. Has no effect when verbose mode is activated.")
 		var quiet: Boolean = false,

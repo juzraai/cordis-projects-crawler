@@ -8,14 +8,15 @@ import javax.sql.*
 /**
  * @author Zsolt Jurányi
  */
-class Database(host: String, port: Int, schema: String, username: String, password: String) {
+class Database(host: String, port: Int, schema: String, username: String, password: String?) {
 
 	companion object : KLogging()
 
 	var dataSource: DataSource = BasicDataSource().apply {
 		url = "jdbc:mysql://$host:$port/$schema?useUnicode=true&characterEncoding=utf8&useSSL=false"
+		logger.info("Connecting to database: $url")
 		this.username = username
-		this.password = password
+		if (null != password) this.password = password
 	}
 
 	fun batchReplace(table: String, arrays: List<Array<Any?>>) {
