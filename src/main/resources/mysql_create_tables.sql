@@ -48,7 +48,7 @@ create table if not exists cordis_person (
 	`addressTelephoneNumber` VARCHAR(255),
 	`addressUrl`             VARCHAR(255),
 	`availableLanguages`     VARCHAR(255),
-	`firstName`              VARCHAR(255),
+	`firstNames`             VARCHAR(255),
 	`lastName`               VARCHAR(255),
 	`title`                  VARCHAR(255),
 	PRIMARY KEY (`rcn`)

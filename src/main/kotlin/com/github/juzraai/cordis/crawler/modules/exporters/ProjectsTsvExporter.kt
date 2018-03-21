@@ -42,7 +42,7 @@ class ProjectsTsvExporter : ICordisProjectExporter, Closeable {
 			Column("startDate", { formatDate(startDate) }),
 			Column("endDate", { formatDate(endDate) }),
 			Column("website", {
-				relations?.associations?.webSites?.firstOrNull { it.type == "relatedPpmProjectWebsite" }?.url
+				relations?.associations?.webItems?.firstOrNull { it.typeAttr == "relatedPpmProjectWebsite" }?.url
 			}),
 			Column("totalCost", { totalCost?.toString() }),
 			Column("ecMaxContribution", { ecMaxContribution?.toString() }),

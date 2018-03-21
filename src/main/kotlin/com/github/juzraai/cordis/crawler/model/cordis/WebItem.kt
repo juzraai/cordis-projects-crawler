@@ -19,5 +19,6 @@ data class WebItem(
 		var size: Long? = null,
 		var title: String? = null,
 		var type: String? = null,
-		var uri: String? = null
+		var uri: String? = null,
+		var url: String? = null
 )

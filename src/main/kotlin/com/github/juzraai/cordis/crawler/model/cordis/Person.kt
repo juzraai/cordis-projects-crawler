@@ -15,7 +15,7 @@ data class Person(
 
 		var address: Address? = null,
 		var availableLanguages: String? = null,
-		var firstName: String? = null,
+		var firstNames: String? = null,
 		var lastName: String? = null,
 		var rcn: Long? = null,
 		var title: String? = null
