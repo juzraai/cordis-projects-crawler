@@ -117,3 +117,16 @@ create table if not exists cordis_relation (
 	INDEX `owner_id_idx` (`ownerId`),
 	INDEX `owned_id_idx` (`ownedId`)
 );
+
+create table if not exists cordis_webitem (
+	`id`                 VARCHAR(255),
+	`availableLanguages` VARCHAR(255),
+	`language`           VARCHAR(255),
+	`mimetype`           VARCHAR(255),
+	`size`               INT,
+	`title`              VARCHAR(255),
+	`type`               VARCHAR(255),
+	`uri`                VARCHAR(255),
+	`url`                VARCHAR(255),
+	PRIMARY KEY (`id`)
+);

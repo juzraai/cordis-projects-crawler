@@ -18,6 +18,7 @@ class CordisProjectMySqlRecordConverter {
 			is Programme -> programmeToArray(any)
 			is Project -> projectToArray(any)
 			is Region -> regiontoArray(any)
+			is WebItem -> webItemToArray(any)
 			else -> null
 		}
 	}
@@ -120,7 +121,7 @@ class CordisProjectMySqlRecordConverter {
 					address?.telephoneNumber,
 					address?.url,
 					availableLanguages,
-					firstName,
+					firstNames,
 					lastName,
 					title
 			))
@@ -179,6 +180,22 @@ class CordisProjectMySqlRecordConverter {
 					isoCode,
 					name,
 					nutsCode
+			))
+		}
+	}
+
+	private fun webItemToArray(webItem: WebItem): ArrayRecord {
+		with(webItem) {
+			return ArrayRecord(arrayOf(
+					getId(webItem),
+					availableLanguages,
+					language,
+					mimetype,
+					size,
+					title,
+					type,
+					uri,
+					url
 			))
 		}
 	}

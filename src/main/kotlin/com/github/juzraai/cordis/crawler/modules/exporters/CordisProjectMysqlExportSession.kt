@@ -66,7 +66,9 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 				processProgramme(p)
 			}
 
-			// TODO webItem, webSite, project, result, webLink
+			processRelations("cordis_webitem", ownerId, ownerType, it.webItems)
+
+			// TODO project, result - store only relation record!!!
 		}
 	}
 
