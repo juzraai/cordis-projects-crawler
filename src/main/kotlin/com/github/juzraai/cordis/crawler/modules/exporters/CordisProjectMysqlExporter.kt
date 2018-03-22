@@ -30,10 +30,7 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 	}
 
 	override fun exportCordisProjects(cordisProjects: List<CordisProject>) {
-		db?.also {
-			// TODO if -p present, ask sessions to export pubs too
-			CordisProjectMysqlExportSession(it, cordisProjects).call()
-		}
+		db?.also { CordisProjectMysqlExportSession(it, cordisProjects).call() }
 	}
 
 	private fun createTables() {

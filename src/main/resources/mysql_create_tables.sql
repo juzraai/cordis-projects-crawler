@@ -92,6 +92,17 @@ create table if not exists cordis_project (
 	PRIMARY KEY (`rcn`)
 );
 
+create table if not exists cordis_publication (
+	`openAireId`       VARCHAR(255),
+	`bestLicense`      VARCHAR(255),
+	`dateOfAcceptance` DATE,
+	`description`      LONGTEXT,
+	`doi`              VARCHAR(255),
+	`publicationType`  VARCHAR(255),
+	`title`            LONGTEXT,
+	PRIMARY KEY (`openAireId`)
+);
+
 create table if not exists cordis_region (
 	`rcn`      INT,
 	`euCode`   VARCHAR(255),

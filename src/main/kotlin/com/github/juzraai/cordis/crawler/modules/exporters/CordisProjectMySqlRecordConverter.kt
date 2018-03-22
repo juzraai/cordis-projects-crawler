@@ -2,6 +2,7 @@ package com.github.juzraai.cordis.crawler.modules.exporters
 
 import com.github.juzraai.cordis.crawler.model.cordis.*
 import com.github.juzraai.cordis.crawler.model.mysql.*
+import com.github.juzraai.cordis.crawler.model.openaire.sygma.*
 import org.apache.commons.codec.digest.*
 
 /**
@@ -17,6 +18,7 @@ class CordisProjectMySqlRecordConverter {
 			is Person -> personToArray(any)
 			is Programme -> programmeToArray(any)
 			is Project -> projectToArray(any)
+			is Publication -> publicationToArray(any)
 			is Region -> regiontoArray(any)
 			is WebItem -> webItemToArray(any)
 			else -> null
@@ -43,10 +45,11 @@ class CordisProjectMySqlRecordConverter {
 		}
 	}
 
-	fun generateRelationArray(ownerId: String, ownerType: String, owned: Any): ArrayRecord {
+	fun generateRelationArray(ownerId: String, ownerType: String, owned: Any, relationType: String? = null):
+			ArrayRecord {
 		val ownedId = getId(owned)
 		val ownedType = owned.javaClass.simpleName
-		val type = getField(owned, "typeAttr") ?: getField(owned, "type")
+		val type = relationType ?: getField(owned, "typeAttr") ?: getField(owned, "type")
 		return ArrayRecord(arrayOf(
 				"$ownerType/$ownerId-$type-$ownedType/$ownedId",
 				ownerId,
@@ -62,10 +65,11 @@ class CordisProjectMySqlRecordConverter {
 		))
 	}
 
-	private fun getId(record: Any?): String? {
+	fun getId(record: Any?): String? {
 		if (null == record) return null
 		return getField(record, "rcn")?.toString()
 				?: getField(record, "code")?.toString()
+				?: getField(record, "openAireId")?.toString()
 				?: hash(record.toString())
 	}
 
@@ -168,6 +172,20 @@ class CordisProjectMySqlRecordConverter {
 					teaser,
 					title,
 					totalCost
+			))
+		}
+	}
+
+	private fun publicationToArray(publication: Publication): ArrayRecord {
+		with(publication) {
+			return ArrayRecord(arrayOf(
+					openAireId,
+					bestLicense,
+					dateOfAcceptance,
+					description,
+					doi,
+					publicationType,
+					title
 			))
 		}
 	}

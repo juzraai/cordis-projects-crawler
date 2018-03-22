@@ -20,8 +20,12 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 	private val data = mutableMapOf<String, MutableCollection<ArrayRecord>>()
 
 	override fun call() {
-		cordisProjects.mapNotNull(CordisProject::project).onEach(this::processProject)
-		// TODO if -p (passed as a bool config field here, process publications too
+		cordisProjects.forEach { cordisProject ->
+			cordisProject.project?.also {
+				processProject(it)
+				processProjectPublications(cordisProject)
+			}
+		}
 		data.forEach { table, records -> db.batchReplace(table, records.map(ArrayRecord::array)) }
 	}
 
@@ -33,17 +37,17 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 		fetchTable(table).addAll(records)
 	}
 
-	private fun addRecordsAndRelations(table: String, ownerId: String, ownerType: String, records: Collection<Any>?) {
+	private fun addRecordsAndRelations(table: String, ownerId: String, ownerType: String, records: Collection<Any>?, relationType: String? = null) {
 		if (null != records) {
 			addData(table, records.mapNotNull(converter::anyToArray))
-			addRelations(ownerId, ownerType, records)
+			addRelations(ownerId, ownerType, records, relationType)
 		}
 	}
 
-	private fun addRelations(ownerId: String, ownerType: String, records: Collection<Any>?) {
+	private fun addRelations(ownerId: String, ownerType: String, records: Collection<Any>?, relationType: String? = null) {
 		if (null != records) {
 			addData("cordis_relation", records.map {
-				converter.generateRelationArray(ownerId, ownerType, it)
+				converter.generateRelationArray(ownerId, ownerType, it, relationType)
 			})
 		}
 	}
@@ -62,6 +66,15 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 	private fun processProject(project: Project) {
 		addData("cordis_project", converter.anyToArray(project))
 		project.relations?.also { processRelations(project.rcn!!.toString(), "Project", it) }
+	}
+
+	private fun processProjectPublications(cordisProject: CordisProject) {
+		cordisProject.publications?.forEach { p ->
+			addRecordsAndRelations("cordis_publication", cordisProject.project!!.rcn!!.toString(), "Project", listOf(p), "relatedPublication")
+
+			// TODO authors, sourceJournals, webResources - converter.stringToArray -> id+string
+		}
+
 	}
 
 	private fun processRelations(ownerId: String, ownerType: String, relations: Relations) {
