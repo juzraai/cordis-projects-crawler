@@ -20,6 +20,7 @@ class CordisProjectMySqlRecordConverter {
 			is Project -> projectToArray(any)
 			is Publication -> publicationToArray(any)
 			is Region -> regiontoArray(any)
+			is String -> stringToArray(any)
 			is WebItem -> webItemToArray(any)
 			else -> null
 		}
@@ -201,6 +202,8 @@ class CordisProjectMySqlRecordConverter {
 			))
 		}
 	}
+
+	private fun stringToArray(s: String) = ArrayRecord(arrayOf(hash(s), s))
 
 	private fun webItemToArray(webItem: WebItem): ArrayRecord {
 		with(webItem) {

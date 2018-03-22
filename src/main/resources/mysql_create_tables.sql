@@ -129,6 +129,12 @@ create table if not exists cordis_relation (
 	INDEX `owned_id_idx` (`ownedId`)
 );
 
+create table if not exists cordis_string (
+	`id`     VARCHAR(255),
+	`string` LONGTEXT,
+	PRIMARY KEY (`id`)
+);
+
 create table if not exists cordis_webitem (
 	`id`                 VARCHAR(255),
 	`availableLanguages` VARCHAR(255),

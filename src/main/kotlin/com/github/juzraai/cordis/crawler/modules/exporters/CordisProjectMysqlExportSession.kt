@@ -69,12 +69,12 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 	}
 
 	private fun processProjectPublications(cordisProject: CordisProject) {
-		cordisProject.publications?.forEach { p ->
+		cordisProject.publications?.filter { null != it.openAireId }?.forEach { p ->
 			addRecordsAndRelations("cordis_publication", cordisProject.project!!.rcn!!.toString(), "Project", listOf(p), "relatedPublication")
-
-			// TODO authors, sourceJournals, webResources - converter.stringToArray -> id+string
+			addRecordsAndRelations("cordis_string", p.openAireId!!, "Publication", p.authors, "author")
+			addRecordsAndRelations("cordis_string", p.openAireId!!, "Publication", p.sourceJournals, "sourceJournal")
+			addRecordsAndRelations("cordis_string", p.openAireId!!, "Publication", p.webResources, "webResource")
 		}
-
 	}
 
 	private fun processRelations(ownerId: String, ownerType: String, relations: Relations) {
