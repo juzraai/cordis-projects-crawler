@@ -14,14 +14,12 @@
 * Project RCN seeds: single RCN, RCN list, RCN range, project URL, [CORDIS][cordis] search URL, output directory
 * Download and parse [CORDIS][cordis] project XMLs
 * Download and parse publications XML from [OpenAIRE API][oaa] for projects
-* Export project and publication metadata into [TSV][tsv] file
+* Export project and publication metadata into [TSV][tsv] file and/or MySQL database
 
 **TODO:**
 
-* Exports: MySQL
-* Crawl project documents (`webItem`)
-* Crawl result XMLs too
-* Unified view?
+* Finalize code
+* Finish documentation
 
 
 
@@ -35,6 +33,14 @@
 * There are [new ways to tell](#seed) the crawler which projects are needed.
 * [Modular architecture](#modules) helps developers to extend/alter functionality of the crawler.
 * Sexy documentation using [Docsify][docsify]
+
+
+
+## Future plans, ideas
+
+* Crawl project documents (`webItem`) with option `-d`
+* Crawl result XMLs with option `-r`
+* Generate "unified view" export (with option `-u` maybe)
 
 
 
@@ -243,9 +249,21 @@ Exported publication fields:
 
 ### MySQL export
 
+Firstly, you need to create a database using your MySQL client:
+
 ```sql
 CREATE SCHEMA `your_database` DEFAULT CHARACTER SET utf8_general_ci;
 ```
+
+Then pass the database connection parameters using `-m` (or `--mysql-export`) and `-P` as follows:
+
+```bash
+java -jar cordis-projects-crawler-VERSION.jar -m user@host:port/schema -P password
+```
+
+You can omit `:port` if the port is `3306` and you can omit `host` if it's `localhost` in your environment, but make sure you specify at least `user@/schema`.
+
+?> **TODO** schema - a pic maybe?
 
 
 
