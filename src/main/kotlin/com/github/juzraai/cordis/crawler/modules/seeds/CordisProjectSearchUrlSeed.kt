@@ -22,7 +22,6 @@ class CordisProjectSearchUrlSeed : ICordisProjectRcnSeed {
 	}
 
 	class CordisProjectSearchResultIterator(seedUrl: String) : Iterator<Long> {
-		// TODO move to sep file, package?
 
 		companion object : KLogging() {
 			const val num = 100 // CORDIS options: 10/20/30/50/100, default: 10
