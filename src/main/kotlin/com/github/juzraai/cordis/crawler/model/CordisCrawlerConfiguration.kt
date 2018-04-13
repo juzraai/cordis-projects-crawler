@@ -6,8 +6,7 @@ import java.util.*
 /**
  * @author Zsolt Jurányi
  */
-data class CordisCrawlerConfiguration(
-		// TODO make it open (kotlin-allopen?) + write extending example to doc
+open class CordisCrawlerConfiguration(
 		// TODO [v2.1] builder
 
 		val timestamp: Date = Date(),
@@ -41,4 +40,8 @@ data class CordisCrawlerConfiguration(
 
 		@Parameter(names = ["-v", "--verbose"], description = "Turns on debug/trace log messages. Quiet mode will have no effect.")
 		var verbose: Boolean = false
-)
+) {
+	override fun toString(): String {
+		return "CordisCrawlerConfiguration(crawlEverything=$crawlEverything, crawlPublications=$crawlPublications, forceDownload=$forceDownload, mysqlExport=$mysqlExport, outputDirectory='$outputDirectory', password=$password, quiet=$quiet, seed=$seed, tsvExport=$tsvExport, verbose=$verbose)"
+	}
+}
