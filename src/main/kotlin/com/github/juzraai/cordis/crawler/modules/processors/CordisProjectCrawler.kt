@@ -21,8 +21,8 @@ class CordisProjectCrawler(
 			logger.trace("Reading project XML: $rcn")
 			val xml = readProjectXml(rcn)
 			if (null != xml) {
-				// TODO would be great not to rewrite every processed file...
-				// TODO maybe remember which cache returned the file?
+				// TODO [v2.1] would be great not to rewrite every processed file...
+				// TODO [v2.1] maybe remember which cache returned the file?
 				logger.trace("Caching project XML: $rcn")
 				cacheProjectXml(xml, rcn)
 				logger.trace("Parsing project XML: $rcn")

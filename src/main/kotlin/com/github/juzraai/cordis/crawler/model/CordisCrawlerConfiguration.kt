@@ -7,8 +7,8 @@ import java.util.*
  * @author Zsolt Jurányi
  */
 data class CordisCrawlerConfiguration(
-		// TODO builder
 		// TODO make it open (kotlin-allopen?) + write extending example to doc
+		// TODO [v2.1] builder
 
 		val timestamp: Date = Date(),
 

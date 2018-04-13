@@ -52,7 +52,7 @@ class CordisCrawler(
 					}
 					.map { CordisProject(it) }
 					.mapNotNull(this::process)
-					.chunked(100) // TODO config
+					.chunked(100) // TODO [v2.1] config
 					.onEach(this::export)
 					.flatten()
 					.count() // <-- need to run the operations on Sequence

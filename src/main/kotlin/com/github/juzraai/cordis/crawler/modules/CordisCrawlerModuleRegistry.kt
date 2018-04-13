@@ -30,9 +30,9 @@ class CordisCrawlerModuleRegistry {
 			// processors
 			CordisProjectCrawler(this),
 			OpenAirePublicationsCrawler(this),
-			// TODO project documents downloader (webItems)
-			// TODO project results crawler
-			// TODO unified model generator?
+			// TODO [v2.1] project documents downloader (webItems)
+			// TODO [v2.1] project results crawler
+			// TODO [v2.1] unified model generator?
 
 			// readers
 			CordisCrawlerFileCache(),

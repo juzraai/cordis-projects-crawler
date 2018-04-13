@@ -9,7 +9,7 @@ import com.github.juzraai.cordis.crawler.model.openaire.sygma.*
 data class CordisProject( // TODO make it open!
 		val rcn: Long,
 		var project: Project? = null,
-		// TODO val result: Result? = null,
+		// TODO [v2.1] val result: Result? = null,
 		var publications: List<Publication>? = null
-		// TODO unified model
+		// TODO [v2.1] unified model
 )

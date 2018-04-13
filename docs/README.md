@@ -289,11 +289,11 @@ Note that this option will not have any effect if you turn on verbose mode.
 
 To reduce harm on [CORDIS][cordis] and [OpenAIRE][oaa] servers, the crawler **waits at least 2 seconds before sending another request to the same server**. This does not mean that the program sleeps 2 seconds everytime. After the processing of the previous request, the crawler calculates the required sleep time to ensure a delay of at least 2 seconds. If the processing took more time, then there will be no sleep.
 
-When downloading result lists, the crawler requests the **maximum amount of results per request.** On [CORDIS][cordis], it's 100, on [OpenAIRE][oaa] it's 10&nbsp;000. This reduces the number of requests needed to crawl a list. In case of [OpenAIRE][oaa], only one request is sent per project, because I assume that  a project cannot have more than 10K publications.
+When downloading result lists, the crawler requests the **maximum amount of results per request.** On [CORDIS][cordis], it's 100, on [OpenAIRE][oaa] it's 10&nbsp;000 items. This reduces the number of requests needed to crawl a list. In case of [OpenAIRE][oaa], only one request is sent per project, because I assume that  a project cannot have more than 10K publications.
 
 [CORDIS][cordis] search results are requested in CSV format to reduce bandwith usage.
 
-If there's an HTTP error, or an invalid response is received, the crawler retries the request.
+If there's an HTTP error, or an invalid response is received, the crawler increases the delay and retries the request.
 
 
 
