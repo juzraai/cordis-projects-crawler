@@ -11,9 +11,7 @@ import mu.*
 /**
  * @author Zsolt Jurányi
  */
-class OpenAirePublicationsCrawler(
-		override var modules: CordisCrawlerModuleRegistry
-) : ICordisProjectProcessor {
+class OpenAirePublicationsCrawler : ICordisProjectProcessor {
 	/*
 		OpenAIRE API: http://api.openaire.eu/search/publications
 
@@ -32,9 +30,11 @@ class OpenAirePublicationsCrawler(
 	companion object : KLogging()
 
 	private var configuration: CordisCrawlerConfiguration? = null
+	private var modules: CordisCrawlerModuleRegistry? = null
 
-	override fun initialize(configuration: CordisCrawlerConfiguration) {
+	override fun initialize(configuration: CordisCrawlerConfiguration, modules: CordisCrawlerModuleRegistry) {
 		this.configuration = configuration
+		this.modules = modules
 	}
 
 	override fun process(cordisProject: CordisProject): CordisProject? {
@@ -56,17 +56,17 @@ class OpenAirePublicationsCrawler(
 	}
 
 	private fun readPublicationsXml(project: Project) =
-			modules.ofType(IOpenAirePublicationsXmlReader::class.java).asSequence()
+			modules!!.ofType(IOpenAirePublicationsXmlReader::class.java).asSequence()
 					.mapNotNull { it.publicationsXmlByProject(project) }
 					.firstOrNull()
 
 	private fun cachePublicationsXml(xml: String, project: Project) {
-		modules.ofType(IOpenAirePublicationsXmlCache::class.java)
+		modules!!.ofType(IOpenAirePublicationsXmlCache::class.java)
 				.onEach { it.cachePublicationsXml(xml, project) }
 	}
 
 	private fun parsePublicationsXml(xml: String) =
-			modules.ofType(IOpenAirePublicationsXmlParser::class.java).asSequence()
+			modules!!.ofType(IOpenAirePublicationsXmlParser::class.java).asSequence()
 					.mapNotNull { it.parsePublicationsXml(xml) }
 					.firstOrNull()
 }

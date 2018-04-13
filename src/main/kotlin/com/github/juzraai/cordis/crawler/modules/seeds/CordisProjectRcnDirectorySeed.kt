@@ -1,6 +1,7 @@
 package com.github.juzraai.cordis.crawler.modules.seeds
 
 import com.github.juzraai.cordis.crawler.model.*
+import com.github.juzraai.cordis.crawler.modules.*
 import java.io.*
 
 /**
@@ -10,7 +11,7 @@ class CordisProjectRcnDirectorySeed : ICordisProjectRcnSeed {
 
 	private var configuration: CordisCrawlerConfiguration? = null
 
-	override fun initialize(configuration: CordisCrawlerConfiguration) {
+	override fun initialize(configuration: CordisCrawlerConfiguration, modules: CordisCrawlerModuleRegistry) {
 		this.configuration = configuration
 	}
 

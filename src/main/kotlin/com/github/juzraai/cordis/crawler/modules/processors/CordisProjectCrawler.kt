@@ -10,11 +10,15 @@ import mu.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectCrawler(
-		override var modules: CordisCrawlerModuleRegistry
-) : ICordisProjectProcessor {
+class CordisProjectCrawler : ICordisProjectProcessor {
 
 	companion object : KLogging()
+
+	private var modules: CordisCrawlerModuleRegistry? = null
+
+	override fun initialize(configuration: CordisCrawlerConfiguration, modules: CordisCrawlerModuleRegistry) {
+		this.modules = modules
+	}
 
 	override fun process(cordisProject: CordisProject): CordisProject {
 		return cordisProject.apply {
@@ -32,17 +36,17 @@ class CordisProjectCrawler(
 	}
 
 	private fun readProjectXml(rcn: Long) =
-			modules.ofType(ICordisProjectXmlReader::class.java).asSequence()
+			modules!!.ofType(ICordisProjectXmlReader::class.java).asSequence()
 					.mapNotNull { it.projectXmlByRcn(rcn) }
 					.firstOrNull()
 
 	private fun cacheProjectXml(xml: String, rcn: Long) {
-		modules.ofType(ICordisProjectXmlCache::class.java)
+		modules!!.ofType(ICordisProjectXmlCache::class.java)
 				.onEach { it.cacheProjectXml(xml, rcn) }
 	}
 
 	private fun parseProjectXml(xml: String) =
-			modules.ofType(ICordisProjectXmlParser::class.java).asSequence()
+			modules!!.ofType(ICordisProjectXmlParser::class.java).asSequence()
 					.mapNotNull { it.parseProjectXml(xml) }
 					.firstOrNull()
 }

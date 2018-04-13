@@ -2,6 +2,7 @@ package com.github.juzraai.cordis.crawler.modules.readers.caches
 
 import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.model.cordis.*
+import com.github.juzraai.cordis.crawler.modules.*
 import com.github.juzraai.cordis.crawler.util.*
 import java.io.*
 
@@ -12,7 +13,7 @@ class CordisCrawlerFileCache : ICordisProjectXmlCache, IOpenAirePublicationsXmlC
 
 	private var configuration: CordisCrawlerConfiguration? = null
 
-	override fun initialize(configuration: CordisCrawlerConfiguration) {
+	override fun initialize(configuration: CordisCrawlerConfiguration, modules: CordisCrawlerModuleRegistry) {
 		this.configuration = configuration
 	}
 

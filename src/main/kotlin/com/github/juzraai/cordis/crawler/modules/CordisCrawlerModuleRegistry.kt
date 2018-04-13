@@ -28,8 +28,8 @@ class CordisCrawlerModuleRegistry {
 			CordisProjectRcnDirectorySeed(),
 
 			// processors
-			CordisProjectCrawler(this),
-			OpenAirePublicationsCrawler(this),
+			CordisProjectCrawler(),
+			OpenAirePublicationsCrawler(),
 			// TODO [v2.1] project documents downloader (webItems)
 			// TODO [v2.1] project results crawler
 			// TODO [v2.1] unified model generator?
@@ -63,7 +63,7 @@ class CordisCrawlerModuleRegistry {
 	fun initialize(configuration: CordisCrawlerConfiguration) {
 		modules.onEach {
 			logger.trace("Initializing module: ${it.javaClass.name}")
-			it.initialize(configuration)
+			it.initialize(configuration, this)
 		}
 	}
 

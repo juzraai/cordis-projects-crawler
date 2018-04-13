@@ -2,6 +2,7 @@ package com.github.juzraai.cordis.crawler.modules.exporters
 
 import com.github.juzraai.cordis.crawler.model.*
 import com.github.juzraai.cordis.crawler.model.openaire.sygma.*
+import com.github.juzraai.cordis.crawler.modules.*
 import mu.*
 import java.io.*
 import java.text.*
@@ -48,7 +49,7 @@ class PublicationsTsvExporter : ICordisProjectExporter, Closeable {
 		return date?.run { SimpleDateFormat("yyyy-MM-dd").format(this) }
 	}
 
-	override fun initialize(configuration: CordisCrawlerConfiguration) {
+	override fun initialize(configuration: CordisCrawlerConfiguration, modules: CordisCrawlerModuleRegistry) {
 		this.configuration = configuration
 		with(configuration) { enabled = tsvExport && (crawlEverything || crawlPublications) }
 		if (enabled) {

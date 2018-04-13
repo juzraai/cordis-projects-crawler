@@ -1,6 +1,7 @@
 package com.github.juzraai.cordis.crawler.modules.exporters
 
 import com.github.juzraai.cordis.crawler.model.*
+import com.github.juzraai.cordis.crawler.modules.*
 import com.github.juzraai.cordis.crawler.util.*
 import java.util.*
 import java.util.regex.*
@@ -12,7 +13,7 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 
 	private var db: Database? = null
 
-	override fun initialize(configuration: CordisCrawlerConfiguration) {
+	override fun initialize(configuration: CordisCrawlerConfiguration, modules: CordisCrawlerModuleRegistry) {
 		val connection = configuration.mysqlExport ?: return
 
 		// user@host:port/schema

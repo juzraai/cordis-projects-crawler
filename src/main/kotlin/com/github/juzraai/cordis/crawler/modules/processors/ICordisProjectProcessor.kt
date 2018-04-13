@@ -7,7 +7,6 @@ import com.github.juzraai.cordis.crawler.modules.*
  * @author Zsolt Jurányi
  */
 interface ICordisProjectProcessor : ICordisCrawlerModule {
-	var modules: CordisCrawlerModuleRegistry
 
 	fun process(cordisProject: CordisProject): CordisProject?
 }
