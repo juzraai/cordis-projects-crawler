@@ -354,7 +354,9 @@ val configuration = CordisCrawlerConfiguration(
 	// crawlEverything = true,
 	// crawlPublications = true,
 	// forceDownload = true,
+	// mysqlExport = "user@host:port/schema",
 	// outputDirectory = "cordis-data",
+	// password = "mysql password",
 	// quiet = true,
 	seed = "...",
 	// tsvExport = true,
@@ -369,26 +371,38 @@ val crawler = CordisCrawler(configuration, modules)
 Java example:
 
 ```java
-CordisCrawlerConfiguration configuration = CordisCrawlerConfiguration();
-// setCrawlEverything(true);
-// setCrawlPublications(true);
-// setForceDownload(true);
-// setOutputDirectory("cordis-data");
-// setQuiet(true);
-setSeed("...");
-// setTsvExport(true);
-// setVerbose(true);
+CordisCrawlerConfiguration configuration = new CordisCrawlerConfiguration();
+// configuration.setCrawlEverything(true);
+// configuration.setCrawlPublications(true);
+// configuration.setForceDownload(true);
+// configuration.setMysqlExport("user@host:port/schema");
+// configuration.setOutputDirectory("cordis-data");
+// configuration.setPassword("mysql password");
+// configuration.setQuiet(true);
+configuration.setSeed("...");
+// configuration.setTsvExport(true);
+// configuration.setVerbose(true);
 
-CordisCrawlerModuleRegistry modules = CordisCrawlerModuleRegistry();
+CordisCrawlerModuleRegistry modules = new CordisCrawlerModuleRegistry();
 
-CordisCrawler crawler = CordisCrawler(configuration, modules);
+CordisCrawler crawler = new CordisCrawler(configuration, modules);
 ```
 
 
 
 ### Calling the crawler
 
-?> **TODO** config obj, cordis crawler starting
+You can start the crawling by calling the `crawlProjects` method of the `CordisCrawler` object. This method has 3 different signatures:
+
+* `crawlProjects()` - uses the configuration passed in crawler constructor
+* `crawlProjects(args: Array<String>)` - you can pass command line arguments here to override the crawler object's internal configuration
+* `crawlProjects(seed: Iterator<Long>)` - use this if you want to override only the RCN seed
+
+The method doesn't return anything just does the following:
+
+* initializes modules
+* iterates through seed RCNs and runs processors on each RCN
+* finalizes modules
 
 
 
