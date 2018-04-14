@@ -6,25 +6,6 @@
 
 ---
 
-## Development progress
-
-**Working:**
-
-* Custom modular batch framework
-* Project RCN seeds: single RCN, RCN list, RCN range, project URL, [CORDIS][cordis] search URL, output directory
-* Download and parse [CORDIS][cordis] project XMLs
-* Download and parse publications XML from [OpenAIRE API][oaa] for projects
-* Export project and publication metadata into [TSV][tsv] file and/or MySQL database
-
-**TODO:**
-
-* Finalize code
-* Finish documentation
-
-
-
----
-
 ## What's new in version 2?
 
 * I rebuilt the crawler from scratch, switched from Java to [Kotlin][kotlin].
@@ -155,7 +136,7 @@ The program will look for RCN directories like `project/012345/` inside the [out
 The crawler tries to read the required files from the [output directory](#output-directory), and only downloads data from the servers if it can't succeed. However, there may be cases when you need to refresh the files. You can pass `-f` or `--force-download` option to skip cache reading before downloads:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s 12345 -f
+java -jar cordis-projects-crawler-VERSION.jar -s ... -f
 ```
 
 
@@ -188,13 +169,13 @@ cordis-data/
 The program will always crawl project metadata from [CORDIS][cordis]. The crawler can additionally fetch publications' information for each project using [OpenAIRE API][oaa]. If you need this, pass `-p` or `--crawl-publications` argument.
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s 12345 -p
+java -jar cordis-projects-crawler-VERSION.jar -s ... -p
 ```
 
 Alternatively, you can pass `-e` or `--crawl-everything` to crawl all available project related information. In the current version of the program, this option equivalent to `-p`.
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s 12345 -e
+java -jar cordis-projects-crawler-VERSION.jar -s ... -e
 ```
 
 
@@ -209,7 +190,7 @@ The crawler can export the selected projects' metadata into [TSV][tsv] (tabulato
 To turn on these exports, add `-t` or `--tsv-export` to the arguments:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s 12345 -t
+java -jar cordis-projects-crawler-VERSION.jar -s ... -t
 ```
 
 Exported project fields:
@@ -258,7 +239,7 @@ CREATE SCHEMA `your_database` DEFAULT CHARACTER SET utf8_general_ci;
 Then pass the database connection parameters using `-m` (or `--mysql-export`) and `-P` as follows:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -m user@host:port/schema -P password
+java -jar cordis-projects-crawler-VERSION.jar -s ... -m user@host:port/schema -P password
 ```
 
 You can omit `:port` if the port is `3306` and you can omit `host` if it's `localhost` in your environment, but make sure you specify at least `user@/schema`.
@@ -313,6 +294,8 @@ If you crawl a search result list, there are list pages per every 100 project (d
 
 Please note that request time depends on both your internet connection and the speed/health of the servers.
 
+When you are using the MySQL export feature, you can expect additional required time for the crawl to finish.
+
 
 
 ## Building the project
@@ -350,18 +333,16 @@ A `CordisCrawlerModuleRegistry` object is also needed, this provides modules (e.
 Kotlin example:
 
 ```kotlin
-val configuration = CordisCrawlerConfiguration(
-	// crawlEverything = true,
-	// crawlPublications = true,
-	// forceDownload = true,
-	// mysqlExport = "user@host:port/schema",
-	// outputDirectory = "cordis-data",
-	// password = "mysql password",
-	// quiet = true,
-	seed = "...",
-	// tsvExport = true,
-	// verbose = true
-)
+val configuration = CordisCrawlerConfiguration().seed("...")
+	// .crawlEverything()
+	// .crawlPublications()
+	// .forceDownload()
+	// .mysqlExport("user", "host:port", "schema")
+	// .outputDirectory("cordis-data")
+	// .password("mysql password")
+	// .quiet()
+	// .tsvExport()
+	// .verbose()
 
 val modules = CordisCrawlerModuleRegistry()
 
@@ -371,17 +352,17 @@ val crawler = CordisCrawler(configuration, modules)
 Java example:
 
 ```java
-CordisCrawlerConfiguration configuration = new CordisCrawlerConfiguration();
-// configuration.setCrawlEverything(true);
-// configuration.setCrawlPublications(true);
-// configuration.setForceDownload(true);
-// configuration.setMysqlExport("user@host:port/schema");
-// configuration.setOutputDirectory("cordis-data");
-// configuration.setPassword("mysql password");
-// configuration.setQuiet(true);
-configuration.setSeed("...");
-// configuration.setTsvExport(true);
-// configuration.setVerbose(true);
+CordisCrawlerConfiguration configuration = new CordisCrawlerConfiguration().seed("...")
+	// .crawlEverything()
+	// .crawlPublications()
+	// .forceDownload()
+	// .mysqlExport("user", "host:port", "schema")
+	// .outputDirectory("cordis-data")
+	// .password("mysql password")
+	// .quiet()
+	// .tsvExport()
+	// .verbose()
+;
 
 CordisCrawlerModuleRegistry modules = new CordisCrawlerModuleRegistry();
 
@@ -395,14 +376,16 @@ CordisCrawler crawler = new CordisCrawler(configuration, modules);
 You can start the crawling by calling the `crawlProjects` method of the `CordisCrawler` object. This method has 3 different signatures:
 
 * `crawlProjects()` - uses the configuration passed in crawler constructor
-* `crawlProjects(args: Array<String>)` - you can pass command line arguments here to override the crawler object's internal configuration
-* `crawlProjects(seed: Iterator<Long>)` - use this if you want to override only the RCN seed
+* `crawlProjects(args: Array<String>)` - you can parse command line arguments with this method, it will overwrite the crawler object's internal configuration
+* `crawlProjects(seed: Iterator<Long>)` - use this if you want to override only the RCN seed, the internal configuration object will remain untouched
 
-The method doesn't return anything just does the following:
+The method will
 
-* initializes modules
-* iterates through seed RCNs and runs processors on each RCN
-* finalizes modules
+* initialize modules
+* iterate through seed RCNs
+* run processors on each RCN
+* run exporters on each chunk of 100 RCNs
+* and finally, close modules.
 
 
 
@@ -414,7 +397,18 @@ The method doesn't return anything just does the following:
 
 ### Lifecycle
 
-?> **TODO** init all, call of processors, chunking, call of exporters, close closeables
+The `crawlProjects` method will do the following:
+
+* calls `modules.initialize()` to initialize modules
+* parses seed string using `ICordisProjectRcnSeed`˙modules
+* iterates through each seed RCN (`Long`)
+	* maps it to a `CordisProject` object, this is the record type of the batch processing
+	* runs every processor (`ICordisProjectProcessor`) module on it
+* creates chunks with at most 100 RCNs
+	* runs exporter (`ICordisProjectExporter`) modules on each
+* closes `Closeable` modules with `modules.close()`
+
+
 
 ### Registry
 

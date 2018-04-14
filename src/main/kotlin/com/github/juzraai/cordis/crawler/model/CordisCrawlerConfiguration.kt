@@ -7,7 +7,6 @@ import java.util.*
  * @author Zsolt Jurányi
  */
 open class CordisCrawlerConfiguration(
-		// TODO [v2.1] builder
 
 		val timestamp: Date = Date(),
 
@@ -44,4 +43,28 @@ open class CordisCrawlerConfiguration(
 	override fun toString(): String {
 		return "CordisCrawlerConfiguration(crawlEverything=$crawlEverything, crawlPublications=$crawlPublications, forceDownload=$forceDownload, mysqlExport=$mysqlExport, outputDirectory='$outputDirectory', password=$password, quiet=$quiet, seed=$seed, tsvExport=$tsvExport, verbose=$verbose)"
 	}
+
+	fun crawlEverything() = also { crawlEverything = true }
+
+	fun crawlPublications() = also { crawlPublications = true }
+
+	fun forceDownload() = also { forceDownload = true }
+
+	fun mysqlExport(s: String) = also { mysqlExport = s }
+
+	fun mysqlExport(user: String, hostPort: String?, schema: String) = also {
+		mysqlExport("$user@${hostPort ?: ""}/$schema")
+	}
+
+	fun outputDirectory(s: String) = also { outputDirectory = s }
+
+	fun password(s: String) = also { password = s }
+
+	fun quiet() = also { quiet = true }
+
+	fun seed(s: String) = also { seed = s }
+
+	fun tsvExport() = also { tsvExport = true }
+
+	fun verbose() = also { verbose = true }
 }
