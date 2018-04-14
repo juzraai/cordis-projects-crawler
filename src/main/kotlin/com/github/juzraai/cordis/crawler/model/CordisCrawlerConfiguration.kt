@@ -31,7 +31,7 @@ open class CordisCrawlerConfiguration(
 		@Parameter(names = ["-q", "--quiet"], description = "Turns off all console output. Has no effect when verbose mode is activated.")
 		var quiet: Boolean = false,
 
-		@Parameter(names = ["-s", "--seed"], description = "Which projects to download. You can pass a single RCN, RCN list separated by ',', RCN range in 'x..y' format, project URL, CORDIS search result URL, 'all' to crawl all projects or 'dir' to reprocess RCNs in output directory.")
+		@Parameter(names = ["-s", "--seed"], required = true, description = "Which projects to download. You can pass a single RCN, RCN list separated by ',', RCN range in 'x..y' format, project URL, CORDIS search result URL, 'all' to crawl all projects or 'dir' to reprocess RCNs in output directory.")
 		var seed: String? = null,
 
 		@Parameter(names = ["-t", "--tsv-export"], description = "Turns on TSV export of project data. Output files will be in output directory under 'exports'.")

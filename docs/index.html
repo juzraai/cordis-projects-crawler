@@ -60,8 +60,18 @@
 	<div id="app"></div>
 	<script>
 		window.$docsify = {
+			formatUpdated: '{YYYY}',
 			maxLevel: 3,
 			name: 'Crawler for CORDIS projects',
+			plugins: [
+				function (hook, vm) {
+					hook.beforeEach(function (html) {
+						return html
+							+ '\n\n---\n'
+							+ '*Copyright &copy; {docsify-updated} Zsolt Jurányi*'
+					})
+				}
+			],
 			repo: 'juzraai/cordis-projects-crawler',
 			subMaxLevel: 2,
 			themeColor: '#0065A2'
