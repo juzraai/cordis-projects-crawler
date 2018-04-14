@@ -244,7 +244,20 @@ java -jar cordis-projects-crawler-VERSION.jar -s ... -m user@host:port/schema -P
 
 You can omit `:port` if the port is `3306` and you can omit `host` if it's `localhost` in your environment, but make sure you specify at least `user@/schema`.
 
-?> **TODO** schema - a pic maybe?
+The following picture shows the tables and columns of the database model:
+
+![MySQL Model](mysql-model.svg)
+
+Where all roads meet is the `cordis_relation` table, this connects everything with everything, e.g.:
+
+* project to programme
+* project to organization
+* organization to person
+* project to publication
+* publication to author (as string!)
+* ...
+
+`cordis_relation` records include the IDs and classnames of both the owner and owned entities as well as the relation type.
 
 
 
