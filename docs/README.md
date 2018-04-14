@@ -402,18 +402,67 @@ The method will
 
 
 
-## Modules
+## Extending the crawler
 
-### Interfaces
+To be able to extend the crawler, we should dig deep and understand how it works.
+
+
+
+### Modules
+
+The crawler consists of many kinds of modules which are used for different tasks and in some cases they may call each other too. The module types are defined by interfaces, let's talk about them first.
+
+
+
+#### ICordisCrawlerModule
+
+This is the root of all ev... ehm... modules :), **all modules implement this interface.** It only defines the following method:
+
+```kotlin
+fun initialize(
+	configuration: CordisCrawlerConfiguration,
+	modules: CordisCrawlerModuleRegistry
+) {}
+```
+
+This method is **called automatically for every module** at the beginning of the crawl, and the actual configuration and module list is passed to the module.
+
+For Kotlin developers, overriding this method is optional, it has a default no-operation implementation. Java users must implement the method.
+
+
+
+#### ICordisProjectRcnSeed
+
+The modules provide project RCNs for the crawler. They should parse `configuration.seed` string so `initialize` should be implemented as it stores the configuration in a field, to make it available for the interface's method:
+
+```kotlin
+fun projectRcns(): Iterator<Long>?
+```
+
+If it can't parse the seed string, it should return `null`.
+
+The crawler will call every `ICordisProjectRcnSeed` module each after other, **until one returns a non-null iterator**, and that will be the seed of the crawl process.
+
+
 
 ?> **TODO** list interfaces with description
+
+
+
+### Registry
+
+Modules live in the module registry (`CordisCrawlerModuleRegistry`) which provides the following methods:
+
+?> **TODO** methods, when they called, how to add module, priorities
+
+
 
 ### Lifecycle
 
 The `crawlProjects` method will do the following:
 
 * calls `modules.initialize()` to initialize modules
-* parses seed string using `ICordisProjectRcnSeed`˙modules
+* parses seed string using `ICordisProjectRcnSeed` modules ([see above](#ICordisProjectRcnSeed))
 * iterates through each seed RCN (`Long`)
 	* maps it to a `CordisProject` object, this is the record type of the batch processing
 	* runs every processor (`ICordisProjectProcessor`) module on it
@@ -423,13 +472,9 @@ The `crawlProjects` method will do the following:
 
 
 
-### Registry
-
-?> **TODO** methods, when they called, how to add module, priorities
-
 ### Adding a custom module
 
-?> **TODO** example custom module, example add
+?> **TODO** example custom module, example add, example seed, example exporter?
 
 
 

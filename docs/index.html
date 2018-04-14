@@ -1,28 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Crawler for CORDIS projects</title>
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="Description">
-  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
+	<meta charset="UTF-8">
+	<title>Crawler for CORDIS projects</title>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+	<meta name="description" content="Description">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
+	<style>
+		#main {
+			counter-reset: h2;
+		}
+
+		h2 {
+			counter-reset: h3
+		}
+
+		h3 {
+			counter-reset: h4
+		}
+
+		h4 {
+			counter-reset: h5
+		}
+
+		h5 {
+			counter-reset: h6
+		}
+
+		h2:before {
+			counter-increment: h2;
+			content: counter(h2) ". ";
+		}
+
+		h3:before {
+			counter-increment: h3;
+			content: counter(h2) "." counter(h3) ". "
+		}
+
+		h4:before {
+			counter-increment: h4;
+			content: counter(h2) "." counter(h3) "." counter(h4) ". "
+		}
+
+		h5:before {
+			counter-increment: h5;
+			content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) ". "
+		}
+
+		h6:before {
+			counter-increment: h6;
+			content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) "." counter(h6) ". "
+		}
+	</style>
 </head>
+
 <body>
-  <div id="app"></div>
-  <script>
-    window.$docsify = {
-      maxLevel: 3,
-      name: 'Crawler for CORDIS projects',
-      repo: 'juzraai/cordis-projects-crawler',
-      subMaxLevel: 2,
-      themeColor: '#0065A2'
-    }
-  </script>
-  <script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
-  <script src="//unpkg.com/docsify/lib/plugins/zoom-image.min.js"></script>
-  <script src="//unpkg.com/prismjs/components/prism-java.min.js"></script>
-  <script src="//unpkg.com/prismjs/components/prism-kotlin.min.js"></script>
-  <script src="//unpkg.com/prismjs/components/prism-sql.min.js"></script>
+	<div id="app"></div>
+	<script>
+		window.$docsify = {
+			maxLevel: 3,
+			name: 'Crawler for CORDIS projects',
+			repo: 'juzraai/cordis-projects-crawler',
+			subMaxLevel: 2,
+			themeColor: '#0065A2'
+		}
+	</script>
+	<script src="//unpkg.com/docsify/lib/docsify.min.js"></script>
+	<script src="//unpkg.com/docsify/lib/plugins/zoom-image.min.js"></script>
+	<script src="//unpkg.com/prismjs/components/prism-java.min.js"></script>
+	<script src="//unpkg.com/prismjs/components/prism-kotlin.min.js"></script>
+	<script src="//unpkg.com/prismjs/components/prism-sql.min.js"></script>
 </body>
+
 </html>
