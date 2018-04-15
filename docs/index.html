@@ -9,7 +9,7 @@
 	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
 	<link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
 	<style>
-		#main {
+		/*#main {
 			counter-reset: h2;
 		}
 
@@ -52,7 +52,7 @@
 		h6:before {
 			counter-increment: h6;
 			content: counter(h2) "." counter(h3) "." counter(h4) "." counter(h5) "." counter(h6) ". "
-		}
+		}*/
 	</style>
 </head>
 
@@ -60,7 +60,10 @@
 	<div id="app"></div>
 	<script>
 		window.$docsify = {
+			auto2top: true,
+			autoHeader: true,
 			formatUpdated: '{YYYY}',
+			loadSidebar: true,
 			maxLevel: 3,
 			name: 'Crawler for CORDIS projects',
 			plugins: [
