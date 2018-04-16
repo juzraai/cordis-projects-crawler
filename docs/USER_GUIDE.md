@@ -1,6 +1,6 @@
 ## How it works?
 
-* **The input of the crawler are [CORDIS][cordis] project RCNs.** You can [specify one or more](#seed), even with a CORDIS URL.
+* **The input of the crawler is a list of [CORDIS][cordis] project RCNs.** You can [specify one or more](#seed), even with a CORDIS URL.
 * The crawler iterates project RCNs and firstly crawls project data:
 	* Tries to read XML from the [output directory](#output-directory).
 	* If it fails, it downloads the XML from CORDIS into the output directory.
@@ -266,23 +266,27 @@ If there's an HTTP error, or an invalid response is received, the crawler increa
 
 ## Crawl time
 
-Especially when crawling a search result list or a large range of RCNs, you may want to estimate the time needed for the crawl. The main components of crawl time are the request delays and the transfer times of each request. Processing itself doesn't need significant amount of time.
+Especially when crawling a search result list or a large range of RCNs, you may want to estimate the time needed for the crawl. The main components of crawl time are the request delays and the transfer times of each request. Processing itself doesn't need significant amount of time, however when you are using the MySQL export feature, you can expect additional required time for the crawl to finish.
 
-There are 2 requests per project, one for the CORDIS XML and one for the OpenAIRE publication list. The 2 second delay should be counted only one time, because the 2 requests are sent to different servers.
+By default, there is only one request for each project, which downloads the CORDIS XML. You should count the 2 second delay and the request time for each:
+
+```
+N project by RCN = N * (2 second delay + request time)
+```
+
+When crawling also publications, there are obviously 2 request for each project, but the 2 second delay is only counted once, because the two requests are sent to different servers:
 
 ```
 N project by RCN = N * (2 second delay + 2 * request time)
 ```
 
-So if you are crawling 1000 projects, and a request takes 1 second, fetching project data takes about an hour.
+If you crawl projects using a search result list as seed, there are list page requests per every 100 project, but these are not significant if the seed returns hundreds of projects.
 
-If you crawl a search result list, there are list pages per every 100 project (delay + request time). Those 1000 projects need 10 list pages, and if a list page needs 2 seconds, fetching these takes only ~40 seconds in addition, so they are not so significant.
+```
+N project by RCN = N * (2 second delay + 2 * request time) + (N/100) * (2 second delay + request time)
+```
 
 Please note that request time depends on both your internet connection and the speed/health of the servers.
-
-When you are using the MySQL export feature, you can expect additional required time for the crawl to finish.
-
-
 
 [cordis]: https://cordis.europa.eu/
 [java]: http://www.oracle.com/technetwork/java/javase/downloads/index.html

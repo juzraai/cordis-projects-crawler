@@ -29,6 +29,7 @@ See the [User guide](USER_GUIDE.md).
 
 ## Future plans, ideas
 
+* Option to modify chunk size (`-b` ?), request sleeps (`-z` ?)
 * Seed and export: RCN list file
 * Crawl project documents (`webItem`) with option `-d`
 * Crawl result XMLs with option `-r`
