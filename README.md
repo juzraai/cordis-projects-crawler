@@ -31,11 +31,15 @@ The old [v1.3.0](https://github.com/juzraai/cordis-projects-crawler/releases/tag
 
 ## Future plans, ideas
 
-* Option to modify chunk size (`-b` ?), request sleeps (`-z` ?)
-* Seed and export: RCN list file
-* Crawl project documents (`webItem`) with option `-d`
-* Crawl result XMLs with option `-r`
-* Generate "unified view" export (with option `-u` maybe)
+* Configuration: chunk (batch) size (`-b`)
+* Configuration: request sleep (`-z`)
+* Seed: RCN list file (`-s list:<filename>`)
+* Export: RCN list file (`-l`)
+* Seed: [CORDIS bulk file][bulk] (CSV, XLSX, ZIP) (`-s bulk:<filename>`)
+* Reader: CORDIS bulk file (CSV, XLSX, ZIP), after default file cache
+* Crawl project documents (`webItem`) (`-d`)
+* Crawl result XMLs (`-r`)
+* Generate "unified view" export (`-u`)
 
 
 
@@ -46,7 +50,7 @@ Read the [Developer guide](DEVELOPER_GUIDE.md) and [contributing instructions](C
 This project is licensed under [MIT License](LICENSE.md).
 
 
-
+[bulk]: https://data.europa.eu/euodp/en/data/dataset?q=cordis
 [cordis]: https://cordis.europa.eu/
 [docsify]: https://docsify.js.org/#/quickstart
 [github]: http://github.com/juzraai
