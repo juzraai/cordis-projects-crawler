@@ -24,11 +24,7 @@ Thanks to [JitPack][jitpack], you don't need to clone and build the project to u
 
 ## Configuration
 
-Create a `CordisCrawlerConfiguration` object and set its fields. See the [User guide](USER_GUIDE.md) for descriptions of each option.
-
-A `CordisCrawlerModuleRegistry` object is also needed, this provides modules (e.g. processors, caches, exporters) for the crawler. We'll discuss customizing modules later, now it's enough to simply create the object and pass it to the crawler.
-
-Kotlin example:
+Create a `CordisCrawlerConfiguration` object and set its fields via the builder methods. See the [User guide](USER_GUIDE.md) for descriptions of each option.
 
 ```kotlin
 val configuration = CordisCrawlerConfiguration().seed("...")
@@ -41,37 +37,33 @@ val configuration = CordisCrawlerConfiguration().seed("...")
 	// .quiet()
 	// .tsvExport()
 	// .verbose()
-
-val modules = CordisCrawlerModuleRegistry()
-
-val crawler = CordisCrawler(configuration, modules)
 ```
 
-Java example:
 
-```java
-CordisCrawlerConfiguration configuration = new CordisCrawlerConfiguration().seed("...")
-	// .crawlEverything()
-	// .crawlPublications()
-	// .forceDownload()
-	// .mysqlExport("user", "host:port", "schema")
-	// .outputDirectory("cordis-data")
-	// .password("mysql password")
-	// .quiet()
-	// .tsvExport()
-	// .verbose()
-;
 
-CordisCrawlerModuleRegistry modules = new CordisCrawlerModuleRegistry();
+## Module registry
 
-CordisCrawler crawler = new CordisCrawler(configuration, modules);
+Tasks inside the crawler are separated into different types of [modules](#modules) (e.g. processors, caches, exporters). They are technically stored in a single list, but they encapsulated in a registry (`CordisCrawlerModuleRegistry`). This way we can easily perform operations on all of the modules:
+
+?> **TODO** methods, when they called, priorities
+
+In order to use the crawler you must create a registry object:
+
+```kotlin
+val modules = CordisCrawlerModuleRegistry()
 ```
 
 
 
 ## Calling the crawler
 
-After you [configured](#configuration) the crawler, you can start crawling by calling the `crawlProjects` method. This method has 3 different signatures:
+After you created the necessary object, create the crawler itself too:
+
+```kotlin
+val crawler = CordisCrawler(configuration, modules)
+```
+
+You can start crawling by calling the `crawlProjects` method of this object. This method has 3 different signatures:
 
 * `crawlProjects()` - uses the configuration passed in crawler constructor
 * `crawlProjects(args: Array<String>)` - you can parse command line arguments with this method, it will overwrite the crawler object's internal configuration
@@ -92,13 +84,13 @@ The method does the following:
 
 ## Modules
 
-The crawler consists of many kinds of modules which are used for different tasks and in some cases they may call each other too. The module types are defined by interfaces.
+The crawler consists of many kinds of modules which are used for different tasks. They are defined by interfaces. In some cases a module may call another modules too.
 
 
 
-### ICordisCrawlerModule
+### Main modules
 
-This is the root of all ev... ehm... modules :), **all modules implement this interface.** It only defines the following method:
+`ICordisCrawlerModule` is the root of all ev... ehm... modules :), **all modules implement this interface.** It only defines a method which receives the configuraiton and the modules. This method is **called automatically for every module** at the beginning of the crawl, and the actual configuration and module list is passed to the module. For Kotlin developers, overriding this method is optional, it has a default no-operation implementation. Java users must implement the method.
 
 ```kotlin
 fun initialize(
@@ -107,35 +99,53 @@ fun initialize(
 ) {}
 ```
 
-This method is **called automatically for every module** at the beginning of the crawl, and the actual configuration and module list is passed to the module.
-
-For Kotlin developers, overriding this method is optional, it has a default no-operation implementation. Java users must implement the method.
-
-
-
-### ICordisProjectRcnSeed
-
-These modules provide project RCNs for the crawler. They should parse `configuration.seed` string so `initialize` should be implemented as it stores the configuration in a field, to make it available for the interface's method:
+`ICordisProjectRcnSeed` modules provide project RCNs for the crawler. They should parse `configuration.seed` string so it should store the configuration in the `initialize` method. If it can't parse the seed string, it should return `null`. **The first module which return a non-null value will be used.** There are a lot of implementations, almost for all [seed options](USER_GUIDE.md#seed).
 
 ```kotlin
 fun projectRcns(): Iterator<Long>?
 ```
 
-If it can't parse the seed string, it should return `null`.
-
-The crawler will call every `ICordisProjectRcnSeed` module each after other, **until one returns a non-null iterator**, and that will be the seed of the crawl process.
-
-
-
-### ICordisProjectProcessor
-
-These modules receive a `CordisProject` record object and must return an object of the same type - it's best to return the same object with modifications. If it returns `null`, then that record is filtered out and will not reach further processors or exporters.
+`ICordisProjectProcessor` modules receive a `CordisProject` record object and must return an object of the same type - it's best to return the same object with modifications. If it returns `null`, then that record is filtered out and will not reach further processors or exporters. There are 2 implementations: `CordisProjectCrawler` and `OpenAirePublicationsCrawler`.
 
 ```kotlin
 fun process(cordisProject: CordisProject): CordisProject?
 ```
 
-There are two implemented processors: `CordisProjectCrawler` and `OpenAirePublicationsCrawler`.
+`ICordisProjectExporter` modules receive chunks (lists) of `CordisProject` objects, and they should export them somewhere. **All exporters will be called** after the processing phase by the crawler.
+
+```kotlin
+fun exportCordisProjects(cordisProjects: List<CordisProject>)
+```
+
+
+
+### Project XML related modules
+
+They are all used by `CordisProjectCrawler` processor.
+
+`ICordisProjectXmlReader` modules receive an RCN and should return an XML string. **The first module which return a non-null value will be used.**
+
+```kotlin
+fun projectXmlByRcn(rcn: Long): String?
+```
+
+`ICordisProjectXmlCache` modules receive an XML string and an RCN, and they should write down the XML to somewhere (e.g. into a file), from where they can read it back, because they are also readers. The processor **calls every module of this type.**
+
+```kotlin
+fun cacheProjectXml(xml: String, rcn: Long)
+```
+
+`ICordisProjectXmlParser` modules receive an XML string and they should parse it into a `Project` object. **The first module which return a non-null value will be used.**
+
+```kotlin
+fun parseProjectXml(xml: String): Project?
+```
+
+
+
+### Publications XML related modules
+
+They are all used by `OpenAirePublicationsCrawler` processor. Their naming conventions and functions are similar to project XML related modules.
 
 
 
@@ -145,26 +155,7 @@ There are two implemented processors: `CordisProjectCrawler` and `OpenAirePublic
 
 
 
-## Module registry
 
-Modules live in the module registry (`CordisCrawlerModuleRegistry`) which provides the following methods:
-
-?> **TODO** methods, when they called, how to add module, priorities
-
-
-
-### Lifecycle
-
-The `crawlProjects` method will do the following:
-
-* calls `modules.initialize()` to initialize modules
-* parses seed string using `ICordisProjectRcnSeed` modules ([see above](#ICordisProjectRcnSeed))
-* iterates through each seed RCN (`Long`)
-	* maps it to a `CordisProject` object, this is the record type of the batch processing
-	* runs every processor (`ICordisProjectProcessor`) module on it
-* creates chunks with at most 100 RCNs
-	* runs exporter (`ICordisProjectExporter`) modules on each
-* closes `Closeable` modules with `modules.close()`
 
 
 
