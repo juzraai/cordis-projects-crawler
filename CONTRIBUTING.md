@@ -1,4 +1,4 @@
-# Crawler for CORIDS projects - Contribution guide
+# Contribution guide
 
 Whether you'd like to
 
@@ -17,9 +17,7 @@ Any contribution is appreciated. :)
 
 ### Step 1: Search
 
-Please search through existing issues and pull request whether your issue is mentioned before.
-
-If it was, please leave a comment on the existing ticket instead of creating a new one.
+Please search through existing issues and pull requests to find out whether your issue is mentioned before. If it was, please leave a comment on the existing ticket instead of creating a new one.
 
 ### Step 2: Describe
 
@@ -47,8 +45,8 @@ Please use the `[bug]` label and include the following in the description:
 * Software version (which [release](https://github.com/juzraai/cordis-projects-crawler/releases) you had downloaded)
 * Software configuration (arguments)
 * Steps to reproduce the problem
-* What did you expect the software to do
-* What the software actually did instead
+* **What did you expect** the software to do
+* **What the software actually did** instead
 * Stack trace (exceptions) or error messages, if any
 
 
@@ -71,7 +69,7 @@ Please use the `[feature]` label and include the following in the description:
 
 * What problem this feature would solve (e.g. who needs it and why)
 * How would it solve it
-* How do you imagine using the feature
+* **How do you imagine using the feature** (e.g. CLI configuration, output format)
 
 
 ### Improvement
@@ -85,15 +83,12 @@ Please do as [you have an idea](#idea) first and
 
 Please ensure your code parts **follow the conventions** you see in the main repository (indentation, naming, etc.).
 
+As Kotlin is a very young language in opposite to the good old and very popular Java, I accept new features in Java code too (if they are implemented in separate classes).
+
+
 
 ### Newbie
 
 **Do you want to contribute to this project, but you lack ideas?**
 
 Please see the [good first issues](https://github.com/juzraai/cordis-projects-crawler/labels/good%20first%20issue) list and if you feel like solving one of them, feel free to do it! :)
-
-
-
-## Java
-
-As Kotlin is a very young language, in opposite to the good old and very popular Java, I accept new features in Java code too.

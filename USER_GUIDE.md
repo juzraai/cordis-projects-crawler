@@ -219,7 +219,7 @@ You can omit `:port` if the port is `3306` and you can omit `host` if it's `loca
 
 The following picture shows the tables and columns of the database model:
 
-![MySQL Model](mysql-model.svg)
+![MySQL Model](schema/mysql-model.svg)
 
 Where all roads meet is the `cordis_relation` table, this connects everything with everything, e.g.:
 
