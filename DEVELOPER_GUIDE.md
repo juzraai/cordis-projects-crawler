@@ -194,7 +194,9 @@ The first module which return a non-null value will be used.
 
 **Implementations:**<br>
 
-?> **TODO**
+* `CordisCrawlerFileCache` - reads from output directory
+* `CordisProjectXmlDownloader` - downloads from CORDIS
+
 
 
 #### ICordisProjectXmlCache
@@ -209,6 +211,10 @@ fun cacheProjectXml(xml: String, rcn: Long)
 **Call:**<br>
 All modules of this type will be called.
 
+**Implementations:**<br>
+
+* `CordisCrawlerFileCache` - writes to output directory
+
 
 
 #### ICordisProjectXmlParser
@@ -222,6 +228,9 @@ fun parseProjectXml(xml: String): Project?
 
 **Call:**<br>
 The first module which return a non-null value will be used.
+
+**Implementations:**<br>
+* `CordisProjectXmlParser` - uses Simple framework to parse XML
 
 
 
@@ -243,6 +252,11 @@ fun publicationsXmlByProject(project: Project): String?
 **Call:**<br>
 The first module which return a non-null value will be used.
 
+**Implementations:**<br>
+
+* `CordisCrawlerFileCache` - reads from output directory
+* `OpenAirePublicationsXmlDownloader` - downloads from CORDIS
+
 
 
 #### IOpenAirePublicationsXmlCache
@@ -257,6 +271,10 @@ fun cachePublicationsXml(xml: String, project: Project)
 **Call:**<br>
 All modules of this type will be called.
 
+**Implementations:**<br>
+
+* `CordisCrawlerFileCache` - writes to output directory
+
 
 
 #### IOpenAirePublicationsXmlParser
@@ -270,6 +288,9 @@ fun parsePublicationsXml(xml: String): List<Publication>?
 
 **Call:**<br>
 The first module which return a non-null value will be used.
+
+**Implementations:**<br>
+* `OpenAirePublicationsXmlParser` - uses Simple framework to parse XML
 
 
 

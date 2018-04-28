@@ -49,6 +49,8 @@ class CordisCrawlerModuleRegistry {
 			CordisProjectMysqlExporter()
 	)
 
+	// TODO [v2.1] addBefore(Class)
+
 	fun close() {
 		modules.onEach {
 			if (it is Closeable) try {
