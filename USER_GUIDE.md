@@ -18,7 +18,7 @@
 3. You can run the JAR file as follows from the terminal:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar [arguments]
+java -jar cordis-projects-crawler-VERSION-standalone.jar [arguments]
 ```
 
 If you run it without arguments, the program will print out the available options, but we'll walk through them here.
@@ -30,7 +30,7 @@ If you run it without arguments, the program will print out the available option
 Seed is the input of the crawler, it can be **one or more CORDIS project RCN**. You can specify it with `-s`:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s <seed>
+java -jar cordis-projects-crawler-VERSION-standalone.jar -s <seed>
 ```
 
 
@@ -109,7 +109,7 @@ The program will look for RCN directories like `project/012345/` inside the outp
 The crawler tries to read the required files from the output directory, and only downloads data from the servers if it can't succeed. However, there may be cases when you need to refresh the files. You can pass `-f` or `--force-download` option to skip cache reading before downloads:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s ... -f
+java -jar cordis-projects-crawler-VERSION-standalone.jar -s ... -f
 ```
 
 
@@ -119,7 +119,7 @@ java -jar cordis-projects-crawler-VERSION.jar -s ... -f
 By default, the crawler will create a folder named `cordis-data` in the working directory, and put downloaded files and exports under it. You can specify another directory if you wish using the `-o` or `--output-dir` option:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s ... -o /path/to/custom/cordis/directory
+java -jar cordis-projects-crawler-VERSION-standalone.jar -s ... -o /path/to/custom/cordis/directory
 ```
 
 The output directory will contain a `project` and an `export` directory for downloaded and generated files. Files of each project will be inside the project RCN directory. Sample structure:
@@ -142,13 +142,13 @@ cordis-data/
 The program will always crawl project metadata from [CORDIS][cordis]. The crawler can additionally fetch publications' information for each project using [OpenAIRE API][oaa]. If you need this, pass `-p` or `--crawl-publications` argument.
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s ... -p
+java -jar cordis-projects-crawler-VERSION-standalone.jar -s ... -p
 ```
 
 Alternatively, you can pass `-e` or `--crawl-everything` to crawl all available project related information. In the current version of the program, this option equivalent to `-p`.
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s ... -e
+java -jar cordis-projects-crawler-VERSION-standalone.jar -s ... -e
 ```
 
 
@@ -163,7 +163,7 @@ The crawler can export the selected projects' metadata into [TSV][tsv] (tabulato
 To turn on these exports, add `-t` or `--tsv-export` to the arguments:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s ... -t
+java -jar cordis-projects-crawler-VERSION-standalone.jar -s ... -t
 ```
 
 Exported project fields:
@@ -212,7 +212,7 @@ CREATE SCHEMA `your_database` DEFAULT CHARACTER SET utf8_general_ci;
 Then pass the database connection parameters using `-m` (or `--mysql-export`) and `-P` as follows:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -s ... -m user@host:port/schema -P password
+java -jar cordis-projects-crawler-VERSION-standalone.jar -s ... -m user@host:port/schema -P password
 ```
 
 You can omit `:port` if the port is `3306` and you can omit `host` if it's `localhost` in your environment, but make sure you specify at least `user@/schema`.
@@ -239,13 +239,13 @@ Where all roads meet is the `cordis_relation` table, this connects everything wi
 The crawler prints log messages on the screen to inform you what is happening. These log messages contain a timestamp, a level and a message. Log level can be `TRACE`, `DEBUG`, `INFO`, `WARN` or `ERROR`. By default, `TRACE` and `DEBUG` are hidden, because they are useful only when some problem needs investigation, but in other cases they can be disturbing. You can turn them on by adding `-v` or `--verbose` option:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -v
+java -jar cordis-projects-crawler-VERSION-standalone.jar -v
 ```
 
 If you are not interested in any of the log messages and you need no console output at all, you can use the `-q` or `--quiet` option:
 
 ```bash
-java -jar cordis-projects-crawler-VERSION.jar -q
+java -jar cordis-projects-crawler-VERSION-standalone.jar -q
 ```
 
 Note that this option will not have any effect if you turn on verbose mode.

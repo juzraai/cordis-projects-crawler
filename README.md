@@ -1,6 +1,6 @@
 # Crawler for CORDIS projects
 
-*Version:* **2.0-SNAPSHOT** &middot; *Author:* Zsolt Jurányi ([web][www], [github][github])
+*Version:* **2.0.0** &middot; *Author:* Zsolt Jurányi ([web][www], [github][github])
 
 ---
 

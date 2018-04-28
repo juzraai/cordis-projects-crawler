@@ -6,9 +6,13 @@
 
 	<groupId>com.github.juzraai</groupId>
 	<artifactId>cordis-projects-crawler</artifactId>
-	<version>2.0-SNAPSHOT</version>
+	<version>2.0.0</version>
 
 	<properties>
+		<encoding>UTF-8</encoding>
+		<project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
+		<project.resources.sourceEncoding>${encoding}</project.resources.sourceEncoding>
 		<main.class>com.github.juzraai.cordis.crawler.CordisCrawlerKt</main.class>
 
 		<!-- versions -->
@@ -167,6 +171,8 @@
 								<descriptorRef>jar-with-dependencies</descriptorRef>
 							</descriptorRefs>
 							<appendAssemblyId>false</appendAssemblyId>
+							<attach>false</attach>
+							<finalName>cordis-projects-crawler-${project.version}-standalone</finalName>
 						</configuration>
 					</execution>
 				</executions>
