@@ -11,7 +11,7 @@ import mu.*
 /**
  * @author Zsolt Jurányi
  */
-class OpenAirePublicationsCrawler : ICordisProjectProcessor {
+class OpenAirePublicationsCrawler : ICordisCrawlerRecordProcessor {
 	/*
 		OpenAIRE API: http://api.openaire.eu/search/publications
 
@@ -37,8 +37,8 @@ class OpenAirePublicationsCrawler : ICordisProjectProcessor {
 		this.modules = modules
 	}
 
-	override fun process(cordisProject: CordisProject): CordisProject? {
-		return cordisProject.apply {
+	override fun process(cordisCrawlerRecord: CordisCrawlerRecord): CordisCrawlerRecord? {
+		return cordisCrawlerRecord.apply {
 			if (configuration!!.crawlEverything || configuration!!.crawlPublications) {
 				val p = project
 				if (null != p) {

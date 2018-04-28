@@ -10,7 +10,7 @@ import mu.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectCrawler : ICordisProjectProcessor {
+class CordisProjectCrawler : ICordisCrawlerRecordProcessor {
 
 	companion object : KLogging()
 
@@ -20,8 +20,8 @@ class CordisProjectCrawler : ICordisProjectProcessor {
 		this.modules = modules
 	}
 
-	override fun process(cordisProject: CordisProject): CordisProject {
-		return cordisProject.apply {
+	override fun process(cordisCrawlerRecord: CordisCrawlerRecord): CordisCrawlerRecord {
+		return cordisCrawlerRecord.apply {
 			logger.trace("Reading project XML: $rcn")
 			val xml = readProjectXml(rcn)
 			if (null != xml) {

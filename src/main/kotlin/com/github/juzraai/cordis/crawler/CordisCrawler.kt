@@ -50,7 +50,7 @@ class CordisCrawler(
 						logger.info("Processing project RCN: $it")
 						allCount++
 					}
-					.map { CordisProject(it) }
+					.map { CordisCrawlerRecord(it) }
 					.mapNotNull(this::process)
 					.chunked(100) // TODO [v2.1] config
 					.onEach(this::export)
@@ -84,25 +84,25 @@ class CordisCrawler(
 			.firstOrNull()
 			?: throw UnsupportedOperationException("Invalid seed: ${configuration.seed}")
 
-	private fun process(cordisProject: CordisProject): CordisProject? {
-		var r: CordisProject? = cordisProject
-		modules.ofType(ICordisProjectProcessor::class.java).onEach { p ->
+	private fun process(cordisCrawlerRecord: CordisCrawlerRecord): CordisCrawlerRecord? {
+		var r: CordisCrawlerRecord? = cordisCrawlerRecord
+		modules.ofType(ICordisCrawlerRecordProcessor::class.java).onEach { p ->
 			r?.also {
 				try {
 					r = p.process(it)
-					if (null == r) logger.trace("Project RCN ${cordisProject.rcn} dropped by ${p.javaClass.name}")
+					if (null == r) logger.trace("Project RCN ${cordisCrawlerRecord.rcn} dropped by ${p.javaClass.name}")
 				} catch (e: Exception) {
-					logger.error("Could not process ${cordisProject.rcn} with ${p.javaClass.name}", e)
+					logger.error("Could not process ${cordisCrawlerRecord.rcn} with ${p.javaClass.name}", e)
 				}
 			}
 		}
 		return r
 	}
 
-	private fun export(cordisProjects: List<CordisProject>) {
-		modules.ofType(ICordisProjectExporter::class.java).onEach {
+	private fun export(cordisCrawlerRecords: List<CordisCrawlerRecord>) {
+		modules.ofType(ICordisCrawlerRecordExporter::class.java).onEach {
 			try {
-				it.exportCordisProjects(cordisProjects)
+				it.export(cordisCrawlerRecords)
 			} catch (e: Exception) {
 				logger.error("Error while exporting data with ${it.javaClass.name}", e)
 			}

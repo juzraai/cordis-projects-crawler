@@ -9,7 +9,7 @@ import java.util.regex.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectMysqlExporter : ICordisProjectExporter {
+class MysqlExporter : ICordisCrawlerRecordExporter {
 
 	private var db: Database? = null
 
@@ -30,8 +30,8 @@ class CordisProjectMysqlExporter : ICordisProjectExporter {
 		} else throw IllegalArgumentException("Invalid database connection parameters.")
 	}
 
-	override fun exportCordisProjects(cordisProjects: List<CordisProject>) {
-		db?.also { CordisProjectMysqlExportSession(it, cordisProjects).call() }
+	override fun export(cordisCrawlerRecords: List<CordisCrawlerRecord>) {
+		db?.also { MysqlExportSession(it, cordisCrawlerRecords).call() }
 	}
 
 	private fun createTables() {

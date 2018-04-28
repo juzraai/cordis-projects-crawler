@@ -46,7 +46,7 @@ class CordisCrawlerModuleRegistry {
 			// exporters
 			ProjectsTsvExporter(),
 			PublicationsTsvExporter(),
-			CordisProjectMysqlExporter()
+			MysqlExporter()
 	)
 
 	// TODO [v2.1] addBefore(Class)

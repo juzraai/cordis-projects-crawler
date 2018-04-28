@@ -6,7 +6,7 @@ import com.github.juzraai.cordis.crawler.modules.*
 /**
  * @author Zsolt Jurányi
  */
-interface ICordisProjectExporter : ICordisCrawlerModule {
+interface ICordisCrawlerRecordExporter : ICordisCrawlerModule {
 
-	fun exportCordisProjects(cordisProjects: List<CordisProject>)
+	fun export(cordisCrawlerRecords: List<CordisCrawlerRecord>)
 }

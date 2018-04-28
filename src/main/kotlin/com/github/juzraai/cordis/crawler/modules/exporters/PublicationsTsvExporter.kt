@@ -11,7 +11,9 @@ import java.util.*
 /**
  * @author Zsolt Jurányi
  */
-class PublicationsTsvExporter : ICordisProjectExporter, Closeable {
+class PublicationsTsvExporter : ICordisCrawlerRecordExporter, Closeable {
+
+	// TODO reduce redundancy - see ProjectsTsvExporter
 
 	companion object : KLogging()
 
@@ -36,9 +38,9 @@ class PublicationsTsvExporter : ICordisProjectExporter, Closeable {
 		writer?.close()
 	}
 
-	override fun exportCordisProjects(cordisProjects: List<CordisProject>) {
+	override fun export(cordisCrawlerRecords: List<CordisCrawlerRecord>) {
 		if (!enabled || null == writer) return
-		cordisProjects.forEach { cordisProject ->
+		cordisCrawlerRecords.forEach { cordisProject ->
 			cordisProject.publications?.forEach { publication ->
 				writeLine(cordisProject.rcn, publication)
 			}

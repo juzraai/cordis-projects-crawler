@@ -8,7 +8,7 @@ import org.apache.commons.codec.digest.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectMySqlRecordConverter {
+class MySqlRecordConverter {
 
 	fun anyToArray(any: Any): ArrayRecord? {
 		return when (any) {

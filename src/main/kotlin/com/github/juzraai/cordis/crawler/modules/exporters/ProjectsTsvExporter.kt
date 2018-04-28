@@ -11,7 +11,7 @@ import java.util.*
 /**
  * @author Zsolt Jurányi
  */
-class ProjectsTsvExporter : ICordisProjectExporter, Closeable {
+class ProjectsTsvExporter : ICordisCrawlerRecordExporter, Closeable {
 
 	companion object : KLogging()
 
@@ -73,9 +73,9 @@ class ProjectsTsvExporter : ICordisProjectExporter, Closeable {
 		writer?.close()
 	}
 
-	override fun exportCordisProjects(cordisProjects: List<CordisProject>) {
+	override fun export(cordisCrawlerRecords: List<CordisCrawlerRecord>) {
 		if (!enabled || null == writer) return
-		cordisProjects.forEach { cordisProject ->
+		cordisCrawlerRecords.forEach { cordisProject ->
 			cordisProject.project?.also { project ->
 				writeLine(project)
 			}

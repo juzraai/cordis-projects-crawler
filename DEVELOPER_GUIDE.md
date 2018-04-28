@@ -78,10 +78,10 @@ The method does the following:
 * calls `modules.initialize()` to initialize [modules](#modules)
 * parses [seed](USER_GUIDE.md#seed) string using `ICordisProjectRcnSeed` modules
 * iterates through each seed RCN (`Long`)
-	* maps it to a `CordisProject` object, this is the record type of the batch processing
-	* runs every processor (`ICordisProjectProcessor`) module on it
+	* maps it to a `CordisCrawlerRecord` object, this is the record type of the batch processing
+	* runs every processor (`ICordisCrawlerRecordProcessor`) module on it
 * creates chunks with at most 100 RCNs
-	* runs exporter (`ICordisProjectExporter`) modules on each
+	* runs exporter (`ICordisCrawlerRecordExporter`) modules on each
 * closes `Closeable` modules with `modules.close()`
 
 
@@ -137,13 +137,13 @@ There are a lot of implementations, almost for all [seed options](USER_GUIDE.md#
 
 
 
-#### ICordisProjectProcessor
+#### ICordisCrawlerRecordProcessor
 
 **Method:**<br>
-It can make modifications on `CordisProject` record object. If it returns `null`, then the record is filtered out and will not reach further processors or exporters.
+It can make modifications on `CordisCrawlerRecord` record object. If it returns `null`, then the record is filtered out and will not reach further processors or exporters.
 
 ```kotlin
-fun process(cordisProject: CordisProject): CordisProject?
+fun process(cordisCrawlerRecord: CordisCrawlerRecord): CordisCrawlerRecord?
 ```
 
 **Call:**<br>
@@ -155,20 +155,20 @@ All modules of this type will be called.
 
 
 
-#### ICordisProjectExporter
+#### ICordisCrawlerRecordExporter
 
 **Method:**<br>
-Receives chunks of `CordisProject` objects, and should export them somewhere.
+Receives chunks of `CordisCrawlerRecord` objects, and should export them somewhere.
 
 ```kotlin
-fun exportCordisProjects(cordisProjects: List<CordisProject>)
+fun export(cordisCrawlerRecords: List<CordisCrawlerRecord>)
 ```
 
 **Call:**<br>
 All modules of this type will be called after the processing phase.
 
 **Implementations:**<br>
-* `CordisProjectMysqlExporter` - exports all data into a MySQL database
+* `MysqlExporter` - exports all data into a MySQL database
 * `ProjectsTsvExporter` - exports projects' metadata into a TSV file
 * `PublicationsTsvExporter` - exports publications' metadata into a TSV file
 
@@ -303,9 +303,10 @@ The first module which return a non-null value will be used.
 Create a module class which implements one of the interfaces listed above, then add its instance to the module registry:
 
 ```kotlin
-class MyModule : ICordisProjectProcessor {
-	override fun process(cordisProject: CordisProject): CordisProject? {
-		println("Hello World, I'm processing project ${cordisProject.rcn}!")
+class MyModule : ICordisCrawlerRecordProcessor {
+	override fun process(cordisCrawlerRecord: CordisCrawlerRecord): CordisCrawlerRecord? {
+		println("Hello World, I'm processing project ${cordisCrawlerRecord.rcn}!")
+		return cordisCrawlerRecord
 	}
 }
 
@@ -313,8 +314,8 @@ fun main(args: Array<String>) {
 	val configuration = CordisCrawlerConfiguration()
 	var registry = CordisCrawlerModuleRegistry()
 
-	var myModule = MyModule()
-	registry.modules.add(myModule) // adding module
+	var myModule = MyModule() // instantiating module
+	registry.modules.add(myModule) // adding module instance
 
 	CordisCrawler(configuration, registry).crawlProjects(args)
 }

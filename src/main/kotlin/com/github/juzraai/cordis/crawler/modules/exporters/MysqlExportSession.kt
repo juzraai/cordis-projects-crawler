@@ -10,17 +10,17 @@ import java.util.concurrent.*
 /**
  * @author Zsolt Jurányi
  */
-class CordisProjectMysqlExportSession(private val db: Database, private val cordisProjects: List<CordisProject>) :
+class MysqlExportSession(private val db: Database, private val cordisCrawlerRecords: List<CordisCrawlerRecord>) :
 		Callable<Unit> {
 
 	companion object : KLogging() {
-		private val converter = CordisProjectMySqlRecordConverter()
+		private val converter = MySqlRecordConverter()
 	}
 
 	private val data = mutableMapOf<String, MutableCollection<ArrayRecord>>()
 
 	override fun call() {
-		cordisProjects.forEach { cordisProject ->
+		cordisCrawlerRecords.forEach { cordisProject ->
 			cordisProject.project?.also {
 				processProject(it)
 				processProjectPublications(cordisProject)
@@ -68,9 +68,9 @@ class CordisProjectMysqlExportSession(private val db: Database, private val cord
 		project.relations?.also { processRelations(project.rcn!!.toString(), "Project", it) }
 	}
 
-	private fun processProjectPublications(cordisProject: CordisProject) {
-		cordisProject.publications?.filter { null != it.openAireId }?.forEach { p ->
-			addRecordsAndRelations("cordis_publication", cordisProject.project!!.rcn!!.toString(), "Project", listOf(p), "relatedPublication")
+	private fun processProjectPublications(cordisCrawlerRecord: CordisCrawlerRecord) {
+		cordisCrawlerRecord.publications?.filter { null != it.openAireId }?.forEach { p ->
+			addRecordsAndRelations("cordis_publication", cordisCrawlerRecord.project!!.rcn!!.toString(), "Project", listOf(p), "relatedPublication")
 			addRecordsAndRelations("cordis_string", p.openAireId!!, "Publication", p.authors, "author")
 			addRecordsAndRelations("cordis_string", p.openAireId!!, "Publication", p.sourceJournals, "sourceJournal")
 			addRecordsAndRelations("cordis_string", p.openAireId!!, "Publication", p.webResources, "webResource")

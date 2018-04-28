@@ -6,7 +6,7 @@ import com.github.juzraai.cordis.crawler.model.openaire.sygma.*
 /**
  * @author Zsolt Jurányi
  */
-open class CordisProject(
+open class CordisCrawlerRecord(
 		val rcn: Long,
 		var project: Project? = null,
 		// TODO [v2.1] val result: Result? = null,
@@ -14,6 +14,6 @@ open class CordisProject(
 		// TODO [v2.1] unified model
 ) {
 	override fun toString(): String {
-		return "CordisProject(rcn=$rcn, project=$project, publications=$publications)"
+		return "CordisCrawlerRecord(rcn=$rcn, project=$project, publications=$publications)"
 	}
 }
