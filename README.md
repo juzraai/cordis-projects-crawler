@@ -41,6 +41,7 @@ The old [v1.3.0](https://github.com/juzraai/cordis-projects-crawler/releases/tag
 * Crawl result XMLs (`-r`)
 * Generate "unified view" export (`-u`)
 * Module registry: `addBefore(Class)` method
+* Existing TSV exporters: reduce code redundancy
 
 
 

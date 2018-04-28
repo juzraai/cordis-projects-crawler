@@ -23,7 +23,7 @@ Please search through existing issues and pull requests to find out whether your
 
 Whether you are opening a ticket (just asking, reporting, requesting) or a pull request (providing code modification), please:
 
-* Add the proper label (e.g. question, bug, improvement, etc.).
+* Add the proper label: `question`, `bug` or `feature`
 * Summarize the issue **in a few words** in the title.
 * Give details about the issue in the description.
 
@@ -35,11 +35,20 @@ Please find the right scenario below and verify your issue or pull request **bef
 
 ## Scenarios
 
+
+### Question
+
+**Do you have a question?**
+
+Please use the `question` label.
+
+
+
 ### Bug report
 
 **Have you found a bug?**
 
-Please use the `[bug]` label and include the following in the description:
+Please use the `bug` label and include the following in the description:
 
 * JRE version (output of `java -version` command)
 * Software version (which [release](https://github.com/juzraai/cordis-projects-crawler/releases) you had downloaded)
@@ -65,7 +74,7 @@ Please ensure your code parts **follow the conventions** you see in the main rep
 
 **Do you have an idea/request of a new feature?**
 
-Please use the `[feature]` label and include the following in the description:
+Please use the `feature` label and include the following in the description:
 
 * What problem this feature would solve (e.g. who needs it and why)
 * How would it solve it
@@ -83,7 +92,7 @@ Please do as [you have an idea](#idea) first and
 
 Please ensure your code parts **follow the conventions** you see in the main repository (indentation, naming, etc.).
 
-As Kotlin is a very young language in opposite to the good old and very popular Java, I accept new features in Java code too (if they are implemented in separate classes).
+As Kotlin is a very young language in opposite to the good old and very popular Java, **I accept new features as Java classes too.**
 
 
 
