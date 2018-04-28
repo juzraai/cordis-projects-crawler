@@ -40,6 +40,7 @@ The old [v1.3.0](https://github.com/juzraai/cordis-projects-crawler/releases/tag
 * Crawl project documents (`webItem`) (`-d`)
 * Crawl result XMLs (`-r`)
 * Generate "unified view" export (`-u`)
+* Module registry: `addBefore(Class)` method
 
 
 
@@ -48,6 +49,7 @@ The old [v1.3.0](https://github.com/juzraai/cordis-projects-crawler/releases/tag
 Read the [Developer guide](DEVELOPER_GUIDE.md) and [contributing instructions](CONTRIBUTING.md).
 
 This project is licensed under [MIT License](LICENSE.md).
+
 
 
 [bulk]: https://data.europa.eu/euodp/en/data/dataset?q=cordis
