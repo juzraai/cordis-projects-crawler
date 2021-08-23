@@ -17,7 +17,7 @@
 
 		<!-- versions -->
 		<jcommander.version>1.72</jcommander.version>
-		<jsoup.version>1.11.2</jsoup.version>
+		<jsoup.version>1.14.2</jsoup.version>
 		<kotlin.version>1.2.31</kotlin.version>
 		<kotlin-logging.version>1.5.3</kotlin-logging.version>
 		<simple-xml.version>2.7.1</simple-xml.version>
